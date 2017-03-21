@@ -4,6 +4,7 @@ import os
 import requests
 import datetime
 from bravado.client import SwaggerClient
+from xml.etree.cElementTree import ElementTree as ET
 
 SSO_APP_ID = os.getenv('SSO_APP_ID')
 SSO_APP_KEY = os.getenv('SSO_APP_KEY')
@@ -70,6 +71,25 @@ def check_citadels(esi_client, access_token, corporation_id):
         if message:
             messages.append(message)
     return messages
+
+def xml_api(xml_client, endpoint, params=None):
+    """
+    Accesses CCP XML api in a useful way and returns ET root
+    """
+    xml_response = xml_client.get('https://api.eveonline.com' + endpoint, params=params)
+    xml_root = et.fromstring(xml_response.content)
+    try:
+        xml_response.raise_for_status()
+    except requests.HTTPError, e:
+        xml_error = xml_root.find('.//error')
+        message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
+        e.args = (message,)
+        raise e
+    return xml_root
+
+
+def check_pos(xml_client, esi_client):
+    pos_list_xml = xml_api(xml_client, '/corp/StarbaseList.xml.aspx')
 
 
 if __name__ == '__main__':
