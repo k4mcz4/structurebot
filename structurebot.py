@@ -37,12 +37,9 @@ def check_citadels(esi_client, access_token, corporation_id):
     for structure in structures:
         message = ''
 
-        # Grab structure and location name
+        # Grab structure name
         structure_info = esi_client.Universe.get_universe_structures_structure_id(token=access_token, structure_id=structure['structure_id']).result()
         name = structure_info.get('name')
-        location_id = structure_info.get('solar_system_id')
-        location_info = esi_client.Universe.get_universe_systems_system_id(system_id=location_id).result()
-        location_name = location_info.get('name')
 
         # List online/offline services
         online_services = []
@@ -62,7 +59,7 @@ def check_citadels(esi_client, access_token, corporation_id):
         if fuel_expires:
             how_soon = fuel_expires - now
             if how_soon < too_soon:
-                message = "{} in {} runs out of fuel on {}".format(name, location_name, fuel_expires)
+                message = "{} runs out of fuel on {}".format(name, fuel_expires)
                 if online_services:
                     message += '\nOnline Services: {}'.format(online)
                 if offline_services:
