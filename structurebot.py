@@ -110,5 +110,6 @@ if __name__ == '__main__':
         'channel': SLACK_CHANNEL,
         'text': '\n\n'.join(messages)
     }
-    requests.post(OUTBOUND_WEBHOOK, json=params)
+    results = requests.post(OUTBOUND_WEBHOOK, json=params)
+    results.raise_for_status()
     print params
