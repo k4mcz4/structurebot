@@ -65,7 +65,7 @@ def check_citadels(esi_client, access_token, corporation_id):
                 if offline_services:
                     message += '\nOffline Services: {}'.format(offline)
         elif offline_services:
-            message = '{} in {} has offline services: {}'.format(offline)
+            message = '{} has offline services: {}'.format(name, offline)
         if message:
             messages.append(message)
     return messages
