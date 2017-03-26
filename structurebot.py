@@ -12,7 +12,7 @@ SSO_REFRESH_TOKEN = os.getenv('SSO_REFRESH_TOKEN')
 OUTBOUND_WEBHOOK = os.getenv('OUTBOUND_WEBHOOK')
 TOO_SOON = int(os.getenv('TOO_SOON', 3))
 CORPORATION_ID = int(os.getenv('CORPORATION_ID'))
-SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
+SLACK_CHANNEL = os.getenv('SLACK_CHANNEL', None)
 
 
 def get_access_token(refresh, client_id, client_secret):
@@ -105,11 +105,13 @@ if __name__ == '__main__':
 
     messages = ['Upcoming Structure Maintenence Tasks']
     messages += check_citadels(esi_client, access_token, CORPORATION_ID)
+    check_pos(xml_client, esi_client)
 
     params = {
-        'channel': SLACK_CHANNEL,
         'text': '\n\n'.join(messages)
     }
+    if SLACK_CHANNEL:
+        params['channel'] = SLACK_CHANNEL
     results = requests.post(OUTBOUND_WEBHOOK, json=params)
     results.raise_for_status()
     print params
