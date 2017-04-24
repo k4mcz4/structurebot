@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     messages = ['Upcoming Structure Maintenence Tasks']
     messages += check_citadels(esi_client, access_token, CORPORATION_ID)
-    check_pos(xml_client, esi_client)
+    messages += check_pos(xml_client, esi_client)
     notify_slack(messages)
 
 
