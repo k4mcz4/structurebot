@@ -1,2 +1,6 @@
 run.sh
 *.pyc
+controlTowerResources.sql
+invGroups.csv
+invTypes.csv
+sqlite-latest.sqlite
