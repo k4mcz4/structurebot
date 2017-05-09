@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from config import *
-from util import get_access_token, notify_slack, esi_client, xml_client
+from util import get_access_token, notify_slack, xml_client
 from citadels import check_citadels
 from pos import check_pos
 
@@ -16,9 +16,11 @@ if __name__ == '__main__':
         'accessType': 'corporation'
     }
 
-    messages = ['Upcoming Structure Maintenence Tasks']
-    messages += check_citadels(esi_client, access_token, CORPORATION_ID)
-    messages += check_pos(xml_client, esi_client)
-    notify_slack(messages)
+    messages = []
+    messages += check_citadels(access_token, CORPORATION_ID)
+    messages += check_pos()
+    if messages:
+    	messages.insert(0, 'Upcoming Structure Maintenence Tasks')
+    	notify_slack(messages)
 
 

@@ -1,13 +1,14 @@
 import datetime
 
 from config import *
+from util import esi_api
 
 
-def check_citadels(esi_client, access_token, corporation_id):
+def check_citadels(access_token, corporation_id):
     """
     Check citadels for fuel and services status
     """
-    structures = esi_client.Corporation.get_corporations_corporation_id_structures(token=access_token, corporation_id=corporation_id).result()
+    structures = esi_api('Corporation.get_corporations_corporation_id_structures', token=access_token, corporation_id=corporation_id)
     now = datetime.datetime.utcnow().date()
     too_soon = datetime.timedelta(days=TOO_SOON)
     messages = []
@@ -15,7 +16,7 @@ def check_citadels(esi_client, access_token, corporation_id):
         message = ''
 
         # Grab structure name
-        structure_info = esi_client.Universe.get_universe_structures_structure_id(token=access_token, structure_id=structure['structure_id']).result()
+        structure_info = esi_api('Universe.get_universe_structures_structure_id', token=access_token, structure_id=structure['structure_id'])
         name = structure_info.get('name')
 
         # List online/offline services
