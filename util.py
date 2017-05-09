@@ -2,6 +2,7 @@ import requests
 import time
 from operator import attrgetter
 from bravado.client import SwaggerClient
+from bravado.exception import HTTPServerError
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
