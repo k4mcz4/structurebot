@@ -1,5 +1,8 @@
 import requests
+import time
+from operator import attrgetter
 from bravado.client import SwaggerClient
+from bravado.exception import HTTPServerError
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
@@ -22,19 +25,41 @@ def get_access_token(refresh, client_id, client_secret):
     token_response.raise_for_status()
     return token_response.json()['access_token']
 
-def xml_api(xml_client, endpoint, xpath=None, params=None):
+def esi_api(endpoint, **kwargs):
+    esi_func_finder = attrgetter(endpoint)
+    esi_func = esi_func_finder(esi_client)
+    result = {}
+    for retry in range(5):
+        try:
+            result = esi_func(**kwargs).result()
+            break
+        except HTTPServerError, e:
+            if retry < 4:
+                print('Attempt #{} - {}'.format(retry, e))
+                time.sleep(60)
+                continue
+            raise e
+    return result
+
+def xml_api(endpoint, xpath=None, params=None):
     """
     Accesses CCP XML api in a useful way and returns ET root
     """
-    xml_response = xml_client.get('https://api.eveonline.com' + endpoint, params=params)
+    for retry in range(5):
+        try:
+            xml_response = xml_client.get('https://api.eveonline.com' + endpoint, params=params)
+            xml_response.raise_for_status()
+            break
+        except requests.HTTPError, e:
+            xml_error = xml_root.find('.//error')
+            message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
+            if retry < 4:
+                print('Attempt #{} - {}'.format(retry+1, message))
+                time.sleep(60)
+                continue
+            e.args = (message,)
+            raise e
     xml_root = ET.fromstring(xml_response.content)
-    try:
-        xml_response.raise_for_status()
-    except requests.HTTPError, e:
-        xml_error = xml_root.find('.//error')
-        message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
-        e.args = (message,)
-        raise e
     if xpath:
         xml = xml_root.findall(xpath)
     else:
