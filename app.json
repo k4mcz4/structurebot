@@ -20,7 +20,10 @@
     },
     "TOO_SOON": {
       "required": true
-    }
+    },
+    "SLACK_CHANNEL": {
+      "required": true
+    },
   },
   "formation": {
   },
