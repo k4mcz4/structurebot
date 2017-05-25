@@ -21,9 +21,9 @@ join invTypes as i on t.resourceTypeID = i.typeID
 
 # invControlTowerResources
 for row in conn.execute(pos_query):
-	(controlTowerTypeID, purpose, resourceTypeID, resourceTypeName, quantity) = row
-	tower_dict = pos_fuel.setdefault(controlTowerTypeID, {})
-	tower_dict[resourceTypeID] = {'typeName': resourceTypeName, 'quantity': quantity}
+    (controlTowerTypeID, purpose, resourceTypeID, resourceTypeName, quantity) = row
+    tower_dict = pos_fuel.setdefault(controlTowerTypeID, {})
+    tower_dict[resourceTypeID] = {'typeName': resourceTypeName, 'quantity': quantity}
 
 moon_goo = {}
 
@@ -31,8 +31,9 @@ goo_query = 'select typeID, typeName, volume from invTypes where groupID = 427'
 
 # invTypes
 for row in conn.execute(goo_query):
-	(typeID, typeName, volume) = row
-	moon_goo[typeID] = {'typeName': typeName, 'volume': volume}
+    (typeID, typeName, volume) = row
+    moon_goo[typeID] = {'typeName': typeName, 'volume': volume}
+
 
 pos_mods = {}
 
@@ -51,9 +52,9 @@ for row in conn.execute(mods_query):
 
 
 with open('pos_resources.py', 'w') as resources:
-	resources.write('pos_fuel = ' + pprinter.pformat(pos_fuel))
-	resources.write('\n\n')
-	resources.write('moon_goo = ' + pprinter.pformat(moon_goo))
+    resources.write('pos_fuel = ' + pprinter.pformat(pos_fuel))
+    resources.write('\n\n')
+    resources.write('moon_goo = ' + pprinter.pformat(moon_goo))
     resources.write('\n\n')
     resources.write('pos_mods = ' + pprint.pformat(pos_mods))
     resources.write('\n')
