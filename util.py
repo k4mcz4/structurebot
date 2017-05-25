@@ -13,6 +13,7 @@ pprinter = PrettyPrinter()
 esi_client = SwaggerClient.from_url("https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility")
 xml_client = requests.Session()
 
+
 def get_access_token(refresh, client_id, client_secret):
     """
     Grab API access token using refresh token
@@ -24,6 +25,13 @@ def get_access_token(refresh, client_id, client_secret):
     token_response = requests.post('https://login.eveonline.com/oauth/token', data=params, auth=(client_id, client_secret))
     token_response.raise_for_status()
     return token_response.json()['access_token']
+
+access_token = get_access_token(SSO_REFRESH_TOKEN, SSO_APP_ID, SSO_APP_KEY)
+xml_client.params = {
+    'accessToken': access_token,
+    'accessType': 'corporation'
+}
+
 
 def esi_api(endpoint, **kwargs):
     esi_func_finder = attrgetter(endpoint)
