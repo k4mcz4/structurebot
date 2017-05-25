@@ -34,7 +34,26 @@ for row in conn.execute(goo_query):
 	(typeID, typeName, volume) = row
 	moon_goo[typeID] = {'typeName': typeName, 'volume': volume}
 
+pos_mods = {}
+
+mods_query = """select i.typeID, i.typeName, i.capacity, g.groupName \
+                from invTypes as i \
+                join invGroups as g on i.groupID=g.groupID \
+                join invCategories as c on g.categoryID=c.categoryID \
+                where c.categoryID = 23 and i.published=1"""
+
+# invTypes
+for row in conn.execute(mods_query):
+    (typeID, typeName, capacity, groupName) = row
+    pos_mods[typeID] = {'typeName': typeName,
+                        'capacity': capacity,
+                        'groupName': groupName}
+
+
 with open('pos_resources.py', 'w') as resources:
 	resources.write('pos_fuel = ' + pprinter.pformat(pos_fuel))
 	resources.write('\n\n')
 	resources.write('moon_goo = ' + pprinter.pformat(moon_goo))
+    resources.write('\n\n')
+    resources.write('pos_mods = ' + pprint.pformat(pos_mods))
+    resources.write('\n')
