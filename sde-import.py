@@ -12,8 +12,10 @@ c = conn.cursor()
 
 
 pos_fuel = {}
+fuel_types = {}
 
-pos_query = """select t.controlTowerTypeID, p.purposeText, t.resourceTypeID, i.typeName, t.quantity \
+pos_query = """select t.controlTowerTypeID, p.purposeText, t.resourceTypeID, \
+i.typeName, i.volume, t.quantity \
 from invControlTowerResources as t \
 join invControlTowerResourcePurposes as p on t.purpose = p.purpose \
 join invTypes as i on t.resourceTypeID = i.typeID
@@ -21,9 +23,11 @@ join invTypes as i on t.resourceTypeID = i.typeID
 
 # invControlTowerResources
 for row in conn.execute(pos_query):
-    (controlTowerTypeID, purpose, resourceTypeID, resourceTypeName, quantity) = row
+    (controlTowerTypeID, purpose, resourceTypeID, resourceTypeName, volume, quantity) = row
     tower_dict = pos_fuel.setdefault(controlTowerTypeID, {})
-    tower_dict[resourceTypeID] = {'typeName': resourceTypeName, 'quantity': quantity}
+    if resourceTypeID not in fuel_types:
+        fuel_types[resourceTypeID] = {'typeName': resourceTypeName, 'volume': volume}
+    tower_dict[resourceTypeID] = quantity
 
 moon_goo = {}
 
@@ -53,6 +57,8 @@ for row in conn.execute(mods_query):
 
 with open('pos_resources.py', 'w') as resources:
     resources.write('pos_fuel = ' + pprinter.pformat(pos_fuel))
+    resources.write('\n\n')
+    resources.write('fuel_types = ' + pprinter.pformat(fuel_types))
     resources.write('\n\n')
     resources.write('moon_goo = ' + pprinter.pformat(moon_goo))
     resources.write('\n\n')
