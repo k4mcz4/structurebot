@@ -37,6 +37,8 @@ def check_pos():
         pos_id = int(pos.get('itemID'))
         type_id = int(pos.get('typeID'))
         location_id = int(pos.get('locationID'))
+        states = ('Unanchored', 'Offline', 'Onlining', 'Reinforced', 'Online')
+        state = states[int(pos.get('state'))]
         location_name = esi_api('Universe.get_universe_systems_system_id', system_id=location_id).get('name')
         moon_id = int(pos.get('moonID'))
         moon_name = esi_api('Universe.get_universe_moons_moon_id', moon_id=moon_id).get('name')
@@ -58,5 +60,12 @@ def check_pos():
                 if how_soon < TOO_SOON:
                     messages.append("{} will run out of fuel in {} days".format(moon_name, how_soon))
                 poses[pos_id]['fuel'][fuel_type_id] = {'quantity': quantity, 'rate': rate}
+        if state != 'Online':
+            statetime = pos.get('stateTimestamp', None)
+            message = '{} is {}'.format(moon_name, state)
+            if statetime:
+                message += ' ()'.format(statetime)
+            messages.append(messages)
+
     locations = item_locations(poses.keys())
     return messages
