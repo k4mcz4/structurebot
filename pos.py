@@ -49,7 +49,7 @@ def check_pos():
             fuel_type_id = int(fuel.get('typeID'))
             quantity = int(fuel.get('quantity'))
             multiplier = .75 if sov else 1.0
-            rate = pos_fuel[type_id][fuel_type_id]['quantity'] * multiplier
+            rate = pos_fuel[type_id][fuel_type_id] * multiplier
             if fuel_type_id == 16275:
                 reinforce_hours = int(quantity / rate)
                 if reinforce_hours < STRONT_HOURS:
