@@ -33,6 +33,12 @@ xml_client.params = {
 }
 
 
+def annotate_element(row, dict):
+    """Sets attributes on an Element from a dict"""
+    for key, value in dict.iteritems():
+        row.set(key, str(value))
+
+
 def esi_api(endpoint, **kwargs):
     esi_func_finder = attrgetter(endpoint)
     esi_func = esi_func_finder(esi_client)
