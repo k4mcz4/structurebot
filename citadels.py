@@ -1,10 +1,10 @@
 import datetime
 
 from config import *
-from util import esi_api
+from util import esi_api, access_token
 
 
-def check_citadels(access_token, corporation_id):
+def check_citadels(corporation_id):
     """
     Check citadels for fuel and services status
     """

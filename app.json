@@ -23,7 +23,7 @@
     },
     "SLACK_CHANNEL": {
       "required": true
-    },
+    }
   },
   "formation": {
   },
