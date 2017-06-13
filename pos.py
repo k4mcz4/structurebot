@@ -134,7 +134,6 @@ def check_pos():
                 reinforce_hours = int(quantity / rate)
                 message = '{} has {} hours of stront'.format(moon_name,
                                                              reinforce_hours)
-                print(message)
                 if reinforce_hours < STRONT_HOURS:
                     messages.append(message)
             else:
@@ -143,7 +142,6 @@ def check_pos():
                 message = '{} has {} {} of fuel'.format(moon_name,
                                                         how_soon,
                                                         days)
-                print(message)
                 if how_soon < TOO_SOON:
                     messages.append(message)
         for mod in poses[pos_id]['mods']:
@@ -162,7 +160,6 @@ def check_pos():
                 days_remaining = int(remaining_capacity / rate)
                 days = 'day' if days_remaining == 1 else 'days'
                 message = "{} has {} {} of {} capacity left ({} current units)".format(moon_name, days_remaining, days, name, quantity)
-                print(message)
                 if days_remaining < TOO_SOON:
                     messages.append(message)
         if state != 'Online':

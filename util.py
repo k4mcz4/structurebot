@@ -61,7 +61,6 @@ def xml_api(endpoint, xpath=None, params=None):
     for retry in range(5):
         try:
             xml_response = xml_client.get('https://api.eveonline.com' + endpoint, params=params)
-            print('Requested {}'.format(xml_response.url))
             xml_root = ET.fromstring(xml_response.content)
             xml_response.raise_for_status()
             if xpath:
