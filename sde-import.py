@@ -41,17 +41,19 @@ for row in conn.execute(goo_query):
 
 pos_mods = {}
 
-mods_query = """select i.typeID, i.typeName, i.capacity, g.groupName \
+mods_query = """select i.typeID, i.typeName, i.capacity, r.raceName, g.groupName \
                 from invTypes as i \
+                left join chrRaces as r on i.raceID=r.raceID \
                 join invGroups as g on i.groupID=g.groupID \
                 join invCategories as c on g.categoryID=c.categoryID \
                 where c.categoryID = 23 and i.published=1"""
 
 # invTypes
 for row in conn.execute(mods_query):
-    (typeID, typeName, capacity, groupName) = row
+    (typeID, typeName, capacity, raceName, groupName) = row
     pos_mods[typeID] = {'typeName': typeName,
                         'capacity': capacity,
+                        'raceName': raceName,
                         'groupName': groupName}
 
 
