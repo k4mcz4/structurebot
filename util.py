@@ -68,9 +68,12 @@ def xml_api(endpoint, xpath=None, params=None):
             else:
                 xml = xml_root
             return xml
-        except requests.HTTPError, e:
-            xml_error = xml_root.find('.//error')
-            message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
+        except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError), e:
+            xml_error = xml_root.find('.//error', None)
+            if xml_error:
+                message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
+            else:
+                message = "Error: {}".format(e)
             if retry < 4:
                 print('Attempt #{} - {}'.format(retry+1, message))
                 time.sleep(60*retry)
