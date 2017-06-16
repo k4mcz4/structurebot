@@ -73,7 +73,7 @@ def xml_api(endpoint, xpath=None, params=None):
             message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
             if retry < 4:
                 print('Attempt #{} - {}'.format(retry+1, message))
-                time.sleep(60)
+                time.sleep(60*retry)
                 continue
             e.args = (message,)
             raise e
