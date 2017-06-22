@@ -58,6 +58,7 @@ def xml_api(endpoint, xpath=None, params=None):
     """
     Accesses CCP XML api in a useful way and returns ET root
     """
+    xml_root = None
     for retry in range(5):
         try:
             xml_response = xml_client.get('https://api.eveonline.com' + endpoint, params=params)
@@ -68,12 +69,15 @@ def xml_api(endpoint, xpath=None, params=None):
             else:
                 xml = xml_root
             return xml
-        except requests.HTTPError, e:
-            xml_error = xml_root.find('.//error')
-            message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
+        except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError), e:
+            if xml_root:
+                xml_error = xml_root.find('.//error')
+                message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
+            else:
+                message = "Error: {}".format(e)
             if retry < 4:
                 print('Attempt #{} - {}'.format(retry+1, message))
-                time.sleep(60)
+                time.sleep(60*retry)
                 continue
             e.args = (message,)
             raise e
