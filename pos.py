@@ -149,19 +149,23 @@ def check_pos():
             # silos that are being filled (e.g. mining),
             # not emptied (e.g. reaction inputt)
             if mod['typeName'] == 'Silo':
-                goo = mod['contents'][0]
-                capacity = Decimal(mod['capacity'])
-                name = goo['typeName']
-                volume = Decimal(goo['volume'])
-                quantity = int(goo['quantity'])
-                total_volume = volume*quantity
-                rate = volume*100*24
-                remaining_capacity = capacity - total_volume
-                days_remaining = int(remaining_capacity / rate)
-                days = 'day' if days_remaining == 1 else 'days'
-                message = "{} has {} {} of {} capacity left ({} current units)".format(moon_name, days_remaining, days, name, quantity)
-                if days_remaining < TOO_SOON:
-                    messages.append(message)
+                try:
+                    goo = mod['contents'][0]
+                except KeyError:
+                    goo = None
+                if goo:
+                    capacity = Decimal(mod['capacity'])
+                    name = goo['typeName']
+                    volume = Decimal(goo['volume'])
+                    quantity = int(goo['quantity'])
+                    total_volume = volume*quantity
+                    rate = volume*100*24
+                    remaining_capacity = capacity - total_volume
+                    days_remaining = int(remaining_capacity / rate)
+                    days = 'day' if days_remaining == 1 else 'days'
+                    message = "{} has {} {} of {} capacity left ({} current units)".format(moon_name, days_remaining, days, name, quantity)
+                    if days_remaining < TOO_SOON:
+                        messages.append(message)
         if state != 'Online':
             statetime = pos.get('stateTimestamp', None)
             message = '{} is {}'.format(moon_name, state)
