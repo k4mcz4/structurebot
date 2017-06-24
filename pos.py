@@ -167,9 +167,9 @@ def check_pos():
                     if days_remaining < TOO_SOON:
                         messages.append(message)
         if state != 'Online':
-            statetime = pos.get('stateTimestamp', None)
+            statetime = pos.get('stateTimestamp')
             message = '{} is {}'.format(moon_name, state)
             if statetime:
-                message += ' ()'.format(statetime)
+                message += ' until {}'.format(statetime)
             messages.append(message)
     return messages
