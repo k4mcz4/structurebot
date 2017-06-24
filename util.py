@@ -2,7 +2,7 @@ import requests
 import time
 from operator import attrgetter
 from bravado.client import SwaggerClient
-from bravado.exception import HTTPServerError
+from bravado.exception import HTTPServerError, HTTPNotFound
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
@@ -10,8 +10,17 @@ from config import *
 
 pprinter = PrettyPrinter()
 
-esi_client = SwaggerClient.from_url("https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility")
-xml_client = requests.Session()
+for retry in range(5):
+    try:
+        esi_client = SwaggerClient.from_url("https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility")
+        xml_client = requests.Session()
+        break
+    except (HTTPServerError, HTTPNotFound), e:
+        if retry < 4:
+            print('Attempt #{} - {}'.format(retry, e))
+            time.sleep(60)
+            continue
+        raise e
 
 
 def get_access_token(refresh, client_id, client_secret):
@@ -47,7 +56,7 @@ def esi_api(endpoint, **kwargs):
         try:
             result = esi_func(**kwargs).result()
             return result
-        except HTTPServerError, e:
+        except (HTTPServerError, HTTPNotFound), e:
             if retry < 4:
                 print('Attempt #{} - {}'.format(retry, e))
                 time.sleep(60)
