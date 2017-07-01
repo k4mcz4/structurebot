@@ -22,6 +22,12 @@ for retry in range(5):
             continue
         raise e
 
+def name_to_id(name, name_type):
+    name_id = esi_api('Search.get_search',
+                        categories=[name_type],
+                        search=name,
+                        strict=True).get(name_type)[0]
+    return name_id
 
 def get_access_token(refresh, client_id, client_secret):
     """

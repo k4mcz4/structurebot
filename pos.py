@@ -1,7 +1,7 @@
 
 from config import *
 from util import xml_api, esi_api
-from util import pprinter, annotate_element
+from util import pprinter, annotate_element, name_to_id
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
 import sys
 import math
@@ -23,7 +23,8 @@ def nearest(source, destinations):
     return nearest_idx
 
 
-def pos_assets(corp_id=CORPORATION_ID):
+def pos_assets():
+    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
     asset_xml = xml_api('/corp/AssetList.xml.aspx',
                         params={'corporationID': corp_id},
                         xpath='.//rowset[@name="assets"]/row[@singleton="1"]')
@@ -88,19 +89,16 @@ def item_locations(ids):
     return location_dict
 
 
-def sov_systems(sov_holder):
-    sov_holder_id = esi_api('Search.get_search',
-                            categories=['alliance'],
-                            search=sov_holder,
-                            strict=True).get('alliance')[0]
-    map_sov = esi_api('Sovereignty.get_sovereignty_map')
+def sov_systems(sov_holder_id):
     sov_systems = []
-    for system in map_sov:
-        try:
-            if system['alliance_id'] == sov_holder_id:
-                sov_systems.append(system['system_id'])
-        except KeyError:
-            continue
+    if sov_holder_id:
+        map_sov = esi_api('Sovereignty.get_sovereignty_map')
+        for system in map_sov:
+            try:
+                if system['alliance_id'] == sov_holder_id:
+                    sov_systems.append(system['system_id'])
+            except KeyError:
+                continue
     return sov_systems
 
 
@@ -108,7 +106,9 @@ def check_pos():
     pos_list_xml = xml_api('/corp/StarbaseList.xml.aspx')
     poses = pos_assets()
     messages = []
-    sovs = sov_systems(SOV_HOLDER)
+    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
+    alliance_id = esi_api('Corporation.get_corporations_corporation_id', corporation_id=corp_id).get('alliance_id', None)
+    sovs = sov_systems(alliance_id)
     for pos in pos_list_xml.findall('.//rowset[@name="starbases"]/row'):
         pos_id = int(pos.get('itemID'))
         type_id = int(pos.get('typeID'))

@@ -1,5 +1,6 @@
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
+Click the button above to deploy to a new Heroku app.  You'll need to configured the 'scheduler' add-on after setup to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
 
 # structurebot
 ## EVE Online Structure Checker
@@ -42,13 +43,9 @@ The channel or person you'd like Slack messages to go to
 
 How many days in advance you'd like to receive fuel or silo warnings
 
-* CORPORATION_ID
+* CORPORATION_NAME
 
-The corporation ID of the corp which owns the structures
-
-* SOV_HOLDER
-
-The name of your alliance, for calculating fuel/stront bonuses in sov space
+The name of the corp which owns the structures
 
 * STRONT_HOURS
 
