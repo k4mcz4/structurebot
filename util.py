@@ -58,7 +58,7 @@ def esi_api(endpoint, **kwargs):
             return result
         except (HTTPServerError, HTTPNotFound), e:
             if retry < 4:
-                print('Attempt #{} - {}'.format(retry, e))
+                print('{} ({}) attempt #{} - {}'.format(endpoint, kwargs, retry+1, e))
                 time.sleep(60)
                 continue
             raise e
@@ -85,7 +85,7 @@ def xml_api(endpoint, xpath=None, params=None):
             else:
                 message = "Error: {}".format(e)
             if retry < 4:
-                print('Attempt #{} - {}'.format(retry+1, message))
+                print('{} ({}) attempt #{} - {}'.format(endpoint, params, retry+1, message))
                 time.sleep(60*retry)
                 continue
             e.args = (message,)

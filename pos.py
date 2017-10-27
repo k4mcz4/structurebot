@@ -61,7 +61,11 @@ def pos_assets(corp_id=CORPORATION_ID):
             mods[itemID].update(location)
     pos_locations = {i: (pos[i]['x'], pos[i]['y'], pos[i]['z']) for i in pos}
     for i, d in mods.iteritems():
-        location = (d['x'], d['y'], d['z'])
+        try:
+            location = (d['x'], d['y'], d['z'])
+        except KeyError:
+            print '{} ({}) has no coordinates'.format(d['typeName'], i)
+            continue
         nearest_pos = nearest(location, pos_locations)
         parent_pos_mods = pos[nearest_pos].setdefault('mods', [])
         if d['groupName'] == 'Silo':
@@ -115,6 +119,9 @@ def check_pos():
         location_id = int(pos.get('locationID'))
         states = ('Unanchored', 'Offline', 'Onlining', 'Reinforced', 'Online')
         state = states[int(pos.get('state'))]
+        if state == 'Unanchored':
+            print 'POS {} is unanchored, skipping'.format(pos_id)
+            continue
         location_name = esi_api('Universe.get_universe_systems_system_id',
                                 system_id=location_id).get('name')
         moon_id = int(pos.get('moonID'))
@@ -124,7 +131,7 @@ def check_pos():
         poses[pos_id]['locationName'] = location_name
         poses[pos_id]['moonName'] = moon_name
         poses[pos_id]['moonID'] = moon_id
-        for fuel in poses[pos_id]['contents']:
+        for fuel in poses[pos_id].get('contents', []):
             fuel_type_id = int(fuel.get('typeID'))
             quantity = int(fuel.get('quantity'))
             multiplier = .75 if sov else 1.0
@@ -170,6 +177,9 @@ def check_pos():
             statetime = pos.get('stateTimestamp')
             message = '{} is {}'.format(moon_name, state)
             if statetime:
-                message += ' until {}'.format(statetime)
+                state_predicates = {
+                    'Reinforced': 'until'
+                }
+                message += ' {} {}'.format(state_predicates.get(state, 'since'), statetime)
             messages.append(message)
     return messages
