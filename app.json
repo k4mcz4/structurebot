@@ -3,7 +3,7 @@
   "scripts": {
   },
   "env": {
-    "CORPORATION_ID": {
+    "CORPORATION_NAME": {
       "required": true
     },
     "OUTBOUND_WEBHOOK": {

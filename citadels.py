@@ -1,13 +1,14 @@
 import datetime
 
 from config import *
-from util import esi_api, access_token
+from util import esi_api, access_token, name_to_id
 
 
-def check_citadels(corporation_id):
+def check_citadels():
     """
     Check citadels for fuel and services status
     """
+    corporation_id = name_to_id(CORPORATION_NAME, 'corporation')
     structures = esi_api('Corporation.get_corporations_corporation_id_structures', token=access_token, corporation_id=corporation_id)
     now = datetime.datetime.utcnow().date()
     too_soon = datetime.timedelta(days=TOO_SOON)
