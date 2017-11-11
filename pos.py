@@ -151,7 +151,7 @@ def check_pos():
                                                         days)
                 if how_soon < TOO_SOON:
                     messages.append(message)
-        for mod in poses[pos_id]['mods']:
+        for mod in poses[pos_id].get('mods', []):
             # Note this is currently only useful for
             # silos that are being filled (e.g. mining),
             # not emptied (e.g. reaction inputt)
