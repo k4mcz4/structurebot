@@ -1,4 +1,5 @@
 import datetime
+from bravado.exception import HTTPForbidden
 
 from config import *
 from util import esi_api, access_token, name_to_id
@@ -17,7 +18,13 @@ def check_citadels():
         message = ''
 
         # Grab structure name
-        structure_info = esi_api('Universe.get_universe_structures_structure_id', token=access_token, structure_id=structure['structure_id'])
+        try:
+            structure_info = esi_api('Universe.get_universe_structures_structure_id', token=access_token, structure_id=structure['structure_id'])
+        except HTTPForbidden, e:
+            messages.append('Found a citadel ({}) in {} that doesn\'t allow {} to dock!'.format(structure['structure_id'],
+                                                                                                structure['system_id'],
+                                                                                                CORPORATION_NAME))
+            continue
         name = structure_info.get('name')
 
         # List online/offline services
@@ -38,7 +45,7 @@ def check_citadels():
         if fuel_expires:
             how_soon = fuel_expires - now
             if how_soon < too_soon:
-                message = "{} runs out of fuel on {}".format(name, fuel_expires)
+                message += "{} runs out of fuel on {}".format(name, fuel_expires)
                 if online_services:
                     message += '\nOnline Services: {}'.format(online)
                 if offline_services:
