@@ -42,14 +42,12 @@ def check_citadels():
         fuel_expires = structure.get('fuel_expires', None)
 
         # Build message for fuel running out and offline services 
-        if fuel_expires:
-            how_soon = fuel_expires - now
-            if how_soon < too_soon:
-                message += "{} runs out of fuel on {}".format(name, fuel_expires)
-                if online_services:
-                    message += '\nOnline Services: {}'.format(online)
-                if offline_services:
-                    message += '\nOffline Services: {}'.format(offline)
+        if fuel_expires and (fuel_expires - now < too_soon):
+            message += "{} runs out of fuel on {}".format(name, fuel_expires)
+            if online_services:
+                message += '\nOnline Services: {}'.format(online)
+            if offline_services:
+                message += '\nOffline Services: {}'.format(offline)
         elif offline_services:
             message = '{} has offline services: {}'.format(name, offline)
         if message:
