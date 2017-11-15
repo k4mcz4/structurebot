@@ -133,6 +133,7 @@ def check_pos():
         poses[pos_id]['moonID'] = moon_id
         has_stront = False
         has_fuel = False
+        has_defensive_mods = False
         # TODO: handle purposefully offlined POS by checking for fuel
         for fuel in poses[pos_id].get('contents', []):
             fuel_type_id = int(fuel.get('typeID'))
@@ -182,8 +183,10 @@ def check_pos():
                     message = "{} has {} {} of {} capacity left ({} current units)".format(moon_name, days_remaining, days, name, quantity)
                     if days_remaining < TOO_SOON:
                         messages.append(message)
+            if mod['groupName'] == 'Shield Hardening Array':
+                has_defensive_mods = True
         if state != 'Online':
-            if has_fuel and state == 'Offline':
+            if has_fuel and state == 'Offline' and not has_defensive_mods:
                 continue
             statetime = pos.get('stateTimestamp')
             message = '{} is {}'.format(moon_name, state)
