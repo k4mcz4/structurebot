@@ -131,6 +131,10 @@ def check_pos():
         poses[pos_id]['locationName'] = location_name
         poses[pos_id]['moonName'] = moon_name
         poses[pos_id]['moonID'] = moon_id
+        has_stront = False
+        has_fuel = False
+        has_defensive_mods = False
+        # TODO: handle purposefully offlined POS by checking for fuel
         for fuel in poses[pos_id].get('contents', []):
             fuel_type_id = int(fuel.get('typeID'))
             quantity = int(fuel.get('quantity'))
@@ -138,12 +142,18 @@ def check_pos():
             rate = pos_fuel[type_id][fuel_type_id] * multiplier
             fuel['hourly_rate'] = rate
             if fuel_type_id == 16275:
+                has_stront = True
+                if state == 'Offline':
+                    continue
                 reinforce_hours = int(quantity / rate)
                 message = '{} has {} hours of stront'.format(moon_name,
                                                              reinforce_hours)
                 if reinforce_hours < STRONT_HOURS:
                     messages.append(message)
             else:
+                has_fuel = True
+                if state == 'Offline':
+                    continue
                 how_soon = int(quantity / (rate*24))
                 days = 'day' if how_soon == 1 else 'days'
                 message = '{} has {} {} of fuel'.format(moon_name,
@@ -173,7 +183,11 @@ def check_pos():
                     message = "{} has {} {} of {} capacity left ({} current units)".format(moon_name, days_remaining, days, name, quantity)
                     if days_remaining < TOO_SOON:
                         messages.append(message)
+            if mod['groupName'] == 'Shield Hardening Array':
+                has_defensive_mods = True
         if state != 'Online':
+            if has_fuel and state == 'Offline' and not has_defensive_mods:
+                continue
             statetime = pos.get('stateTimestamp')
             message = '{} is {}'.format(moon_name, state)
             if statetime:
