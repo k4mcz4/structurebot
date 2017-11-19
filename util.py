@@ -21,7 +21,7 @@ for retry in range(5):
             print('Attempt #{} - {}'.format(retry, e))
             time.sleep(60)
             continue
-        raise e
+        raise
 
 def name_to_id(name, name_type):
     name_id = esi_api('Search.get_search',
@@ -47,7 +47,7 @@ def get_access_token(refresh, client_id, client_secret):
                 print ('Attempt #{} - {}'.format(retry, e))
                 time.sleep(60)
                 continue
-            raise e
+            raise
     return token_response.json()['access_token']
 
 access_token = get_access_token(SSO_REFRESH_TOKEN, SSO_APP_ID, SSO_APP_KEY)
@@ -77,10 +77,10 @@ def esi_api(endpoint, **kwargs):
                 time.sleep(60)
                 continue
             e.message = e.swagger_result
-            raise e
+            raise
         except HTTPForbidden, e:
             e.message = e.swagger_result.error
-            raise e
+            raise
 
 def xml_api(endpoint, xpath=None, params=None):
     """
@@ -108,7 +108,7 @@ def xml_api(endpoint, xpath=None, params=None):
                 time.sleep(60*retry)
                 continue
             e.args = (message,)
-            raise e
+            raise
 
 
 def notify_slack(messages):
