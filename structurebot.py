@@ -8,8 +8,14 @@ from pos import check_pos
 
 if __name__ == '__main__':
     messages = []
-    messages += check_citadels()
-    messages += check_pos()
+    try:
+    	messages += check_citadels()
+    	messages += check_pos()
+    except Exception, e:
+    	if e.message:
+    		messages.append(e.message)
+    	else:
+    		raise e
     if messages:
     	messages.insert(0, ' Upcoming {} Structure Maintenence Tasks'.format(CORPORATION_NAME))
     	notify_slack(sorted(messages))
