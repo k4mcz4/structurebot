@@ -1,6 +1,7 @@
 import requests
 import time
 from operator import attrgetter
+from requests.exceptions import HTTPError, Timeout, ConnectionError
 from bravado.client import SwaggerClient
 from bravado.exception import HTTPServerError, HTTPNotFound
 from xml.etree import cElementTree as ET
@@ -37,8 +38,16 @@ def get_access_token(refresh, client_id, client_secret):
         'grant_type': 'refresh_token',
         'refresh_token': refresh
     }
-    token_response = requests.post('https://login.eveonline.com/oauth/token', data=params, auth=(client_id, client_secret))
-    token_response.raise_for_status()
+    for retry in range(5):
+        try:
+            token_response = requests.post('https://login.eveonline.com/oauth/token', data=params, auth=(client_id, client_secret))
+            token_response.raise_for_status()
+        except (HTTPError, Timeout, ConnectionError), e:
+            if retry < 4:
+                print ('Attempt #{} - {}'.format(retry, e))
+                time.sleep(60)
+                continue
+            raise e
     return token_response.json()['access_token']
 
 access_token = get_access_token(SSO_REFRESH_TOKEN, SSO_APP_ID, SSO_APP_KEY)
