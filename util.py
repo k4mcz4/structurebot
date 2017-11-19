@@ -3,7 +3,7 @@ import time
 from operator import attrgetter
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 from bravado.client import SwaggerClient
-from bravado.exception import HTTPServerError, HTTPNotFound
+from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPError
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
@@ -76,6 +76,10 @@ def esi_api(endpoint, **kwargs):
                 print('{} ({}) attempt #{} - {}'.format(endpoint, kwargs, retry+1, e))
                 time.sleep(60)
                 continue
+            e.message = e.swagger_result
+            raise e
+        except HTTPForbidden, e:
+            e.message = e.swagger_result.error
             raise e
 
 def xml_api(endpoint, xpath=None, params=None):
