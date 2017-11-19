@@ -22,6 +22,7 @@ The app ID and key you get from an application you define [here](https://develop
     * esi-calendar.read_calendar_events.v1
     * esi-universe.read_structures.v
     * esi-corporations.read_structures.v1
+	* esi-industry.read_corporation_mining.v1
 
 * SSO_REFRESH_TOKEN
 
