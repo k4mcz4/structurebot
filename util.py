@@ -3,6 +3,7 @@ import time
 from operator import attrgetter
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 from bravado.client import SwaggerClient
+from bravado.swagger_model import load_file
 from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPError
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
@@ -13,7 +14,7 @@ pprinter = PrettyPrinter()
 
 for retry in range(5):
     try:
-        esi_client = SwaggerClient.from_url("https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility")
+        esi_client = SwaggerClient.from_spec(load_file('swagger.json'))
         xml_client = requests.Session()
         break
     except (HTTPServerError, HTTPNotFound), e:
