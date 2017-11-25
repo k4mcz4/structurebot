@@ -17,12 +17,12 @@ The following config items need to be defined in the environment
 
 The app ID and key you get from an application you define [here](https://developers.eveonline.com/applications) with the following scopes: 
 
-    * corporationAssetsRead
-    * corporationStructuresRead
-    * esi-calendar.read_calendar_events.v1
-    * esi-universe.read_structures.v
-    * esi-corporations.read_structures.v1
-	* esi-industry.read_corporation_mining.v1
+    esi-calendar.read_calendar_events.v1
+    esi-universe.read_structures.v
+    esi-corporations.read_structures.v1
+	esi-industry.read_corporation_mining.v1
+	esi-corporations.read_starbases.v1
+	esi-assets.read_corporation_assets.v1
 
 * SSO_REFRESH_TOKEN
 
