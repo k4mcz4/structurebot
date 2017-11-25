@@ -37,6 +37,8 @@ def check_citadels():
         for service in structure.get('services') or []:
             if service['state'] == 'online':
                 online_services.append(service.get('name'))
+                if service['name'] == 'Moon Drilling' and not detonations.get(structure_id):
+                    message.append('Needs to have an extractions scheduled')
             if service['state'] == 'offline':
                 offline_services.append(service.get('name'))
         online = ', '.join([service for service in online_services])
