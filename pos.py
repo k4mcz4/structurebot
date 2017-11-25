@@ -1,6 +1,6 @@
 
 from config import *
-from util import xml_api, esi_api
+from util import xml_api, access_token, esi_api
 from util import pprinter, annotate_element, name_to_id
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
 import sys
@@ -107,30 +107,29 @@ def sov_systems(sov_holder_id):
 
 
 def check_pos():
-    pos_list_xml = xml_api('/corp/StarbaseList.xml.aspx')
+    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
+    pos_list = esi_api('Corporation.get_corporations_corporation_id_starbases', token=access_token, corporation_id=corp_id)
     poses = pos_assets()
     messages = []
-    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
     alliance_id = esi_api('Corporation.get_corporations_corporation_id', corporation_id=corp_id).get('alliance_id', None)
     sovs = sov_systems(alliance_id)
-    for pos in pos_list_xml.findall('.//rowset[@name="starbases"]/row'):
-        pos_id = int(pos.get('itemID'))
-        type_id = int(pos.get('typeID'))
-        location_id = int(pos.get('locationID'))
-        states = ('Unanchored', 'Offline', 'Onlining', 'Reinforced', 'Online')
-        state = states[int(pos.get('state'))]
-        if state == 'Unanchored':
+    for pos in pos_list:
+        pos_id = int(pos.get('starbase_id'))
+        type_id = int(pos.get('type_id'))
+        system_id = int(pos.get('system_id'))
+        state = pos.get('state')
+        if not state:
             print 'POS {} is unanchored, skipping'.format(pos_id)
             continue
         location_name = esi_api('Universe.get_universe_systems_system_id',
-                                system_id=location_id).get('name')
-        moon_id = int(pos.get('moonID'))
+                                system_id=system_id).get('name')
+        moon_id = int(pos.get('moon_id'))
         moon_name = esi_api('Universe.get_universe_moons_moon_id',
                             moon_id=moon_id).get('name')
-        sov = location_id in sovs
-        poses[pos_id]['locationName'] = location_name
-        poses[pos_id]['moonName'] = moon_name
-        poses[pos_id]['moonID'] = moon_id
+        sov = system_id in sovs
+        poses[pos_id]['location_name'] = location_name
+        poses[pos_id]['moon_name'] = moon_name
+        poses[pos_id]['moon_id'] = moon_id
         has_stront = False
         has_fuel = False
         has_defensive_mods = False
@@ -143,7 +142,7 @@ def check_pos():
             fuel['hourly_rate'] = rate
             if fuel_type_id == 16275:
                 has_stront = True
-                if state == 'Offline':
+                if state == 'offline':
                     continue
                 reinforce_hours = int(quantity / rate)
                 message = '{} has {} hours of stront'.format(moon_name,
@@ -152,7 +151,7 @@ def check_pos():
                     messages.append(message)
             else:
                 has_fuel = True
-                if state == 'Offline':
+                if state == 'offline':
                     continue
                 how_soon = int(quantity / (rate*24))
                 days = 'day' if how_soon == 1 else 'days'
@@ -185,14 +184,14 @@ def check_pos():
                         messages.append(message)
             if mod['groupName'] == 'Shield Hardening Array':
                 has_defensive_mods = True
-        if state != 'Online':
-            if has_fuel and state == 'Offline' and not has_defensive_mods:
+        if state != 'online':
+            if has_fuel and state == 'offline' and not has_defensive_mods:
                 continue
             statetime = pos.get('stateTimestamp')
             message = '{} is {}'.format(moon_name, state)
             if statetime:
                 state_predicates = {
-                    'Reinforced': 'until'
+                    'reinforced': 'until'
                 }
                 message += ' {} {}'.format(state_predicates.get(state, 'since'), statetime)
             messages.append(message)
