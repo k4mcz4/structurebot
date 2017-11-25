@@ -86,34 +86,6 @@ def esi_api(endpoint, **kwargs):
             e.message = e.message if e.message else e.swagger_result.error
             raise
 
-def xml_api(endpoint, xpath=None, params=None):
-    """
-    Accesses CCP XML api in a useful way and returns ET root
-    """
-    xml_root = None
-    for retry in range(5):
-        try:
-            xml_response = xml_client.get('https://api.eveonline.com' + endpoint, params=params)
-            xml_root = ET.fromstring(xml_response.content)
-            xml_response.raise_for_status()
-            if xpath:
-                xml = xml_root.findall(xpath)
-            else:
-                xml = xml_root
-            return xml
-        except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError), e:
-            if xml_root:
-                xml_error = xml_root.find('.//error')
-                message = "Error code {}: {}".format(xml_error.get('code'), xml_error.text)
-            else:
-                message = "Error: {}".format(e)
-            if retry < 4:
-                print('{} ({}) attempt #{} - {}'.format(endpoint, params, retry+1, message))
-                time.sleep(60*retry)
-                continue
-            e.args = (message,)
-            raise
-
 
 def notify_slack(messages):
     params = {

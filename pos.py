@@ -1,6 +1,6 @@
 
 from config import *
-from util import xml_api, access_token, esi_api
+from util import access_token, esi_api
 from util import pprinter, annotate_element, name_to_id
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
 import sys
