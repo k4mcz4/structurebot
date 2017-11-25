@@ -4,7 +4,7 @@ from operator import attrgetter
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 from bravado.client import SwaggerClient
 from bravado.swagger_model import load_file
-from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPError
+from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPUnauthorized, HTTPError
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
@@ -79,8 +79,8 @@ def esi_api(endpoint, **kwargs):
                 continue
             e.message = e.swagger_result
             raise
-        except HTTPForbidden, e:
-            e.message = e.swagger_result.error
+        except (HTTPForbidden, HTTPUnauthorized), e:
+            e.message = e.message if e.message else e.swagger_result
             raise
 
 def xml_api(endpoint, xpath=None, params=None):
