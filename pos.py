@@ -79,17 +79,14 @@ def pos_assets():
 
 
 def item_locations(ids):
+    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
     location_dict = {}
-    chunks = 100
+    chunks = 1000
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
-        locations_xml = xml_api('/corp/Locations.xml.aspx',
-                                params={'ids': ','.join(str(id)
-                                                        for id in items)},
-                                xpath='.//rowset[@name="locations"]/row')
-        for location in locations_xml:
-            i = int(location.get('itemID'))
-            location_dict[i] = {k: location.attrib[k]
-                                for k in ['itemName', 'x', 'y', 'z']}
+        locations = esi_api('Assets.post_corporations_corporation_id_assets_locations', token=access_token, item_ids=items, corporation_id=corp_id)
+        for location in locations:
+            i = int(location.get('item_id'))
+            location_dict[i] = location
     return location_dict
 
 
