@@ -77,10 +77,10 @@ def esi_api(endpoint, **kwargs):
                 print('{} ({}) attempt #{} - {}'.format(endpoint, kwargs, retry+1, e))
                 time.sleep(60)
                 continue
-            e.message = e.swagger_result
+            e.message = e.message if e.message else e.swagger_result.error
             raise
         except (HTTPForbidden, HTTPUnauthorized), e:
-            e.message = e.message if e.message else e.swagger_result
+            e.message = e.message if e.message else e.swagger_result.error
             raise
 
 def xml_api(endpoint, xpath=None, params=None):

@@ -15,7 +15,7 @@ if __name__ == '__main__':
         if DEBUG:
             raise
     	if e.message:
-    		messages.append(e.message)
+    		messages = [e.message]
     	else:
     		raise
     if messages:
