@@ -69,11 +69,6 @@ def pos_assets():
             continue
         nearest_pos = nearest(location, pos_locations)
         parent_pos_mods = pos[nearest_pos].setdefault('mods', [])
-        if d['groupName'] == 'Silo':
-            if pos[nearest_pos]['raceName'] == 'Amarr':
-                d['capacity'] = Decimal(d['capacity'])*Decimal(1.5)
-            if pos[nearest_pos]['raceName'] == 'Gallente':
-                d['capacity'] = Decimal(d['capacity'])*Decimal(2)
         parent_pos_mods.append(d)
     return pos
 
@@ -158,27 +153,6 @@ def check_pos():
                 if how_soon < TOO_SOON:
                     messages.append(message)
         for mod in poses[pos_id].get('mods', []):
-            # Note this is currently only useful for
-            # silos that are being filled (e.g. mining),
-            # not emptied (e.g. reaction inputt)
-            if mod['typeName'] == 'Silo':
-                try:
-                    goo = mod['contents'][0]
-                except KeyError:
-                    goo = None
-                if goo:
-                    capacity = Decimal(mod['capacity'])
-                    name = goo['typeName']
-                    volume = Decimal(goo['volume'])
-                    quantity = int(goo['quantity'])
-                    total_volume = volume*quantity
-                    rate = volume*100*24
-                    remaining_capacity = capacity - total_volume
-                    days_remaining = int(remaining_capacity / rate)
-                    days = 'day' if days_remaining == 1 else 'days'
-                    message = "{} has {} {} of {} capacity left ({} current units)".format(moon_name, days_remaining, days, name, quantity)
-                    if days_remaining < TOO_SOON:
-                        messages.append(message)
             if mod['groupName'] == 'Shield Hardening Array':
                 has_defensive_mods = True
         if state != 'online':
