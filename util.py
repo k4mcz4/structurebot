@@ -14,7 +14,7 @@ pprinter = PrettyPrinter()
 
 for retry in range(5):
     try:
-        esi_client = SwaggerClient.from_spec(load_file('swagger.json'))
+        esi_client = SwaggerClient.from_spec(load_file('swagger.json'), config={'also_return_response': True})
         xml_client = requests.Session()
         break
     except (HTTPServerError, HTTPNotFound), e:
@@ -70,7 +70,10 @@ def esi_api(endpoint, **kwargs):
     result = {}
     for retry in range(5):
         try:
-            result = esi_func(**kwargs).result()
+            result, http_response = esi_func(**kwargs).result()
+            if http_response.headers.get('warning'):
+                message = endpoint + ' - ' + http_response.headers.get('warning')
+                raise PendingDeprecationWarning(message)
             return result
         except (HTTPServerError, HTTPNotFound), e:
             if retry < 4:
