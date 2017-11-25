@@ -61,7 +61,7 @@ xml_client.params = {
 def annotate_element(row, dict):
     """Sets attributes on an Element from a dict"""
     for key, value in dict.iteritems():
-        row.set(key, str(value))
+        row[key] = str(value)
 
 
 def esi_api(endpoint, **kwargs):
