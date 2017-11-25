@@ -1,6 +1,6 @@
 
 from config import *
-from util import xml_api, access_token, esi_api
+from util import access_token, esi_api
 from util import pprinter, annotate_element, name_to_id
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
 import sys
@@ -25,35 +25,26 @@ def nearest(source, destinations):
 
 def pos_assets():
     corp_id = name_to_id(CORPORATION_NAME, 'corporation')
-    asset_xml = xml_api('/corp/AssetList.xml.aspx',
-                        params={'corporationID': corp_id},
-                        xpath='.//rowset[@name="assets"]/row[@singleton="1"]')
+    assets = esi_api('Assets.get_corporations_corporation_id_assets', token=access_token, corporation_id=corp_id)
     pos = {}
     mods = {}
-    for row in asset_xml:
-        typeID = int(row.get('typeID'))
+    for asset in assets:
+        item_id = int(asset.get('item_id'))
+        # location_flags are a bit of mystery.  Trial and error for now
+        location_flag = asset.get('location_flag')
+        if location_flag not in ['AutoFit']:
+            continue
         # Filter out things that aren't POS mods
-        if typeID not in pos_mods:
+        type_id = int(asset.get('type_id'))
+        if type_id not in pos_mods:
             continue
         # Decorate POS mods with SDE data
-        annotate_element(row, pos_mods[typeID])
-        itemID = int(row.get('itemID'))
-        if row.get('groupName') == 'Control Tower':
+        annotate_element(asset, pos_mods[type_id])
+        if asset.get('groupName') == 'Control Tower':
             pos_stuff = pos
         else:
             pos_stuff = mods
-        pos_stuff[itemID] = row.attrib
-        for contents in row.findall('.//rowset[@name="contents"]/row'):
-            typeID = int(contents.get('typeID'))
-            # Decorate POS mod contents with SDE data
-            if typeID in moon_goo:
-                annotate_element(contents, moon_goo[typeID])
-            elif typeID in fuel_types:
-                annotate_element(contents, fuel_types[typeID])
-            else:
-                continue
-            parents_contents = pos_stuff[itemID].setdefault('contents', [])
-            parents_contents.append(contents.attrib)
+        pos_stuff[item_id] = asset
     locations = item_locations(pos.keys() + mods.keys())
     for itemID, location in locations.iteritems():
         try:
@@ -69,27 +60,19 @@ def pos_assets():
             continue
         nearest_pos = nearest(location, pos_locations)
         parent_pos_mods = pos[nearest_pos].setdefault('mods', [])
-        if d['groupName'] == 'Silo':
-            if pos[nearest_pos]['raceName'] == 'Amarr':
-                d['capacity'] = Decimal(d['capacity'])*Decimal(1.5)
-            if pos[nearest_pos]['raceName'] == 'Gallente':
-                d['capacity'] = Decimal(d['capacity'])*Decimal(2)
         parent_pos_mods.append(d)
     return pos
 
 
 def item_locations(ids):
+    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
     location_dict = {}
-    chunks = 100
+    chunks = 1000
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
-        locations_xml = xml_api('/corp/Locations.xml.aspx',
-                                params={'ids': ','.join(str(id)
-                                                        for id in items)},
-                                xpath='.//rowset[@name="locations"]/row')
-        for location in locations_xml:
-            i = int(location.get('itemID'))
-            location_dict[i] = {k: location.attrib[k]
-                                for k in ['itemName', 'x', 'y', 'z']}
+        locations = esi_api('Assets.post_corporations_corporation_id_assets_locations', token=access_token, item_ids=items, corporation_id=corp_id)
+        for location in locations:
+            i = int(location.get('item_id'))
+            location_dict[i] = location
     return location_dict
 
 
@@ -133,9 +116,10 @@ def check_pos():
         has_stront = False
         has_fuel = False
         has_defensive_mods = False
-        # TODO: handle purposefully offlined POS by checking for fuel
-        for fuel in poses[pos_id].get('contents', []):
-            fuel_type_id = int(fuel.get('typeID'))
+        for fuel in esi_api('Corporation.get_corporations_corporation_id_starbases_starbase_id',
+                            token=access_token, corporation_id=corp_id, starbase_id=pos_id,
+                            system_id=system_id).get('fuels'):
+            fuel_type_id = int(fuel.get('type_id'))
             quantity = int(fuel.get('quantity'))
             multiplier = .75 if sov else 1.0
             rate = pos_fuel[type_id][fuel_type_id] * multiplier
@@ -161,27 +145,6 @@ def check_pos():
                 if how_soon < TOO_SOON:
                     messages.append(message)
         for mod in poses[pos_id].get('mods', []):
-            # Note this is currently only useful for
-            # silos that are being filled (e.g. mining),
-            # not emptied (e.g. reaction inputt)
-            if mod['typeName'] == 'Silo':
-                try:
-                    goo = mod['contents'][0]
-                except KeyError:
-                    goo = None
-                if goo:
-                    capacity = Decimal(mod['capacity'])
-                    name = goo['typeName']
-                    volume = Decimal(goo['volume'])
-                    quantity = int(goo['quantity'])
-                    total_volume = volume*quantity
-                    rate = volume*100*24
-                    remaining_capacity = capacity - total_volume
-                    days_remaining = int(remaining_capacity / rate)
-                    days = 'day' if days_remaining == 1 else 'days'
-                    message = "{} has {} {} of {} capacity left ({} current units)".format(moon_name, days_remaining, days, name, quantity)
-                    if days_remaining < TOO_SOON:
-                        messages.append(message)
             if mod['groupName'] == 'Shield Hardening Array':
                 has_defensive_mods = True
         if state != 'online':
