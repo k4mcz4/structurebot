@@ -5,3 +5,4 @@ invGroups.csv
 invTypes.csv
 sqlite-latest.sqlite
 /env.sh
+*.env
