@@ -5,9 +5,7 @@
 
 import json
 import requests
-from swagger_spec_validator.common import SwaggerValidationError
 from bravado.client import SwaggerClient
-from bravado.swagger_model import load_file
 
 response = requests.get('https://esi.tech.ccp.is/_latest/swagger.json')
 response.raise_for_status()
