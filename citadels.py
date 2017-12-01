@@ -56,7 +56,7 @@ def check_citadels():
             pass
 
         # Build message for fuel running out and offline services 
-        if fuel_expires and (fuel_expires - now.date() < too_soon):
+        if fuel_expires and (fuel_expires - now < too_soon):
             message.append('Runs out of fuel on {}'.format(fuel_expires))
             if online_services:
                 message.append('Online Services: {}'.format(online))
