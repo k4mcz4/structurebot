@@ -2,7 +2,7 @@ import datetime
 import pytz
 from bravado.exception import HTTPForbidden
 
-from config import *
+from config import CONFIG
 from util import esi_api, access_token, name_to_id
 
 
@@ -10,12 +10,12 @@ def check_citadels():
     """
     Check citadels for fuel and services status
     """
-    corporation_id = name_to_id(CORPORATION_NAME, 'corporation')
+    corporation_id = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
     structures = esi_api('Corporation.get_corporations_corporation_id_structures', token=access_token, corporation_id=corporation_id)
     detonations = esi_api('Industry.get_corporation_corporation_id_mining_extractions', token=access_token, corporation_id=corporation_id)
     detonations = {d['structure_id']: d for d in detonations}
     now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-    too_soon = datetime.timedelta(days=TOO_SOON)
+    too_soon = datetime.timedelta(days=CONFIG['TOO_SOON'])
     messages = []
     for structure in structures:
         structure_id = structure['structure_id']
@@ -27,7 +27,7 @@ def check_citadels():
         except HTTPForbidden, e:
             messages.append('Found a citadel ({}) in {} that doesn\'t allow {} to dock!'.format(structure_id,
                                                                                                 structure['system_id'],
-                                                                                                CORPORATION_NAME))
+                                                                                                CONFIG['CORPORATION_NAME']))
             continue
         name = structure_info.get('name')
 

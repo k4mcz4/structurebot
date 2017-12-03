@@ -51,7 +51,7 @@ def get_access_token(refresh, client_id, client_secret):
             raise
     return token_response.json()['access_token']
 
-access_token = get_access_token(SSO_REFRESH_TOKEN, SSO_APP_ID, SSO_APP_KEY)
+access_token = get_access_token(CONFIG['SSO_REFRESH_TOKEN'], CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'])
 xml_client.params = {
     'accessToken': access_token,
     'accessType': 'corporation'
@@ -91,8 +91,8 @@ def notify_slack(messages):
     params = {
         'text': '\n\n'.join(messages)
     }
-    if SLACK_CHANNEL:
-        params['channel'] = SLACK_CHANNEL
-    results = requests.post(OUTBOUND_WEBHOOK, json=params)
+    if CONFIG['SLACK_CHANNEL']:
+        params['channel'] = CONFIG['SLACK_CHANNEL']
+    results = requests.post(CONFIG['OUTBOUND_WEBHOOK'], json=params)
     results.raise_for_status()
     print params
