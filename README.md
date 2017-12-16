@@ -51,3 +51,7 @@ The name of the corp which owns the structures
 * STRONT_HOURS
 
 The minimum number of hours worth of stront you'd like your POS to have
+
+* DETONATION_WARNING
+
+How many days in advance to notify about scheduled detonations
