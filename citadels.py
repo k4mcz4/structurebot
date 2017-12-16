@@ -16,6 +16,7 @@ def check_citadels():
     detonations = {d['structure_id']: d for d in detonations}
     now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
     too_soon = datetime.timedelta(days=CONFIG['TOO_SOON'])
+    detonation_warning = datetime.timedelta(days=CONFIG['DETONATION_WARNING'])
     messages = []
     for structure in structures:
         structure_id = structure['structure_id']
@@ -50,7 +51,7 @@ def check_citadels():
         # Check for upcoming detonations
         try:
             detonation = detonations[structure_id]['chunk_arrival_time']
-            if detonation - now < too_soon:
+            if detonation - now < detonation_warning:
                 message.append('Ready to detonate {}'.format(detonation))
         except KeyError:
             pass
