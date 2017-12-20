@@ -55,7 +55,8 @@ def pos_assets():
                          pos[i]['position']['z']) for i in pos}
     for i, d in mods.iteritems():
         try:
-            location = (d['x'], d['y'], d['z'])
+            location = (d['position']['x'], d['position']['y'],
+                        d['position']['z'])
         except KeyError:
             print '{} ({}) has no coordinates'.format(d['typeName'], i)
             continue
