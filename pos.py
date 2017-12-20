@@ -50,7 +50,8 @@ def pos_assets():
             pos[itemID].update(location)
         except KeyError:
             mods[itemID].update(location)
-    pos_locations = {i: (pos[i]['x'], pos[i]['y'], pos[i]['z']) for i in pos}
+    pos_locations = {i: (pos[i]['position']['x'], pos[i]['position']['y'],
+                         pos[i]['position']['z']) for i in pos}
     for i, d in mods.iteritems():
         try:
             location = (d['x'], d['y'], d['z'])
