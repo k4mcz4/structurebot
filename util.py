@@ -4,7 +4,7 @@ from operator import attrgetter
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 from bravado.client import SwaggerClient
 from bravado.swagger_model import load_file
-from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPUnauthorized, HTTPError
+from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPUnauthorized, HTTPError, HTTPClientError
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
@@ -83,6 +83,11 @@ def esi_api(endpoint, **kwargs):
             e.message = e.message if e.message else e.swagger_result.error
             raise
         except (HTTPForbidden, HTTPUnauthorized), e:
+            # Backoff error rate limiter
+            if int(e.response.headers.get('X-ESI-Error-Limit-Remain')) < 10:
+                sleep = int(e.response.headers.get('X-ESI-Error-Limit-Reset'))
+                print('ESI Rate Limiting imminent.  Sleeping {}'.format(sleep))
+                time.sleep(sleep)
             e.message = e.message if e.message else e.swagger_result.error
             raise
 
