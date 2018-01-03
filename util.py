@@ -94,8 +94,8 @@ def esi_api(endpoint, **kwargs):
             raise
         except (HTTPForbidden, HTTPUnauthorized), e:
             # Backoff error rate limiter
-            if int(e.response.headers.get('X-ESI-Error-Limit-Remain')) < 10:
-                sleep = int(e.response.headers.get('X-ESI-Error-Limit-Reset'))
+            if int(e.response.headers.get('X-Esi-Error-Limit-Remain')) < 10:
+                sleep = int(e.response.headers.get('X-Esi-Error-Limit-Reset'))
                 print('ESI Rate Limiting imminent.  Sleeping {}'.format(sleep))
                 time.sleep(sleep)
             e.message = e.message if e.message else e.swagger_result.error
