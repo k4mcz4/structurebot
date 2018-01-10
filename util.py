@@ -3,8 +3,9 @@ import time
 from operator import attrgetter
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 from bravado.client import SwaggerClient
+from bravado.fido_client import FidoClient
 from bravado.swagger_model import load_file
-from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPUnauthorized, HTTPError
+from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPUnauthorized, HTTPError, HTTPClientError
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
@@ -14,7 +15,7 @@ pprinter = PrettyPrinter()
 
 for retry in range(5):
     try:
-        esi_client = SwaggerClient.from_spec(load_file('esi.json'), config={'also_return_response': True})
+        esi_client = SwaggerClient.from_spec(load_file('esi.json'), config={'also_return_response': True}, http_client=FidoClient())
         xml_client = requests.Session()
         break
     except (HTTPServerError, HTTPNotFound), e:
@@ -67,13 +68,22 @@ def annotate_element(row, dict):
 def esi_api(endpoint, **kwargs):
     esi_func_finder = attrgetter(endpoint)
     esi_func = esi_func_finder(esi_client)
-    result = {}
+    # These retries aren't optimal with the async paginating code, but it'll do for now
     for retry in range(5):
         try:
             result, http_response = esi_func(**kwargs).result()
             if http_response.headers.get('warning'):
                 message = endpoint + ' - ' + http_response.headers.get('warning')
                 raise PendingDeprecationWarning(message)
+            pages = int(http_response.headers.get('X-Pages', 1))
+            if pages > 1:
+                requests = []
+                for page in range(2, pages+1):
+                    kwargs['page'] = page
+                    requests.append(esi_func(**kwargs))
+                for request in requests:
+                    presult, p_response = request.result(timeout=2)
+                    result += presult
             return result
         except (HTTPServerError, HTTPNotFound), e:
             if retry < 4:
@@ -83,6 +93,11 @@ def esi_api(endpoint, **kwargs):
             e.message = e.message if e.message else e.swagger_result.error
             raise
         except (HTTPForbidden, HTTPUnauthorized), e:
+            # Backoff error rate limiter
+            if int(e.response.headers.get('X-Esi-Error-Limit-Remain')) < 10:
+                sleep = int(e.response.headers.get('X-Esi-Error-Limit-Reset'))
+                print('ESI Rate Limiting imminent.  Sleeping {}'.format(sleep))
+                time.sleep(sleep)
             e.message = e.message if e.message else e.swagger_result.error
             raise
 
