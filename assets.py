@@ -5,6 +5,49 @@ from util import esi_api, access_token, name_to_id
 from bravado.exception import HTTPNotFound, HTTPForbidden
 
 
+class Fitting(object):
+    """docstring for Fitting"""
+    def __init__(self, Cargo=[], DroneBay=[], FighterBay=[], FighterTube=[], HiSlot=[], LoSlot=[], MedSlot=[], RigSlot=[], ServiceSlot=[], SubSystemSlot=[]):
+        super(Fitting, self).__init__()
+        self.Cargo = Cargo
+        self.DroneBay = DroneBay
+        self.FighterBay = FighterBay
+        self.FighterTube = FighterTube
+        self.HiSlot = HiSlot
+        self.LoSlot = LoSlot
+        self.MedSlot = MedSlot
+        self.RigSlot = RigSlot
+        self.ServiceSlot = ServiceSlot
+        self.SubSystemSlot = SubSystemSlot
+
+    @classmethod
+    def from_assets(cls, assets):
+        slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
+        fittings = {slot: [] for slot in slots}
+        fit = False
+        for asset in assets:
+            flag = asset.get('location_flag')
+            if not flag:
+                continue
+            for slot in slots:
+                if flag.startswith(slot):
+                    fittings[slot].append(asset)
+                    fit = True
+        if fit:
+            return cls(**fittings)
+        return None
+
+    def __str__(self):
+        slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
+        slot_strings = []
+        for slot in slots:
+            slot_strs = [i.get('typeName') for i in getattr(self, slot, {}) if i]
+            if slot_strs:
+                slot_str = ', '.join(sorted(slot_strs))
+                slot_strings.append('{}: {}'.format(slot, slot_str))
+        return '\n'.join(sorted(slot_strings))
+
+
 class CorpAssets(object):
     """docstring for CorpAssets"""
     def __init__(self, corp_id):
