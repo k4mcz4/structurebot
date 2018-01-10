@@ -6,3 +6,4 @@ invTypes.csv
 sqlite-latest.sqlite
 /env.sh
 *.env
+*.profile
