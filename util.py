@@ -32,6 +32,14 @@ def name_to_id(name, name_type):
                         strict=True).get(name_type)[0]
     return name_id
 
+def ids_to_names(ids):
+    id_name = {}
+    chunk_size = 999
+    for chunk in [ids[i:i + chunk_size] for i in xrange(0, len(ids), chunk_size)]:
+        result = esi_api('Universe.post_universe_names', ids=chunk)
+        id_name.update({i['id']: i['name'] for i in result})
+    return id_name
+
 def get_access_token(refresh, client_id, client_secret):
     """
     Grab API access token using refresh token
