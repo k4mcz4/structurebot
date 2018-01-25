@@ -1,11 +1,7 @@
 import requests
 import time
 from operator import attrgetter
-from requests.exceptions import HTTPError, Timeout, ConnectionError
-from bravado.client import SwaggerClient
-from bravado.fido_client import FidoClient
-from bravado.swagger_model import load_file
-from bravado.exception import HTTPServerError, HTTPNotFound, HTTPForbidden, HTTPUnauthorized, HTTPError, HTTPClientError
+from esipy import App, EsiClient, EsiSecurity
 from xml.etree import cElementTree as ET
 from pprint import PrettyPrinter
 
@@ -13,101 +9,94 @@ from config import *
 
 pprinter = PrettyPrinter()
 
-for retry in range(5):
-    try:
-        esi_client = SwaggerClient.from_spec(load_file('esi.json'), config={'also_return_response': True}, http_client=FidoClient())
-        xml_client = requests.Session()
-        break
-    except (HTTPServerError, HTTPNotFound), e:
-        if retry < 4:
-            print('Attempt #{} - {}'.format(retry, e))
-            time.sleep(60)
-            continue
-        raise
+esi_path = os.path.abspath(__file__)
+esi_dir_path = os.path.dirname(esi_path)
+
+esi = App.create(esi_dir_path + '/esi.json')
+
+esi_security = EsiSecurity(
+    app=esi,
+    redirect_uri='http://localhost',
+    client_id=CONFIG['SSO_APP_ID'],
+    secret_key=CONFIG['SSO_APP_KEY'],
+)
+
+esi_security.update_token({
+    'access_token': '',
+    'expires_in': -1,
+    'refresh_token': CONFIG['SSO_REFRESH_TOKEN']
+})
+
+esi_client = EsiClient(
+    retry_requests=True, 
+    header={'User-Agent': 'https://github.com/eve-n0rman/structurebot'},
+    raw_body_only=False,
+    security=esi_security
+)
 
 def name_to_id(name, name_type):
-    name_id = esi_api('Search.get_search',
-                        categories=[name_type],
-                        search=name,
-                        strict=True).get(name_type)[0]
-    return name_id
+    """Looks up a name of name_type in ESI
+    
+    Args:
+        name (string): Name to search for
+        name_type (string): types to search (see ESI for valid types)
+    
+    Returns:
+        integer: eve ID or None if no match
+
+    >>> name_to_id('Aunsou', 'solar_system')
+    30003801
+    >>> name_to_id('n0rman', 'character')
+    1073945516
+    >>> name_to_id('Nonexistent', 'solar_system')
+    """
+    get_search = esi.op['get_search'](categories=[name_type],
+                                   search=name,
+                                  strict=True)
+    response = esi_client.request(get_search)
+    try:
+        return getattr(response.data, name_type)[0]
+    except KeyError:
+        return None
+
 
 def ids_to_names(ids):
+    """Looks up names from a list of ids
+    
+    Args:
+        ids (list of integers): list of ids to resolve to names
+    
+    Returns:
+        dict: dict of id to name mappings
+
+    >>> ids_to_names([1073945516, 30003801])
+    {30003801: u'Aunsou', 1073945516: u'n0rman'}
+    >>> ids_to_names([1])
+    Traceback (most recent call last):
+    ...
+    HTTPError: Ensure all IDs are valid before resolving.
+    """
     id_name = {}
     chunk_size = 999
     for chunk in [ids[i:i + chunk_size] for i in xrange(0, len(ids), chunk_size)]:
-        result = esi_api('Universe.post_universe_names', ids=chunk)
-        id_name.update({i['id']: i['name'] for i in result})
+        post_universe_names = esi.op['post_universe_names'](ids=chunk)
+        response = esi_client.request(post_universe_names)
+        if response.status == 200:
+            id_name.update({i.id: i.name for i in response.data})
+        elif response.status == 404:
+            raise requests.exceptions.HTTPError(response.data['error'])
     return id_name
-
-def get_access_token(refresh, client_id, client_secret):
-    """
-    Grab API access token using refresh token
-    """
-    params = {
-        'grant_type': 'refresh_token',
-        'refresh_token': refresh
-    }
-    for retry in range(5):
-        try:
-            token_response = requests.post('https://login.eveonline.com/oauth/token', data=params, auth=(client_id, client_secret))
-            token_response.raise_for_status()
-        except (HTTPError, Timeout, ConnectionError), e:
-            if retry < 4:
-                print ('Attempt #{} - {}'.format(retry, e))
-                time.sleep(60)
-                continue
-            raise
-    return token_response.json()['access_token']
-
-access_token = get_access_token(CONFIG['SSO_REFRESH_TOKEN'], CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'])
-xml_client.params = {
-    'accessToken': access_token,
-    'accessType': 'corporation'
-}
 
 
 def annotate_element(row, dict):
-    """Sets attributes on an Element from a dict"""
+    """Sets attributes on an Element from a dict
+    
+    Args:
+        row (TYPE): Description
+        dict (TYPE): Description
+    """
     for key, value in dict.iteritems():
         row[key] = str(value)
-
-
-def esi_api(endpoint, **kwargs):
-    esi_func_finder = attrgetter(endpoint)
-    esi_func = esi_func_finder(esi_client)
-    # These retries aren't optimal with the async paginating code, but it'll do for now
-    for retry in range(5):
-        try:
-            result, http_response = esi_func(**kwargs).result()
-            if http_response.headers.get('warning'):
-                message = endpoint + ' - ' + http_response.headers.get('warning')
-                raise PendingDeprecationWarning(message)
-            pages = int(http_response.headers.get('X-Pages', 1))
-            if pages > 1:
-                requests = []
-                for page in range(2, pages+1):
-                    kwargs['page'] = page
-                    requests.append(esi_func(**kwargs))
-                for request in requests:
-                    presult, p_response = request.result(timeout=2)
-                    result += presult
-            return result
-        except (HTTPServerError, HTTPNotFound), e:
-            if retry < 4:
-                print('{} ({}) attempt #{} - {}'.format(endpoint, kwargs, retry+1, e))
-                time.sleep(60)
-                continue
-            e.message = e.message if e.message else e.swagger_result.error
-            raise
-        except (HTTPForbidden, HTTPUnauthorized), e:
-            # Backoff error rate limiter
-            if int(e.response.headers.get('X-Esi-Error-Limit-Remain')) < 10:
-                sleep = int(e.response.headers.get('X-Esi-Error-Limit-Reset'))
-                print('ESI Rate Limiting imminent.  Sleeping {}'.format(sleep))
-                time.sleep(sleep)
-            e.message = e.message if e.message else e.swagger_result.error
-            raise
 
 
 def notify_slack(messages):
