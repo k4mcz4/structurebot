@@ -3,11 +3,9 @@ import time
 from operator import attrgetter
 from esipy import App, EsiClient, EsiSecurity
 from xml.etree import cElementTree as ET
-from pprint import PrettyPrinter
 
 from config import *
 
-pprinter = PrettyPrinter()
 
 esi_path = os.path.abspath(__file__)
 esi_dir_path = os.path.dirname(esi_path)
@@ -36,11 +34,11 @@ esi_client = EsiClient(
 
 def name_to_id(name, name_type):
     """Looks up a name of name_type in ESI
-    
+
     Args:
         name (string): Name to search for
         name_type (string): types to search (see ESI for valid types)
-    
+
     Returns:
         integer: eve ID or None if no match
 
@@ -51,8 +49,8 @@ def name_to_id(name, name_type):
     >>> name_to_id('Nonexistent', 'solar_system')
     """
     get_search = esi.op['get_search'](categories=[name_type],
-                                   search=name,
-                                  strict=True)
+                                      search=name,
+                                      strict=True)
     response = esi_client.request(get_search)
     try:
         return getattr(response.data, name_type)[0]
@@ -62,10 +60,10 @@ def name_to_id(name, name_type):
 
 def ids_to_names(ids):
     """Looks up names from a list of ids
-    
+
     Args:
         ids (list of integers): list of ids to resolve to names
-    
+
     Returns:
         dict: dict of id to name mappings
 
@@ -90,7 +88,7 @@ def ids_to_names(ids):
 
 def annotate_element(row, dict):
     """Sets attributes on an Element from a dict
-    
+
     Args:
         row (TYPE): Description
         dict (TYPE): Description

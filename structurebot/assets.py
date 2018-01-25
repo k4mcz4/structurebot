@@ -3,7 +3,6 @@ import json
 
 from config import CONFIG
 from util import esi, esi_client
-from bravado.exception import HTTPNotFound, HTTPForbidden
 
 
 class Fitting(object):
