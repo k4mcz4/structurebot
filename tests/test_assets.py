@@ -32,5 +32,5 @@ class TestAssets(unittest.TestCase):
         structures = self.assets.structures.keys()
         structure_assets = self.assets.structures[structures[0]]
         fitting = assets.Fitting.from_assets(structure_assets['children'])
-        print fitting
+        self.assertIsInstance(str(fitting), basestring)
         self.assertIsInstance(fitting, assets.Fitting)
