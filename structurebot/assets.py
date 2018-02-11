@@ -76,7 +76,7 @@ class CorpAssets(object):
         if assets_response.header['X-Pages'][0] > 1:
             pages = assets_response.header['X-Pages'][0]
             requests = []
-            for page in range(2, pages):
+            for page in range(2, pages+1):
                 requests.append(esi.op['get_corporations_corporation_id_assets'](
                     corporation_id=corp_id, page=page))
             responses = esi_client.multi_request(requests)
