@@ -28,9 +28,3 @@ class TestAssets(unittest.TestCase):
     def test_structures(self):
         self.assertGreater(len(self.assets.structures), 1)
 
-    def test_fitting(self):
-        structures = self.assets.structures.keys()
-        structure_assets = self.assets.structures[structures[0]]
-        fitting = assets.Fitting.from_assets(structure_assets['children'])
-        self.assertIsInstance(str(fitting), basestring)
-        self.assertIsInstance(fitting, assets.Fitting)
