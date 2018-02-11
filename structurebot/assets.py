@@ -134,14 +134,14 @@ class CorpAssets(object):
                         parent = self.structures[location_id]
                     except KeyError:
                         # Someone elses structure?
-                        try:
-                            get_structure_id = esi.op['get_universe_structures_structure_id'](structure_id=location_id)
-                            structure = json.loads(esi_client.request(get_structure_id, raw_body_only=True).raw)
+                        get_structure_id = esi.op['get_universe_structures_structure_id'](structure_id=location_id)
+                        structure_response = esi_client.request(get_structure_id, raw_body_only=True)
+                        if structure_response.status in [403, 404]:
+                            parent = self.asset_tree.setdefault(location_id, {})
+                        else:
+                            structure = json.loads(structure_response.raw)
                             system = self.asset_tree.setdefault(structure['solar_system_id'], {})
                             structure['parent'] = system
                             parent = structure
                             self.structures[location_id] = structure
-                        # No access or doesn't exist    
-                        except (HTTPForbidden, HTTPNotFound):
-                            parent = self.asset_tree.setdefault(location_id, {})
             parent.setdefault('children', []).append(asset)
