@@ -24,7 +24,6 @@ class Fitting(object):
     def from_assets(cls, assets):
         slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
         fittings = {slot: [] for slot in slots}
-        fit = False
         for asset in assets:
             flag = asset.get('location_flag')
             if not flag:
@@ -33,9 +32,7 @@ class Fitting(object):
                 if flag.startswith(slot):
                     fittings[slot].append(asset)
                     fit = True
-        if fit:
-            return cls(**fittings)
-        return None
+        return cls(**fittings)
 
     def __str__(self):
         slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
