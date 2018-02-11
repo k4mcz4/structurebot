@@ -186,6 +186,7 @@ def check_citadels():
         # Check for upcoming detonations
         try:
             detonation = detonations[structure_id]['chunk_arrival_time']
+            # TODO: yell at pyswagger.  Why is the actual datetime in an attribute?!
             if detonation.v - now < detonation_warning:
                 message.append('Ready to detonate {}'.format(detonation))
         except KeyError:
