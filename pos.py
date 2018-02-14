@@ -1,5 +1,5 @@
 
-from config import *
+from config import CONFIG
 from util import access_token, esi_api
 from util import pprinter, annotate_element, name_to_id
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
@@ -24,8 +24,7 @@ def nearest(source, destinations):
 
 
 def pos_assets():
-    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
-    assets = esi_api('Assets.get_corporations_corporation_id_assets', token=access_token, corporation_id=corp_id)
+    assets = esi_api('Assets.get_corporations_corporation_id_assets', token=access_token, corporation_id=CONFIG['CORP_ID'])
     pos = {}
     mods = {}
     for asset in assets:
@@ -67,11 +66,10 @@ def pos_assets():
 
 
 def item_locations(ids):
-    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
     location_dict = {}
     chunks = 1000
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
-        locations = esi_api('Assets.post_corporations_corporation_id_assets_locations', token=access_token, item_ids=items, corporation_id=corp_id)
+        locations = esi_api('Assets.post_corporations_corporation_id_assets_locations', token=access_token, item_ids=items, corporation_id=CONFIG['CORP_ID'])
         for location in locations:
             i = int(location.get('item_id'))
             location_dict[i] = location
@@ -92,7 +90,7 @@ def sov_systems(sov_holder_id):
 
 
 def check_pos():
-    corp_id = name_to_id(CORPORATION_NAME, 'corporation')
+    corp_id = CONFIG['CORP_ID']
     pos_list = esi_api('Corporation.get_corporations_corporation_id_starbases', token=access_token, corporation_id=corp_id)
     poses = pos_assets()
     messages = []
@@ -133,7 +131,7 @@ def check_pos():
                 reinforce_hours = int(quantity / rate)
                 message = '{} has {} hours of stront'.format(moon_name,
                                                              reinforce_hours)
-                if reinforce_hours < STRONT_HOURS:
+                if reinforce_hours < CONFIG['STRONT_HOURS']:
                     messages.append(message)
             else:
                 has_fuel = True
@@ -144,7 +142,7 @@ def check_pos():
                 message = '{} has {} {} of fuel'.format(moon_name,
                                                         how_soon,
                                                         days)
-                if how_soon < TOO_SOON:
+                if how_soon < CONFIG['TOO_SOON']:
                     messages.append(message)
         for mod in poses[pos_id].get('mods', []):
             if mod['groupName'] == 'Shield Hardening Array':
