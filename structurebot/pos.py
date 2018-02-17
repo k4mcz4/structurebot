@@ -1,7 +1,7 @@
 
 from config import CONFIG
-from util import access_token, esi_api
-from util import pprinter, annotate_element, name_to_id
+from util import esi, esi_client, annotate_element, name_to_id
+from assets import CorpAssets
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
 import sys
 import math
@@ -23,12 +23,26 @@ def nearest(source, destinations):
     return nearest_idx
 
 
-def pos_assets():
-    assets = esi_api('Assets.get_corporations_corporation_id_assets', token=access_token, corporation_id=CONFIG['CORP_ID'])
+def pos_assets(corporation_id, assets={}):
+    '''Takes a corp id and optional dict of assets and gathers location data
+       for POS mods
+    
+    Args:
+        corporation_id (int): corp id
+        assets (dict): dict of assets
+    
+    Returns:
+        dict: dict of pos structure assets with location data
+
+    >>> CONFIG['CORP_ID'] = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
+    >>> type(pos_assets(CONFIG['CORP_ID']))
+    <type 'dict'>
+    '''
+    if not assets:
+        assets = CorpAssets(corporation_id).assets
     pos = {}
     mods = {}
-    for asset in assets:
-        item_id = int(asset.get('item_id'))
+    for item_id, asset in assets.iteritems():
         # location_flags are a bit of mystery.  Trial and error for now
         location_flag = asset.get('location_flag')
         if location_flag not in ['AutoFit']:
