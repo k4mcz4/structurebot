@@ -1,8 +1,8 @@
 import sqlite3
+import json
 
 from config import CONFIG
-from util import esi_api, access_token, name_to_id
-from bravado.exception import HTTPNotFound, HTTPForbidden
+from util import esi, esi_client
 
 
 class Fitting(object):
@@ -24,7 +24,6 @@ class Fitting(object):
     def from_assets(cls, assets):
         slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
         fittings = {slot: [] for slot in slots}
-        fit = False
         for asset in assets:
             flag = asset.get('location_flag')
             if not flag:
@@ -33,9 +32,7 @@ class Fitting(object):
                 if flag.startswith(slot):
                     fittings[slot].append(asset)
                     fit = True
-        if fit:
-            return cls(**fittings)
-        return None
+        return cls(**fittings)
 
     def __str__(self):
         slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
@@ -49,19 +46,39 @@ class Fitting(object):
 
 
 class CorpAssets(object):
-    """docstring for CorpAssets"""
+    """Collection of corporation assets
+    
+    Attributes:
+        asset_tree (dict): Assets tree keyed by location_id, rooted in solar systems or unknown locations
+        assets (dict): Assets keyed by item_id
+        categories (dict): Nested assets tree keyed by category_id, group_id, and type_id
+        corp_id (integer): corp id
+        stations (dict): Assets keyed by station id
+        structures (dict): Assets keyed by structure id
+        types (dict): Assets keyed by type id
+    """
     def __init__(self, corp_id):
         super(CorpAssets, self).__init__()
         self.corp_id = corp_id
         self.assets = {}
         self.asset_tree = {}
-        self.locations = {}
         self.structures = {}
         self.stations = {}
         self.types = {}
         type_annotation = {}
         self.categories = {}
-        assets_api = esi_api('Assets.get_corporations_corporation_id_assets', token=access_token, corporation_id=corp_id)
+        corp_assets = esi.op['get_corporations_corporation_id_assets'](corporation_id=corp_id)
+        assets_response = esi_client.request(corp_assets, raw_body_only=True)
+        assets_api = json.loads(assets_response.raw)
+        if assets_response.header['X-Pages'][0] > 1:
+            pages = assets_response.header['X-Pages'][0]
+            requests = []
+            for page in range(2, pages+1):
+                requests.append(esi.op['get_corporations_corporation_id_assets'](
+                    corporation_id=corp_id, page=page))
+            responses = esi_client.multi_request(requests)
+            for request,response in responses:
+                assets_api += json.loads(response.raw)
         conn = sqlite3.connect('sqlite-latest.sqlite')
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
@@ -102,7 +119,8 @@ class CorpAssets(object):
                     try:
                         parent = self.stations[location_id]
                     except KeyError:
-                        station = esi_api('Universe.get_universe_stations_station_id', station_id=location_id)
+                        get_station_id = esi.op['get_universe_stations_station_id'](station_id=location_id)
+                        station = json.loads(esi_client.request(get_station_id, raw_body_only=True).raw)
                         system = self.asset_tree.setdefault(station['system_id'], {})
                         station['parent'] = system
                         parent = station
@@ -113,13 +131,14 @@ class CorpAssets(object):
                         parent = self.structures[location_id]
                     except KeyError:
                         # Someone elses structure?
-                        try:
-                            structure = esi_api('Universe.get_universe_structures_structure_id', structure_id=location_id, token=access_token)
+                        get_structure_id = esi.op['get_universe_structures_structure_id'](structure_id=location_id)
+                        structure_response = esi_client.request(get_structure_id, raw_body_only=True)
+                        if structure_response.status in [403, 404]:
+                            parent = self.asset_tree.setdefault(location_id, {})
+                        else:
+                            structure = json.loads(structure_response.raw)
                             system = self.asset_tree.setdefault(structure['solar_system_id'], {})
                             structure['parent'] = system
                             parent = structure
                             self.structures[location_id] = structure
-                        # No access or doesn't exist    
-                        except (HTTPForbidden, HTTPNotFound):
-                            parent = self.asset_tree.setdefault(location_id, {})
             parent.setdefault('children', []).append(asset)

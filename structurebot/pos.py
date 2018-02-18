@@ -1,7 +1,7 @@
 
 from config import CONFIG
-from util import access_token, esi_api
-from util import pprinter, annotate_element, name_to_id
+from util import esi, esi_client, annotate_element, name_to_id
+from assets import CorpAssets
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
 import sys
 import math
@@ -23,12 +23,26 @@ def nearest(source, destinations):
     return nearest_idx
 
 
-def pos_assets():
-    assets = esi_api('Assets.get_corporations_corporation_id_assets', token=access_token, corporation_id=CONFIG['CORP_ID'])
+def pos_assets(corporation_id, assets={}):
+    '''Takes a corp id and optional dict of assets and gathers location data
+       for POS mods
+    
+    Args:
+        corporation_id (int): corp id
+        assets (dict): dict of assets
+    
+    Returns:
+        dict: dict of pos structure assets with location data
+
+    >>> CONFIG['CORP_ID'] = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
+    >>> type(pos_assets(CONFIG['CORP_ID']))
+    <type 'dict'>
+    '''
+    if not assets:
+        assets = CorpAssets(corporation_id).assets
     pos = {}
     mods = {}
-    for asset in assets:
-        item_id = int(asset.get('item_id'))
+    for item_id, asset in assets.iteritems():
         # location_flags are a bit of mystery.  Trial and error for now
         location_flag = asset.get('location_flag')
         if location_flag not in ['AutoFit']:
@@ -66,10 +80,19 @@ def pos_assets():
 
 
 def item_locations(ids):
+    """Returns dict of location coordinates for a list of item ids
+    
+    Args:
+        ids (list): list of item ids
+    
+    Returns:
+        dict: dict of location coordinates keyed by item id
+    """
     location_dict = {}
     chunks = 1000
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
-        locations = esi_api('Assets.post_corporations_corporation_id_assets_locations', token=access_token, item_ids=items, corporation_id=CONFIG['CORP_ID'])
+        locations_request = esi.op['post_corporations_corporation_id_assets_locations'](item_ids=items, corporation_id=CONFIG['CORP_ID'])
+        locations = esi_client.request(locations_request).data
         for location in locations:
             i = int(location.get('item_id'))
             location_dict[i] = location
@@ -77,9 +100,18 @@ def item_locations(ids):
 
 
 def sov_systems(sov_holder_id):
+    """Returns a list of system IDs held by sov holder
+    
+    Args:
+        sov_holder_id (int): Alliance ID
+    
+    Returns:
+        list: List of system ID (int) held by sov holder
+    """
     sov_systems = []
     if sov_holder_id:
-        map_sov = esi_api('Sovereignty.get_sovereignty_map')
+        map_sov_request = esi.op['get_sovereignty_map']()
+        map_sov = esi_client.request(map_sov_request).data
         for system in map_sov:
             try:
                 if system['alliance_id'] == sov_holder_id:
@@ -90,11 +122,20 @@ def sov_systems(sov_holder_id):
 
 
 def check_pos():
-    corp_id = CONFIG['CORP_ID']
-    pos_list = esi_api('Corporation.get_corporations_corporation_id_starbases', token=access_token, corporation_id=corp_id)
-    poses = pos_assets()
+    """
+    Check POS for fuel and status
+    
+    Returns:
+        list: list of alert strings
+
+    """
+    corp_id = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
+    pos_list_request = esi.op['get_corporations_corporation_id_starbases'](corporation_id=corp_id)
+    pos_list = esi_client.request(pos_list_request).data
+    poses = pos_assets(corp_id)
     messages = []
-    alliance_id = esi_api('Corporation.get_corporations_corporation_id', corporation_id=corp_id).get('alliance_id', None)
+    alliance_id_request = esi.op['get_corporations_corporation_id'](corporation_id=corp_id)
+    alliance_id = esi_client.request(alliance_id_request).data.get('alliance_id', None)
     sovs = sov_systems(alliance_id)
     for pos in pos_list:
         pos_id = int(pos.get('starbase_id'))
@@ -104,11 +145,11 @@ def check_pos():
         if not state:
             print 'POS {} is unanchored, skipping'.format(pos_id)
             continue
-        location_name = esi_api('Universe.get_universe_systems_system_id',
-                                system_id=system_id).get('name')
+        location_name_request = esi.op['get_universe_systems_system_id'](system_id=system_id)
+        location_name = esi_client.request(location_name_request).data.get('name')
         moon_id = int(pos.get('moon_id'))
-        moon_name = esi_api('Universe.get_universe_moons_moon_id',
-                            moon_id=moon_id).get('name')
+        moon_name_request = esi.op['get_universe_moons_moon_id'](moon_id=moon_id)
+        moon_name = esi_client.request(moon_name_request).data.get('name')
         sov = system_id in sovs
         poses[pos_id]['location_name'] = location_name
         poses[pos_id]['moon_name'] = moon_name
@@ -116,9 +157,10 @@ def check_pos():
         has_stront = False
         has_fuel = False
         has_defensive_mods = False
-        for fuel in esi_api('Corporation.get_corporations_corporation_id_starbases_starbase_id',
-                            token=access_token, corporation_id=corp_id, starbase_id=pos_id,
-                            system_id=system_id).get('fuels'):
+        fuel_request = esi.op['get_corporations_corporation_id_starbases_starbase_id'](corporation_id=corp_id, starbase_id=pos_id,
+                                                                                           system_id=system_id)
+        fuel = esi_client.request(fuel_request).data.get('fuels')
+        for fuel in fuel:
             fuel_type_id = int(fuel.get('type_id'))
             quantity = int(fuel.get('quantity'))
             multiplier = .75 if sov else 1.0
