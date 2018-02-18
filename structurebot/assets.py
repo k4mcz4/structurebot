@@ -34,11 +34,18 @@ class Fitting(object):
                     fit = True
         return cls(**fittings)
 
+    @staticmethod
+    def _quantize(asset):
+        name = asset.get('typeName')
+        if asset.get('quantity') > 1:
+            name += ' ({})'.format(asset.get('quantity'))
+        return name
+
     def __str__(self):
         slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
         slot_strings = []
         for slot in slots:
-            slot_strs = [i.get('typeName') for i in getattr(self, slot, {}) if i]
+            slot_strs = [Fitting._quantize(i) for i in getattr(self, slot, {}) if i]
             if slot_strs:
                 slot_str = ', '.join(sorted(slot_strs))
                 slot_strings.append('{}: {}'.format(slot, slot_str))
