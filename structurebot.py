@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from config import CONFIG
-from util import notify_slack, name_to_id
-from citadels import check_citadels
-from pos import check_pos
+from structurebot.config import CONFIG
+from structurebot.util import notify_slack, name_to_id
+from structurebot.citadels import check_citadels
+from structurebot.pos import check_pos
 
 
 if __name__ == '__main__':

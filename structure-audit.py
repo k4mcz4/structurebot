@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from assets import CorpAssets
-from citadels import Structure
-from config import CONFIG
+from structurebot.assets import CorpAssets
+from structurebot.citadels import Structure
+from structurebot.config import CONFIG
 
 
 if __name__ == '__main__':
