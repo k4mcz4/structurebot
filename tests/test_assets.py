@@ -17,10 +17,17 @@ class TestAssets(unittest.TestCase):
         test_mod = {'type_id': 35947,
                     'typeName': 'Standup Target Painter I',
                     'quantity': 1}
+        test_fighter = {'type_id': 47140,
+                        'typeName': 'Standup Einherji I',
+                        'quantity': 1}
         for n in range(1, 3):
             copied = deepcopy(cls.fittings[0])
             copied.fitting.MedSlot.extend([test_mod]*n)
             cls.fittings.append(copied)
+        cls.fittings[2].fitting.FighterBay.append(test_fighter)
+        more_fighters = deepcopy(cls.fittings[2])
+        more_fighters.fitting.FighterBay[0]['quantity'] += 1
+        cls.fittings.append(more_fighters)
 
     def test_assets(self):
         self.assertGreater(len(self.assets.assets), 1)
@@ -48,3 +55,9 @@ class TestAssets(unittest.TestCase):
 
     def test_fitting_greater(self):
         self.assertGreater(self.fittings[2].fitting, self.fittings[1].fitting)
+
+    def test_fitting_less_quantity(self):
+        self.assertLess(self.fittings[2].fitting, self.fittings[3].fitting)
+
+    def test_fitting_greater_quantity(self):
+        self.assertGreater(self.fittings[3].fitting, self.fittings[2].fitting)

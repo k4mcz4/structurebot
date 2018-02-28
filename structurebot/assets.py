@@ -52,7 +52,7 @@ class Fitting(object):
             item_counts = {i['type_id']: i['quantity']-1 for i in getattr(self, slot)}
             items = Counter([i['type_id'] for i in getattr(self, slot)])
             items.update(item_counts)
-            other_item_counts = {i['type_id']: i['quantity']-1 for i in getattr(self, slot)}
+            other_item_counts = {i['type_id']: i['quantity']-1 for i in getattr(other, slot)}
             other_items = Counter([i['type_id'] for i in getattr(other, slot)])
             other_items.update(other_item_counts)
             items.subtract(other_items)
@@ -182,4 +182,11 @@ if __name__ == '__main__':
             copied = deepcopy(fittings[0])
             copied.fitting.MedSlot.extend([test_mod]*n)
             fittings.append(copied)
-        print(fittings[0].fitting < fittings[1].fitting)
+        test_fighter = {'type_id': 47140,
+                        'typeName': 'Standup Einherji I',
+                        'quantity': 1}
+        fittings[2].fitting.FighterBay.append(test_fighter)
+        more_fighters = deepcopy(fittings[2])
+        more_fighters.fitting.FighterBay[0]['quantity'] += 1
+        fittings.append(more_fighters)
+        print(fittings[3].fitting > fittings[2].fitting)
