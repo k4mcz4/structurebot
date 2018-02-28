@@ -1,5 +1,6 @@
 import sqlite3
 import json
+from collections import Counter
 
 from config import CONFIG
 from util import esi, esi_client
@@ -7,6 +8,9 @@ from util import esi, esi_client
 
 class Fitting(object):
     """docstring for Fitting"""
+
+    slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
+
     def __init__(self, Cargo=[], DroneBay=[], FighterBay=[], FighterTube=[], HiSlot=[], LoSlot=[], MedSlot=[], RigSlot=[], ServiceSlot=[], SubSystemSlot=[]):
         super(Fitting, self).__init__()
         self.Cargo = Cargo
@@ -22,23 +26,47 @@ class Fitting(object):
 
     @classmethod
     def from_assets(cls, assets):
-        slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
-        fittings = {slot: [] for slot in slots}
+        fittings = {slot: [] for slot in Fitting.slots}
         for asset in assets:
             flag = asset.get('location_flag')
             if not flag:
                 continue
-            for slot in slots:
+            for slot in Fitting.slots:
                 if flag.startswith(slot):
                     fittings[slot].append(asset)
                     fit = True
         return cls(**fittings)
 
+    @staticmethod
+    def _name_count(asset):
+        name = asset.get('typeName')
+        if asset.get('quantity') > 1:
+            name += ' ({})'.format(asset.get('quantity'))
+        return name
+
+    def __cmp__(self, other):
+        if not isinstance(other, Fitting):
+            raise NotImplemented
+        equality = 0
+        for slot in Fitting.slots:
+            item_counts = {i['type_id']: i['quantity']-1 for i in getattr(self, slot)}
+            items = Counter([i['type_id'] for i in getattr(self, slot)])
+            items.update(item_counts)
+            other_item_counts = {i['type_id']: i['quantity']-1 for i in getattr(other, slot)}
+            other_items = Counter([i['type_id'] for i in getattr(other, slot)])
+            other_items.update(other_item_counts)
+            items.subtract(other_items)
+            for item, count in items.iteritems():
+                if count < 0:
+                    return -1
+                if count > 0:
+                    equality += count
+        return equality
+
     def __str__(self):
-        slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
         slot_strings = []
-        for slot in slots:
-            slot_strs = [i.get('typeName') for i in getattr(self, slot, {}) if i]
+        for slot in Fitting.slots:
+            slot_strs = [Fitting._name_count(i) for i in getattr(self, slot, {}) if i]
             if slot_strs:
                 slot_str = ', '.join(sorted(slot_strs))
                 slot_strings.append('{}: {}'.format(slot, slot_str))
@@ -142,3 +170,23 @@ class CorpAssets(object):
                             parent = structure
                             self.structures[location_id] = structure
             parent.setdefault('children', []).append(asset)
+
+if __name__ == '__main__':
+        from random import sample
+        from citadels import Structure
+        from copy import deepcopy
+        structures = list(Structure.from_corporation(CONFIG['CORPORATION_NAME']))
+        fittings = sample(structures, 1)
+        test_mod = {'type_id': 35947, 'typeName': 'Standup Target Painter I', 'quantity': 1}
+        for n in range(1,3):
+            copied = deepcopy(fittings[0])
+            copied.fitting.MedSlot.extend([test_mod]*n)
+            fittings.append(copied)
+        test_fighter = {'type_id': 47140,
+                        'typeName': 'Standup Einherji I',
+                        'quantity': 1}
+        fittings[2].fitting.FighterBay.append(test_fighter)
+        more_fighters = deepcopy(fittings[2])
+        more_fighters.fitting.FighterBay[0]['quantity'] += 1
+        fittings.append(more_fighters)
+        print(fittings[3].fitting > fittings[2].fitting)
