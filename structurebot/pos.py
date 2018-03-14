@@ -1,19 +1,19 @@
 
 from config import CONFIG
-from util import esi, esi_client, annotate_element, name_to_id
-from assets import CorpAssets, is_system_id
-from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
+from util import esi, esi_client, annotate_element, name_to_id, HTTPError
+from assets import Asset, Type, is_system_id
+from pos_resources import pos_fuel
 import sys
 import math
 from decimal import Decimal
 
 
 def nearest(source, destinations):
-    (sx, sy, sz) = [Decimal(n) for n in source]
+    (sx, sy, sz) = (source['x'], source['y'], source['z'])
     nearest = sys.maxint
     nearest_idx = None
     for (idx, destination) in destinations.iteritems():
-        (dx, dy, dz) = [Decimal(n) for n in destination]
+        (dx, dy, dz) = (destination['x'], destination['y'], destination['z'])
         distance = math.sqrt(math.pow(sx-dx, 2) +
                              math.pow(sy-dy, 2) +
                              math.pow(sz-dz, 2))
@@ -23,86 +23,154 @@ def nearest(source, destinations):
     return nearest_idx
 
 
-def pos_assets(corporation_id, assets={}):
-    '''Takes a corp id and optional dict of assets and gathers location data
-       for POS mods
-    
-    Args:
-        corporation_id (int): corp id
-        assets (dict): dict of assets
-    
-    Returns:
-        dict: dict of pos structure assets with location data
+class Pos(Asset):
+    """docstring for Pos"""
+    def __init__(self, system_id, moon_id, state, unanchor_at,
+                 reinforced_until, onlined_since, fuel_bay_view, fuel_bay_take,
+                 anchor, unanchor, online, offline, allow_corporation_members,
+                 allow_alliance_members, use_alliance_standings,
+                 attack_if_other_security_status_dropping, attack_if_at_war,
+                 fuels=[], mods=[], attack_security_status_threshold=None, 
+                 attack_standing_threshold=None, *args, **kwargs):
+        super(Pos, self).__init__(*args, **kwargs)
+        self.system_id = system_id
+        self.moon_id = moon_id
+        self.state = state
+        self.unanchor_at = unanchor_at
+        self.reinforced_until = reinforced_until
+        self.onlined_since = onlined_since
+        self.fuel_bay_view = fuel_bay_view
+        self.fuel_bay_take = fuel_bay_take
+        self.anchor = anchor
+        self.unanchor = unanchor
+        self.online = online
+        self.offline = offline
+        self.allow_corporation_members = allow_corporation_members
+        self.allow_alliance_members = allow_alliance_members
+        self.use_alliance_standings = use_alliance_standings
+        self.attack_standing_threshold = attack_standing_threshold
+        self.attack_security_status_threshold = attack_security_status_threshold
+        self.attack_if_other_security_status_dropping = attack_if_other_security_status_dropping
+        self.attack_if_at_war = attack_if_at_war
+        self.fuels = [Type.from_id(t.type_id, quantity=t.quantity)
+                      for t in fuels]
+        self.mods = mods
 
-    >>> CONFIG['CORP_ID'] = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
-    >>> type(pos_assets(CONFIG['CORP_ID']))
-    <type 'dict'>
-    '''
-    if not assets:
-        assets = CorpAssets(corporation_id).assets
-    pos = {}
-    mods = {}
-    for item_id, asset in assets.iteritems():
-        if not is_system_id(asset.get('location_id')):
-            continue
+    @classmethod
+    def from_id(cls, corp_id, starbase_id, type_id, system_id, moon_id, state,
+                unanchor_at=None, reinforced_until=None, onlined_since=None, mods=[], **kwargs):
+        pos_data = {
+            'item_id': starbase_id,
+            'type_id': type_id,
+            'location_id': system_id,
+            'moon_id': moon_id,
+            'state': state,
+            'unanchor_at': unanchor_at,
+            'reinforced_until': reinforced_until,
+            'onlined_since': onlined_since, 
+            'mods': mods
+        }
+        op = 'get_corporations_corporation_id_starbases_starbase_id'
+        pos_request = esi.op[op](corporation_id=corp_id,
+                                 starbase_id=starbase_id, system_id=system_id)
+        pos_response = esi_client.request(pos_request)
+        if pos_response.status == 200:
+            pos = pos_response.data
+            pos_data.update(pos)
+            pos_data.update(kwargs)
+            return cls(system_id=system_id, **pos_data)
+
+    @classmethod
+    def from_name(self):
+        raise NotImplemented
+
+    @staticmethod
+    def from_corp_name(corp_name):
+        pos_mod_dict = {}
+        pos_list = []
+        assets = [a for a in Asset.from_name(corp_name) if Pos.is_pos_mod(a)]
+        pos_mods = [m for m in assets if m.group.name != 'Control Tower']
+        mod_locations = item_locations([m.item_id for m in pos_mods])
+        pos_assets = {p.item_id: p for p in assets if p.group.name == 'Control Tower'}
+        pos_locations = item_locations([p.item_id for p in pos_assets.values()])
+        for mod in pos_mods:
+            mod.xyz = mod_locations[mod.item_id]
+            mods = pos_mod_dict.setdefault(nearest(mod.xyz, pos_locations), [])
+            mods.append(mod)
+        corp_id = name_to_id(corp_name, 'corporation')
+        poses_request = esi.op['get_corporations_corporation_id_starbases'](corporation_id=corp_id)
+        poses_response = esi_client.request(poses_request)
+        if not poses_response.status == 200:
+            raise HTTPError(poses_response.data['error'])
+        poses = {s.starbase_id: s for s in poses_response.data}
+        for pos_id, pos in poses.iteritems():
+            pos.update(pos_assets[pos.starbase_id].__dict__)
+            pos['xyz'] = pos_locations[pos.starbase_id]
+            pos_object = Pos.from_id(corp_id=corp_id, mods=pos_mod_dict.get(pos_id, []), **pos)
+            pos_list.append(pos_object)
+        return pos_list
+
+    @staticmethod
+    def is_pos_mod(asset):
+        if not is_system_id(asset.location_id):
+            return False
         # Filter out things that aren't POS mods
-        type_id = int(asset.get('type_id'))
-        if type_id not in pos_mods:
-            continue
-        # Decorate POS mods with SDE data
-        annotate_element(asset, pos_mods[type_id])
-        if asset.get('groupName') == 'Control Tower':
-            pos_stuff = pos
-        else:
-            pos_stuff = mods
-        pos_stuff[item_id] = asset
-    locations = item_locations(pos.keys() + mods.keys())
-    for itemID, location in locations.iteritems():
-        try:
-            pos[itemID].update(location)
-        except KeyError:
-            mods[itemID].update(location)
-    pos_locations = {i: (pos[i]['position']['x'], pos[i]['position']['y'],
-                         pos[i]['position']['z']) for i in pos}
-    for i, d in mods.iteritems():
-        try:
-            location = (d['position']['x'], d['position']['y'],
-                        d['position']['z'])
-        except KeyError:
-            print '{} ({}) has no coordinates'.format(d['typeName'], i)
-            continue
-        nearest_pos = nearest(location, pos_locations)
-        parent_pos_mods = pos[nearest_pos].setdefault('mods', [])
-        parent_pos_mods.append(d)
-    return pos
+        if asset.group.category.name != 'Starbase':
+            return False
+        return True
 
+    @property
+    def system_name(self):
+        try:
+            return self._system_name
+        except AttributeError:
+            self._system_name = None
+            location_name_request = esi.op['get_universe_systems_system_id'](system_id=self.system_id)
+            location_name_response = esi_client.request(location_name_request)
+            if location_name_response.status == 200:
+                self._system_name = location_name_response.data.get('name')
+            return self._system_name
+    
+    @property
+    def moon_name(self):
+        try:
+            return self._moon_name
+        except AttributeError:
+            moon_name_request = esi.op['get_universe_moons_moon_id'](moon_id=self.moon_id)
+            moon_name_response = esi_client.request(moon_name_request)
+            if moon_name_response.status == 200:
+                self._moon_name = moon_name_response.data.get('name')
+            return self._moon_name
+        
 
 def item_locations(ids):
     """Returns dict of location coordinates for a list of item ids
-    
+
     Args:
         ids (list): list of item ids
-    
+
     Returns:
         dict: dict of location coordinates keyed by item id
     """
     location_dict = {}
     chunks = 1000
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
-        locations_request = esi.op['post_corporations_corporation_id_assets_locations'](item_ids=items, corporation_id=CONFIG['CORP_ID'])
+        op = 'post_corporations_corporation_id_assets_locations'
+        locations_request = esi.op[op](item_ids=items,
+                                       corporation_id=CONFIG['CORP_ID'])
         locations = esi_client.request(locations_request).data
         for location in locations:
             i = int(location.get('item_id'))
-            location_dict[i] = location
+            location_dict[i] = location.position
     return location_dict
 
 
 def sov_systems(sov_holder_id):
     """Returns a list of system IDs held by sov holder
-    
+
     Args:
         sov_holder_id (int): Alliance ID
-    
+
     Returns:
         list: List of system ID (int) held by sov holder
     """
@@ -128,71 +196,46 @@ def check_pos():
 
     """
     corp_id = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
-    pos_list_request = esi.op['get_corporations_corporation_id_starbases'](corporation_id=corp_id)
-    pos_list = esi_client.request(pos_list_request).data
-    poses = pos_assets(corp_id)
+    pos_list = Pos.from_corp_name(CONFIG['CORPORATION_NAME'])
     messages = []
     alliance_id_request = esi.op['get_corporations_corporation_id'](corporation_id=corp_id)
     alliance_id = esi_client.request(alliance_id_request).data.get('alliance_id', None)
     sovs = sov_systems(alliance_id)
     for pos in pos_list:
-        pos_id = int(pos.get('starbase_id'))
-        type_id = int(pos.get('type_id'))
-        system_id = int(pos.get('system_id'))
-        state = pos.get('state')
-        if not state:
-            print 'POS {} is unanchored, skipping'.format(pos_id)
-            continue
-        location_name_request = esi.op['get_universe_systems_system_id'](system_id=system_id)
-        location_name = esi_client.request(location_name_request).data.get('name')
-        moon_id = int(pos.get('moon_id'))
-        moon_name_request = esi.op['get_universe_moons_moon_id'](moon_id=moon_id)
-        moon_name = esi_client.request(moon_name_request).data.get('name')
-        sov = system_id in sovs
-        poses[pos_id]['location_name'] = location_name
-        poses[pos_id]['moon_name'] = moon_name
-        poses[pos_id]['moon_id'] = moon_id
+        # TODO: All this could be done in the Pos object for easier testing
+        # But POS are going away ;)
+        sov = pos.system_id in sovs
         has_stront = False
         has_fuel = False
         has_defensive_mods = False
-        fuel_request = esi.op['get_corporations_corporation_id_starbases_starbase_id'](corporation_id=corp_id, starbase_id=pos_id,
-                                                                                           system_id=system_id)
-        fuel = esi_client.request(fuel_request).data.get('fuels')
-        for fuel in fuel:
-            fuel_type_id = int(fuel.get('type_id'))
-            quantity = int(fuel.get('quantity'))
+        for fuel in pos.fuels:
             multiplier = .75 if sov else 1.0
-            rate = pos_fuel[type_id][fuel_type_id] * multiplier
-            fuel['hourly_rate'] = rate
-            if fuel_type_id == 16275:
+            rate = pos_fuel[pos.type_id][fuel.type_id] * multiplier
+            if fuel.type_id == 16275:
                 has_stront = True
-                if state == 'offline':
+                if pos.state == 'offline':
                     continue
-                reinforce_hours = int(quantity / rate)
-                message = '{} has {} hours of stront'.format(moon_name,
-                                                             reinforce_hours)
+                reinforce_hours = int(fuel.quantity / rate)
                 if reinforce_hours < CONFIG['STRONT_HOURS']:
+                    message = '{} has {} hours of stront'.format(pos.moon_name, reinforce_hours)
                     messages.append(message)
             else:
                 has_fuel = True
-                if state == 'offline':
+                if pos.state == 'offline':
                     continue
-                how_soon = int(quantity / (rate*24))
-                days = 'day' if how_soon == 1 else 'days'
-                message = '{} has {} {} of fuel'.format(moon_name,
-                                                        how_soon,
-                                                        days)
+                how_soon = int(fuel.quantity / (rate*24))
                 if how_soon < CONFIG['TOO_SOON']:
+                    days = 'day' if how_soon == 1 else 'days'
+                    message = '{} has {} {} of fuel'.format(pos.moon_name, how_soon, days)
                     messages.append(message)
-        for mod in poses[pos_id].get('mods', []):
-            if mod['groupName'] == 'Shield Hardening Array':
+        for mod in pos.mods:
+            if mod.group.name == 'Shield Hardening Array':
                 has_defensive_mods = True
-        if state != 'online':
-            if has_fuel and state == 'offline' and not has_defensive_mods:
+        if pos.state != 'online':
+            if has_fuel and pos.state == 'offline' and not has_defensive_mods:
                 continue
-            statetime = pos.get('stateTimestamp')
-            message = '{} is {}'.format(moon_name, state)
-            if statetime:
+            message = '{} is {}'.format(pos.moon_name, pos.state)
+            if pos.reinforced_until:
                 state_predicates = {
                     'reinforced': 'until'
                 }

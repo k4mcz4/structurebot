@@ -3,7 +3,263 @@ import json
 from collections import Counter
 
 from config import CONFIG
-from util import esi, esi_client
+from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
+
+
+def is_system_id(location_id):
+    if location_id >= 30000000 and location_id <= 32000000:
+        return True
+    else:
+        return False
+
+def is_station_id(location_id):
+    if location_id >= 60000000 and location_id <= 64000000:
+        return True
+    else:
+        return False
+
+class Category(object):
+    """docstring for Category"""
+    def __init__(self, category_id, name, published, groups):
+        super(Category, self).__init__()
+        self.category_id = category_id
+        self.name = name
+        self.published = published
+        self.category_id = category_id
+        self.groups = groups
+
+    @classmethod
+    def from_id(cls, id):
+        if not isinstance(id, int):
+            raise ValueError('Type ID must be an integer')
+        op = 'get_universe_categories_category_id'
+        type_request = esi.op[op](category_id=id)
+        type_response = esi_client.request(type_request)
+        if type_response.status == 200:
+            return cls(**type_response.data)
+        if type_response.status == 400:
+            return
+        else:
+            raise HTTPError(type_response.data['error'])
+
+    @classmethod
+    def from_ids(cls, ids):
+        types = []
+        for id in ids:
+            types.append(cls.from_id(id))
+        return types
+
+
+class Group(object):
+    """docstring for Group"""
+    def __init__(self, group_id, name, published, category_id, types,
+                 category=None):
+        super(Group, self).__init__()
+        self.group_id = group_id
+        self.name = name
+        self.published = published
+        self.category_id = category_id
+        self.types = types
+        self.category = category or Category.from_id(category_id)
+
+    @classmethod
+    def from_id(cls, id):
+        if not isinstance(id, int):
+            raise ValueError('Type ID must be an integer')
+        type_request = esi.op['get_universe_groups_group_id'](group_id=id)
+        type_response = esi_client.request(type_request)
+        if type_response.status == 200:
+            return cls(**type_response.data)
+        if type_response.status == 400:
+            return
+        else:
+            raise HTTPError(type_response.data['error'])
+
+    @classmethod
+    def from_ids(cls, ids):
+        types = []
+        for id in ids:
+            types.append(cls.from_id(id))
+        return types
+
+
+class BaseType(object):
+    """Base EVE SDE Type"""
+    def __init__(self, type_id, name, description, published, group_id,
+                 group=None, market_group_id=None, radius=None, volume=None,
+                 packaged_volume=None, icon_id=None, capacity=None,
+                 portion_size=None, mass=None, graphic_id=None,
+                 dogma_attributes=[], dogma_effects=[]):
+        super(BaseType, self).__init__()
+        self.type_id = type_id
+        self.name = name
+        self.description = description
+        self.published = published
+        self.group_id = group_id
+        self.group = group or Group.from_id(group_id)
+        self.market_group_id = market_group_id
+        self.radius = radius
+        self.volume = volume
+        self.packaged_volume = packaged_volume
+        self.icon_id = icon_id
+        self.capacity = capacity
+        self.portion_size = portion_size
+        self.mass = mass
+        self.graphic_id = graphic_id
+        self.dogma_attributes = dogma_attributes
+        self.dogma_effects = dogma_effects
+
+    def __str__(self):
+        return '{} - ({})'.format(self.name, self.type_id)
+
+
+class Type(BaseType):
+    """EVE SDE Type with bulk constructors"""
+    def __init__(self, quantity=1, *args, **kwargs):
+        super(Type, self).__init__(*args, **kwargs)
+        self.quantity = quantity
+
+    @classmethod
+    def from_id(cls, id, quantity=1):
+        """Return Type from id
+
+        Args:
+            id (int): EVE SDE Type id
+
+        Returns:
+            Type: Type matching id
+
+        Raises:
+            HTTPError: Unexpected ESI error
+            ValueError: Not an int
+        """
+        if not isinstance(id, int):
+            raise ValueError('Type ID must be an integer')
+        type_request = esi.op['get_universe_types_type_id'](type_id=id)
+        type_response = esi_client.request(type_request)
+        if type_response.status == 200:
+            return cls(quantity=quantity, **type_response.data)
+        if type_response.status == 400:
+            return
+        else:
+            raise HTTPError(type_response.data['error'])
+
+    @classmethod
+    def from_ids(cls, ids):
+        """Returns Types from a list of type IDs
+
+        Args:
+            ids (list of ints): list of EVE SDE Type IDs (invalid are ignored)
+
+        Returns:
+            list: EVE SDE Types
+        """
+        types = []
+        for id in ids:
+            types.append(cls.from_id(id))
+        return types
+
+    @classmethod
+    def from_name(cls, name):
+        """Return a Type from a type name
+
+        Args:
+            name (str): Name of an EVE SDE Type
+
+        Returns:
+            Type: Type matching name
+        """
+        id = name_to_id(name, 'inventory_type')
+        return cls.from_id(id)
+
+    @classmethod
+    def from_names(cls, names):
+        """Returns Types from a list of Type names
+
+        Args:
+            names (list of str): list of EVE SDE Type names
+
+        Returns:
+            TYPE: Description
+
+        >>> [str(i) for i in Type.from_names(['125mm Gatling AutoCannon II'])]
+        ['125mm Gatling AutoCannon II - (2873)']
+        """
+        ids = names_to_ids(names)['inventory_types'].values()
+        return cls.from_ids(ids)
+
+
+class Asset(BaseType):
+    """EVE Asset Item"""
+
+    def __init__(self, location_id, location_type, quantity, item_id,
+                 is_singleton, location_flag, is_blueprint_copy=None,
+                 xyz=None, *args, **kwargs):
+        super(Asset, self).__init__(*args, **kwargs)
+        self.location_id = location_id
+        self.location_type = location_type
+        self.quantity = quantity
+        self.item_id = item_id
+        self.is_singleton = is_singleton
+        self.location_flag = location_flag
+        self.xyz = xyz
+
+    @classmethod
+    def from_id(cls, id, id_type):
+        """Returns Assets owned by id of id_type
+
+        Args:
+            id (int): Asset owner id
+            id_type (TYPE): Type of Asset owner (characters or corporations)
+
+        Returns:
+            list: Assets owned by id
+        """
+        assets = []
+        assets_request = None
+        params = {'page': 1}
+        if id_type == 'characters':
+            params['character_id'] = id
+            op = 'get_characters_character_id_assets'
+        elif id_type == 'corporations':
+            params['corporation_id'] = id
+            op = 'get_corporations_corporation_id_assets'
+        pages_left = params['page']
+        while(pages_left):
+            assets_request = esi.op[op](**params)
+            assets_response = esi_client.request(assets_request,
+                                                 raw_body_only=True)
+            assets_api = json.loads(assets_response.raw)
+            for asset in assets_api:
+                asset_type = Type.from_id(asset['type_id'])
+                asset.update(asset_type.__dict__)
+                assets.append(cls(**asset))
+            pages = assets_response.header['X-Pages'][0]
+            pages_left = pages - params['page']
+            params['page'] += 1
+        return assets
+
+    @classmethod
+    def from_name(cls, name):
+        """Return Assets owned by owner name
+
+        Args:
+            name (string): Character or Corporation name
+
+        Returns:
+            list: List of Assets
+        """
+        id_results = names_to_ids([name])
+        id = None
+        id_type = None
+        if 'characters' in id_results:
+            id_type = 'characters'
+        elif 'corporations' in id_results:
+            id_type = 'corporations'
+        else:
+            return None
+        id = id_results[id_type][name]
+        return cls.from_id(id, id_type)
 
 
 def is_system_id(location_id):
@@ -16,9 +272,12 @@ def is_system_id(location_id):
 class Fitting(object):
     """docstring for Fitting"""
 
-    slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot', 'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
+    slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot',
+             'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
 
-    def __init__(self, Cargo=[], DroneBay=[], FighterBay=[], FighterTube=[], HiSlot=[], LoSlot=[], MedSlot=[], RigSlot=[], ServiceSlot=[], SubSystemSlot=[]):
+    def __init__(self, Cargo=[], DroneBay=[], FighterBay=[], FighterTube=[],
+                 HiSlot=[], LoSlot=[], MedSlot=[], RigSlot=[], ServiceSlot=[],
+                 SubSystemSlot=[]):
         super(Fitting, self).__init__()
         self.Cargo = Cargo
         self.DroneBay = DroneBay
@@ -35,7 +294,7 @@ class Fitting(object):
     def from_assets(cls, assets):
         fittings = {slot: [] for slot in Fitting.slots}
         for asset in assets:
-            flag = asset.get('location_flag')
+            flag = asset.location_flag
             if not flag:
                 continue
             for slot in Fitting.slots:
@@ -46,9 +305,9 @@ class Fitting(object):
 
     @staticmethod
     def _name_count(asset):
-        name = asset.get('typeName')
-        if asset.get('quantity') > 1:
-            name += ' ({})'.format(asset.get('quantity'))
+        name = asset.name
+        if asset.quantity > 1:
+            name += ' ({})'.format(asset.quantity)
         return name
 
     def __cmp__(self, other):
@@ -56,11 +315,11 @@ class Fitting(object):
             raise NotImplemented
         equality = 0
         for slot in Fitting.slots:
-            item_counts = {i['type_id']: i['quantity']-1 for i in getattr(self, slot)}
-            items = Counter([i['type_id'] for i in getattr(self, slot)])
+            item_counts = {i.type_id: i.quantity-1 for i in getattr(self, slot)}
+            items = Counter([i.type_id for i in getattr(self, slot)])
             items.update(item_counts)
-            other_item_counts = {i['type_id']: i['quantity']-1 for i in getattr(other, slot)}
-            other_items = Counter([i['type_id'] for i in getattr(other, slot)])
+            other_item_counts = {i.type_id: i.quantity-1 for i in getattr(other, slot)}
+            other_items = Counter([i.type_id for i in getattr(other, slot)])
             other_items.update(other_item_counts)
             items.subtract(other_items)
             for item, count in items.iteritems():
@@ -79,121 +338,3 @@ class Fitting(object):
                 slot_strings.append('{}: {}'.format(slot, slot_str))
         return '\n'.join(sorted(slot_strings))
 
-
-class CorpAssets(object):
-    """Collection of corporation assets
-    
-    Attributes:
-        asset_tree (dict): Assets tree keyed by location_id, rooted in solar systems or unknown locations
-        assets (dict): Assets keyed by item_id
-        categories (dict): Nested assets tree keyed by category_id, group_id, and type_id
-        corp_id (integer): corp id
-        stations (dict): Assets keyed by station id
-        structures (dict): Assets keyed by structure id
-        types (dict): Assets keyed by type id
-    """
-    def __init__(self, corp_id):
-        super(CorpAssets, self).__init__()
-        self.corp_id = corp_id
-        self.assets = {}
-        self.asset_tree = {}
-        self.structures = {}
-        self.stations = {}
-        self.types = {}
-        type_annotation = {}
-        self.categories = {}
-        corp_assets = esi.op['get_corporations_corporation_id_assets'](corporation_id=corp_id)
-        assets_response = esi_client.request(corp_assets, raw_body_only=True)
-        assets_api = json.loads(assets_response.raw)
-        if assets_response.header['X-Pages'][0] > 1:
-            pages = assets_response.header['X-Pages'][0]
-            requests = []
-            for page in range(2, pages+1):
-                requests.append(esi.op['get_corporations_corporation_id_assets'](
-                    corporation_id=corp_id, page=page))
-            responses = esi_client.multi_request(requests)
-            for request,response in responses:
-                assets_api += json.loads(response.raw)
-        conn = sqlite3.connect('sqlite-latest.sqlite')
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
-        type_ids = set([asset['type_id'] for asset in assets_api])
-        param_holder = ','.join('?'*len(type_ids))
-        query = """select * from invTypes as i \
-                join invGroups as g on i.groupID=g.groupID \
-                join invCategories as c on g.categoryID=c.categoryID \
-                where i.typeID in ({})""".format(param_holder)
-        # builds a category/group/type tree for easier filtering later on
-        for row in cur.execute(query, tuple(type_ids)):
-            type_dict = dict(row)
-            category = self.categories.setdefault(type_dict['categoryID'], {})
-            category['categoryName'] = type_dict['categoryName']
-            group = category.setdefault(type_dict['groupID'], {})
-            group['groupName'] = type_dict['groupName']
-            group['typeID'] = type_dict
-            self.types[type_dict['typeID']] = type_dict
-            type_annotation[type_dict['typeID']] = type_dict.copy()
-        # annotates asset with SDE info and indexes by item id
-        for asset in assets_api:
-            asset.update(type_annotation[asset['type_id']])
-            self.assets[asset['item_id']] = asset
-            type_entry = self.types[asset['type_id']].setdefault('children', [])
-            type_entry.append(asset)
-        # build a location tree
-        for item_id, asset in self.assets.iteritems():
-            location_id = asset['location_id']
-            parent = None
-            try:
-                parent = self.assets[location_id]
-            except KeyError:
-                # Solar System
-                if location_id >= 30000000 and location_id < 32000000:
-                    parent = self.asset_tree.setdefault(location_id, {})
-                # Stations/Outposts
-                if location_id >= 60000000 and location_id < 64000000:
-                    try:
-                        parent = self.stations[location_id]
-                    except KeyError:
-                        get_station_id = esi.op['get_universe_stations_station_id'](station_id=location_id)
-                        station = json.loads(esi_client.request(get_station_id, raw_body_only=True).raw)
-                        system = self.asset_tree.setdefault(station['system_id'], {})
-                        station['parent'] = system
-                        parent = station
-                        self.stations[location_id] = station
-                # Probably a structure
-                if location_id >= 1000000000000:
-                    try:
-                        parent = self.structures[location_id]
-                    except KeyError:
-                        # Someone elses structure?
-                        get_structure_id = esi.op['get_universe_structures_structure_id'](structure_id=location_id)
-                        structure_response = esi_client.request(get_structure_id, raw_body_only=True)
-                        if structure_response.status in [403, 404]:
-                            parent = self.asset_tree.setdefault(location_id, {})
-                        else:
-                            structure = json.loads(structure_response.raw)
-                            system = self.asset_tree.setdefault(structure['solar_system_id'], {})
-                            structure['parent'] = system
-                            parent = structure
-                            self.structures[location_id] = structure
-            parent.setdefault('children', []).append(asset)
-
-if __name__ == '__main__':
-        from random import sample
-        from citadels import Structure
-        from copy import deepcopy
-        structures = list(Structure.from_corporation(CONFIG['CORPORATION_NAME']))
-        fittings = sample(structures, 1)
-        test_mod = {'type_id': 35947, 'typeName': 'Standup Target Painter I', 'quantity': 1}
-        for n in range(1,3):
-            copied = deepcopy(fittings[0])
-            copied.fitting.MedSlot.extend([test_mod]*n)
-            fittings.append(copied)
-        test_fighter = {'type_id': 47140,
-                        'typeName': 'Standup Einherji I',
-                        'quantity': 1}
-        fittings[2].fitting.FighterBay.append(test_fighter)
-        more_fighters = deepcopy(fittings[2])
-        more_fighters.fitting.FighterBay[0]['quantity'] += 1
-        fittings.append(more_fighters)
-        print(fittings[3].fitting > fittings[2].fitting)

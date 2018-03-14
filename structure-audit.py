@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from structurebot.assets import CorpAssets
 from structurebot.citadels import Structure
 from structurebot.config import CONFIG
 
