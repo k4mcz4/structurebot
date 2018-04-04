@@ -1,6 +1,6 @@
 {
     "info": {
-        "version": "0.7.5", 
+        "version": "0.7.6", 
         "description": "An OpenAPI for EVE Online", 
         "title": "EVE Swagger Interface"
     }, 
@@ -970,7 +970,6 @@
                     "Wallet"
                 ], 
                 "x-alternate-versions": [
-                    "dev", 
                     "v3"
                 ], 
                 "x-cached-seconds": 3600, 
@@ -983,7 +982,7 @@
                     }
                 ], 
                 "operationId": "get_characters_character_id_wallet_journal", 
-                "description": "Retrieve character wallet journal\n\n---\n\nThis route is cached for up to 3600 seconds"
+                "description": "Retrieve character wallet journal\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\n[This route has an available update](https://esi.tech.ccp.is/diff/latest/dev/#GET-/characters/{character_id}/wallet/journal/)"
             }
         }, 
         "/v2/universe/system_kills/": {
@@ -1466,157 +1465,6 @@
                 "x-cached-seconds": 3600, 
                 "summary": "Get character portraits", 
                 "operationId": "get_characters_character_id_portrait"
-            }
-        }, 
-        "/v1/characters/{character_id}/fleet/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "schema": {
-                            "description": "200 ok object", 
-                            "required": [
-                                "fleet_id", 
-                                "wing_id", 
-                                "squad_id", 
-                                "role"
-                            ], 
-                            "type": "object", 
-                            "properties": {
-                                "wing_id": {
-                                    "title": "get_characters_character_id_fleet_wing_id", 
-                                    "type": "integer", 
-                                    "description": "ID of the wing the member is in. If not applicable, will be set to -1", 
-                                    "format": "int64"
-                                }, 
-                                "role": {
-                                    "enum": [
-                                        "fleet_commander", 
-                                        "squad_commander", 
-                                        "squad_member", 
-                                        "wing_commander"
-                                    ], 
-                                    "type": "string", 
-                                    "description": "Member\u2019s role in fleet", 
-                                    "title": "get_characters_character_id_fleet_role"
-                                }, 
-                                "fleet_id": {
-                                    "title": "get_characters_character_id_fleet_fleet_id", 
-                                    "type": "integer", 
-                                    "description": "The character's current fleet ID", 
-                                    "format": "int64"
-                                }, 
-                                "squad_id": {
-                                    "title": "get_characters_character_id_fleet_squad_id", 
-                                    "type": "integer", 
-                                    "description": "ID of the squad the member is in. If not applicable, will be set to -1", 
-                                    "format": "int64"
-                                }
-                            }, 
-                            "title": "get_characters_character_id_fleet_ok"
-                        }, 
-                        "description": "Details about the character's fleet", 
-                        "examples": {
-                            "application/json": {
-                                "wing_id": -1, 
-                                "role": "fleet_commander", 
-                                "fleet_id": 1234567890, 
-                                "squad_id": -1
-                            }
-                        }
-                    }, 
-                    "404": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Not found message"
-                            }
-                        }, 
-                        "description": "The character is not in a fleet", 
-                        "schema": {
-                            "properties": {
-                                "error": {
-                                    "type": "string", 
-                                    "description": "Not found message", 
-                                    "title": "get_characters_character_id_fleet_404_not_found"
-                                }
-                            }, 
-                            "type": "object", 
-                            "description": "Not found", 
-                            "title": "get_characters_character_id_fleet_not_found"
-                        }
-                    }, 
-                    "403": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "description": "Forbidden", 
-                        "schema": {
-                            "$ref": "#/definitions/forbidden"
-                        }
-                    }, 
-                    "500": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "description": "Internal server error", 
-                        "schema": {
-                            "$ref": "#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/character_id"
-                    }, 
-                    {
-                        "$ref": "#/parameters/datasource"
-                    }, 
-                    {
-                        "$ref": "#/parameters/token"
-                    }, 
-                    {
-                        "$ref": "#/parameters/user_agent"
-                    }, 
-                    {
-                        "$ref": "#/parameters/X-User-Agent"
-                    }
-                ], 
-                "tags": [
-                    "Fleets"
-                ], 
-                "x-alternate-versions": [
-                    "dev", 
-                    "legacy", 
-                    "v1"
-                ], 
-                "x-cached-seconds": 60, 
-                "summary": "Get character fleet info", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-fleets.read_fleet.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "get_characters_character_id_fleet", 
-                "description": "Return the fleet ID the character is in, if any.\n\n---\n\nThis route is cached for up to 60 seconds"
             }
         }, 
         "/v1/incursions/": {
@@ -2840,6 +2688,345 @@
                 ], 
                 "operationId": "delete_characters_character_id_fittings_fitting_id", 
                 "description": "Delete a fitting from a character\n\n---\n"
+            }
+        }, 
+        "/v2/characters/{character_id}/notifications/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "schema": {
+                            "items": {
+                                "description": "200 ok object", 
+                                "required": [
+                                    "notification_id", 
+                                    "type", 
+                                    "sender_id", 
+                                    "sender_type", 
+                                    "timestamp"
+                                ], 
+                                "type": "object", 
+                                "properties": {
+                                    "notification_id": {
+                                        "title": "get_characters_character_id_notifications_notification_id", 
+                                        "type": "integer", 
+                                        "description": "notification_id integer", 
+                                        "format": "int64"
+                                    }, 
+                                    "timestamp": {
+                                        "title": "get_characters_character_id_notifications_timestamp", 
+                                        "type": "string", 
+                                        "description": "timestamp string", 
+                                        "format": "date-time"
+                                    }, 
+                                    "sender_id": {
+                                        "title": "get_characters_character_id_notifications_sender_id", 
+                                        "type": "integer", 
+                                        "description": "sender_id integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "sender_type": {
+                                        "enum": [
+                                            "character", 
+                                            "corporation", 
+                                            "alliance", 
+                                            "faction", 
+                                            "other"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "sender_type string", 
+                                        "title": "get_characters_character_id_notifications_sender_type"
+                                    }, 
+                                    "is_read": {
+                                        "type": "boolean", 
+                                        "description": "is_read boolean", 
+                                        "title": "get_characters_character_id_notifications_is_read"
+                                    }, 
+                                    "text": {
+                                        "type": "string", 
+                                        "description": "text string", 
+                                        "title": "get_characters_character_id_notifications_text"
+                                    }, 
+                                    "type": {
+                                        "enum": [
+                                            "AcceptedAlly", 
+                                            "AcceptedSurrender", 
+                                            "AllAnchoringMsg", 
+                                            "AllMaintenanceBillMsg", 
+                                            "AllStrucInvulnerableMsg", 
+                                            "AllStructVulnerableMsg", 
+                                            "AllWarCorpJoinedAllianceMsg", 
+                                            "AllWarDeclaredMsg", 
+                                            "AllWarInvalidatedMsg", 
+                                            "AllWarRetractedMsg", 
+                                            "AllWarSurrenderMsg", 
+                                            "AllianceCapitalChanged", 
+                                            "AllyContractCancelled", 
+                                            "AllyJoinedWarAggressorMsg", 
+                                            "AllyJoinedWarAllyMsg", 
+                                            "AllyJoinedWarDefenderMsg", 
+                                            "BattlePunishFriendlyFire", 
+                                            "BillOutOfMoneyMsg", 
+                                            "BillPaidCorpAllMsg", 
+                                            "BountyClaimMsg", 
+                                            "BountyESSShared", 
+                                            "BountyESSTaken", 
+                                            "BountyPlacedAlliance", 
+                                            "BountyPlacedChar", 
+                                            "BountyPlacedCorp", 
+                                            "BountyYourBountyClaimed", 
+                                            "BuddyConnectContactAdd", 
+                                            "CharAppAcceptMsg", 
+                                            "CharAppRejectMsg", 
+                                            "CharAppWithdrawMsg", 
+                                            "CharLeftCorpMsg", 
+                                            "CharMedalMsg", 
+                                            "CharTerminationMsg", 
+                                            "CloneActivationMsg", 
+                                            "CloneActivationMsg2", 
+                                            "CloneMovedMsg", 
+                                            "CloneRevokedMsg1", 
+                                            "CloneRevokedMsg2", 
+                                            "ContactAdd", 
+                                            "ContactEdit", 
+                                            "ContainerPasswordMsg", 
+                                            "CorpAllBillMsg", 
+                                            "CorpAppAcceptMsg", 
+                                            "CorpAppInvitedMsg", 
+                                            "CorpAppNewMsg", 
+                                            "CorpAppRejectCustomMsg", 
+                                            "CorpAppRejectMsg", 
+                                            "CorpDividendMsg", 
+                                            "CorpFriendlyFireDisableTimerCompleted", 
+                                            "CorpFriendlyFireDisableTimerStarted", 
+                                            "CorpFriendlyFireEnableTimerCompleted", 
+                                            "CorpFriendlyFireEnableTimerStarted", 
+                                            "CorpKicked", 
+                                            "CorpLiquidationMsg", 
+                                            "CorpNewCEOMsg", 
+                                            "CorpNewsMsg", 
+                                            "CorpOfficeExpirationMsg", 
+                                            "CorpStructLostMsg", 
+                                            "CorpTaxChangeMsg", 
+                                            "CorpVoteCEORevokedMsg", 
+                                            "CorpVoteMsg", 
+                                            "CorpWarDeclaredMsg", 
+                                            "CorpWarFightingLegalMsg", 
+                                            "CorpWarInvalidatedMsg", 
+                                            "CorpWarRetractedMsg", 
+                                            "CorpWarSurrenderMsg", 
+                                            "CustomsMsg", 
+                                            "DeclareWar", 
+                                            "DistrictAttacked", 
+                                            "DustAppAcceptedMsg", 
+                                            "EntosisCaptureStarted", 
+                                            "FWAllianceKickMsg", 
+                                            "FWAllianceWarningMsg", 
+                                            "FWCharKickMsg", 
+                                            "FWCharRankGainMsg", 
+                                            "FWCharRankLossMsg", 
+                                            "FWCharWarningMsg", 
+                                            "FWCorpJoinMsg", 
+                                            "FWCorpKickMsg", 
+                                            "FWCorpLeaveMsg", 
+                                            "FWCorpWarningMsg", 
+                                            "FacWarCorpJoinRequestMsg", 
+                                            "FacWarCorpJoinWithdrawMsg", 
+                                            "FacWarCorpLeaveRequestMsg", 
+                                            "FacWarCorpLeaveWithdrawMsg", 
+                                            "FacWarLPDisqualifiedEvent", 
+                                            "FacWarLPDisqualifiedKill", 
+                                            "FacWarLPPayoutEvent", 
+                                            "FacWarLPPayoutKill", 
+                                            "GameTimeAdded", 
+                                            "GameTimeReceived", 
+                                            "GameTimeSent", 
+                                            "GiftReceived", 
+                                            "IHubDestroyedByBillFailure", 
+                                            "IncursionCompletedMsg", 
+                                            "IndustryTeamAuctionLost", 
+                                            "IndustryTeamAuctionWon", 
+                                            "InfrastructureHubBillAboutToExpire", 
+                                            "InsuranceExpirationMsg", 
+                                            "InsuranceFirstShipMsg", 
+                                            "InsuranceInvalidatedMsg", 
+                                            "InsuranceIssuedMsg", 
+                                            "InsurancePayoutMsg", 
+                                            "JumpCloneDeletedMsg1", 
+                                            "JumpCloneDeletedMsg2", 
+                                            "KillReportFinalBlow", 
+                                            "KillReportVictim", 
+                                            "KillRightAvailable", 
+                                            "KillRightAvailableOpen", 
+                                            "KillRightEarned", 
+                                            "KillRightUnavailable", 
+                                            "KillRightUnavailableOpen", 
+                                            "KillRightUsed", 
+                                            "LocateCharMsg", 
+                                            "MadeWarMutual", 
+                                            "MercOfferedNegotiationMsg", 
+                                            "MissionOfferExpirationMsg", 
+                                            "MissionTimeoutMsg", 
+                                            "MoonminingAutomaticFracture", 
+                                            "MoonminingExtractionCancelled", 
+                                            "MoonminingExtractionFinished", 
+                                            "MoonminingExtractionStarted", 
+                                            "MoonminingLaserFired", 
+                                            "NPCStandingsGained", 
+                                            "NPCStandingsLost", 
+                                            "OfferedSurrender", 
+                                            "OfferedToAlly", 
+                                            "OldLscMessages", 
+                                            "OperationFinished", 
+                                            "OrbitalAttacked", 
+                                            "OrbitalReinforced", 
+                                            "OwnershipTransferred", 
+                                            "ReimbursementMsg", 
+                                            "ResearchMissionAvailableMsg", 
+                                            "RetractsWar", 
+                                            "SeasonalChallengeCompleted", 
+                                            "SovAllClaimAquiredMsg", 
+                                            "SovAllClaimLostMsg", 
+                                            "SovCommandNodeEventStarted", 
+                                            "SovCorpBillLateMsg", 
+                                            "SovCorpClaimFailMsg", 
+                                            "SovDisruptorMsg", 
+                                            "SovStationEnteredFreeport", 
+                                            "SovStructureDestroyed", 
+                                            "SovStructureReinforced", 
+                                            "SovStructureSelfDestructCancel", 
+                                            "SovStructureSelfDestructFinished", 
+                                            "SovStructureSelfDestructRequested", 
+                                            "SovereigntyIHDamageMsg", 
+                                            "SovereigntySBUDamageMsg", 
+                                            "SovereigntyTCUDamageMsg", 
+                                            "StationAggressionMsg1", 
+                                            "StationAggressionMsg2", 
+                                            "StationConquerMsg", 
+                                            "StationServiceDisabled", 
+                                            "StationServiceEnabled", 
+                                            "StationStateChangeMsg", 
+                                            "StoryLineMissionAvailableMsg", 
+                                            "StructureAnchoring", 
+                                            "StructureCourierContractChanged", 
+                                            "StructureDestroyed", 
+                                            "StructureFuelAlert", 
+                                            "StructureItemsDelivered", 
+                                            "StructureLostArmor", 
+                                            "StructureLostShields", 
+                                            "StructureOnline", 
+                                            "StructureServicesOffline", 
+                                            "StructureUnanchoring", 
+                                            "StructureUnderAttack", 
+                                            "StructureWentHighPower", 
+                                            "StructureWentLowPower", 
+                                            "StructuresReinforcementChanged", 
+                                            "TowerAlertMsg", 
+                                            "TowerResourceAlertMsg", 
+                                            "TransactionReversalMsg", 
+                                            "TutorialMsg", 
+                                            "WarAllyOfferDeclinedMsg", 
+                                            "WarSurrenderDeclinedMsg", 
+                                            "WarSurrenderOfferMsg"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "type string", 
+                                        "title": "get_characters_character_id_notifications_type"
+                                    }
+                                }, 
+                                "title": "get_characters_character_id_notifications_200_ok"
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 500, 
+                            "title": "get_characters_character_id_notifications_ok"
+                        }, 
+                        "description": "Returns your recent notifications", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "notification_id": 1, 
+                                    "timestamp": "2017-08-16T10:08:00Z", 
+                                    "sender_id": 1000132, 
+                                    "sender_type": "corporation", 
+                                    "is_read": true, 
+                                    "text": "amount: 3731016.4000000004\\nitemID: 1024881021663\\npayout: 1\\n", 
+                                    "type": "InsurancePayoutMsg"
+                                }
+                            ]
+                        }
+                    }, 
+                    "403": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "description": "Forbidden", 
+                        "schema": {
+                            "$ref": "#/definitions/forbidden"
+                        }
+                    }, 
+                    "500": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "description": "Internal server error", 
+                        "schema": {
+                            "$ref": "#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/character_id"
+                    }, 
+                    {
+                        "$ref": "#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "#/parameters/token"
+                    }, 
+                    {
+                        "$ref": "#/parameters/user_agent"
+                    }, 
+                    {
+                        "$ref": "#/parameters/X-User-Agent"
+                    }
+                ], 
+                "tags": [
+                    "Character"
+                ], 
+                "x-alternate-versions": [
+                    "dev", 
+                    "v2"
+                ], 
+                "x-cached-seconds": 600, 
+                "summary": "Get character notifications", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-characters.read_notifications.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "get_characters_character_id_notifications", 
+                "description": "Return character notifications\n\n---\n\nThis route is cached for up to 600 seconds"
             }
         }, 
         "/v1/markets/{region_id}/types/": {
@@ -4242,7 +4429,7 @@
                 "operationId": "get_wars_war_id"
             }
         }, 
-        "/v1/characters/{character_id}/orders/": {
+        "/v1/universe/schematics/{schematic_id}/": {
             "get": {
                 "responses": {
                     "200": {
@@ -4261,183 +4448,53 @@
                             }
                         }, 
                         "schema": {
-                            "items": {
-                                "description": "200 ok object", 
-                                "required": [
-                                    "order_id", 
-                                    "type_id", 
-                                    "region_id", 
-                                    "location_id", 
-                                    "range", 
-                                    "is_buy_order", 
-                                    "price", 
-                                    "volume_total", 
-                                    "volume_remain", 
-                                    "issued", 
-                                    "state", 
-                                    "min_volume", 
-                                    "account_id", 
-                                    "duration", 
-                                    "is_corp", 
-                                    "escrow"
-                                ], 
-                                "type": "object", 
-                                "properties": {
-                                    "volume_remain": {
-                                        "title": "get_characters_character_id_orders_volume_remain", 
-                                        "type": "integer", 
-                                        "description": "Quantity of items still required or offered", 
-                                        "format": "int32"
-                                    }, 
-                                    "region_id": {
-                                        "title": "get_characters_character_id_orders_region_id", 
-                                        "type": "integer", 
-                                        "description": "ID of the region where order was placed", 
-                                        "format": "int32"
-                                    }, 
-                                    "type_id": {
-                                        "title": "get_characters_character_id_orders_type_id", 
-                                        "type": "integer", 
-                                        "description": "The type ID of the item transacted in this order", 
-                                        "format": "int32"
-                                    }, 
-                                    "order_id": {
-                                        "title": "get_characters_character_id_orders_order_id", 
-                                        "type": "integer", 
-                                        "description": "Unique order ID", 
-                                        "format": "int64"
-                                    }, 
-                                    "issued": {
-                                        "title": "get_characters_character_id_orders_issued", 
-                                        "type": "string", 
-                                        "description": "Date and time when this order was issued", 
-                                        "format": "date-time"
-                                    }, 
-                                    "price": {
-                                        "title": "get_characters_character_id_orders_price", 
-                                        "type": "number", 
-                                        "description": "Cost per unit for this order", 
-                                        "format": "double"
-                                    }, 
-                                    "min_volume": {
-                                        "title": "get_characters_character_id_orders_min_volume", 
-                                        "type": "integer", 
-                                        "description": "For bids (buy orders), the minimum quantity that will be accepted in a matching offer (sell order)", 
-                                        "format": "int32"
-                                    }, 
-                                    "state": {
-                                        "enum": [
-                                            "cancelled", 
-                                            "character_deleted", 
-                                            "closed", 
-                                            "expired", 
-                                            "open", 
-                                            "pending"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "Current order state", 
-                                        "title": "get_characters_character_id_orders_state"
-                                    }, 
-                                    "escrow": {
-                                        "title": "get_characters_character_id_orders_escrow", 
-                                        "type": "number", 
-                                        "description": "For buy orders, the amount of ISK in escrow", 
-                                        "format": "double"
-                                    }, 
-                                    "is_buy_order": {
-                                        "type": "boolean", 
-                                        "description": "True for a bid (buy) order. False for an offer (sell) order", 
-                                        "title": "get_characters_character_id_orders_is_buy_order"
-                                    }, 
-                                    "is_corp": {
-                                        "type": "boolean", 
-                                        "description": "is_corp boolean", 
-                                        "title": "get_characters_character_id_orders_is_corp"
-                                    }, 
-                                    "range": {
-                                        "enum": [
-                                            "1", 
-                                            "10", 
-                                            "2", 
-                                            "20", 
-                                            "3", 
-                                            "30", 
-                                            "4", 
-                                            "40", 
-                                            "5", 
-                                            "region", 
-                                            "solarsystem", 
-                                            "station"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "Valid order range, numbers are ranges in jumps", 
-                                        "title": "get_characters_character_id_orders_range"
-                                    }, 
-                                    "duration": {
-                                        "title": "get_characters_character_id_orders_duration", 
-                                        "type": "integer", 
-                                        "description": "Number of days the order is valid for (starting from the issued date). An order expires at time issued + duration", 
-                                        "format": "int32"
-                                    }, 
-                                    "volume_total": {
-                                        "title": "get_characters_character_id_orders_volume_total", 
-                                        "type": "integer", 
-                                        "description": "Quantity of items required or offered at time order was placed", 
-                                        "format": "int32"
-                                    }, 
-                                    "location_id": {
-                                        "title": "get_characters_character_id_orders_location_id", 
-                                        "type": "integer", 
-                                        "description": "ID of the location where order was placed", 
-                                        "format": "int64"
-                                    }, 
-                                    "account_id": {
-                                        "title": "get_characters_character_id_orders_account_id", 
-                                        "type": "integer", 
-                                        "description": "Wallet division for the buyer or seller of this order. Always 1000 for characters. Currently 1000 through 1006 for corporations", 
-                                        "format": "int32"
-                                    }
+                            "description": "200 ok object", 
+                            "required": [
+                                "schematic_name", 
+                                "cycle_time"
+                            ], 
+                            "type": "object", 
+                            "properties": {
+                                "schematic_name": {
+                                    "type": "string", 
+                                    "description": "schematic_name string", 
+                                    "title": "get_universe_schematics_schematic_id_schematic_name"
                                 }, 
-                                "title": "get_characters_character_id_orders_200_ok"
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 500, 
-                            "title": "get_characters_character_id_orders_ok"
-                        }, 
-                        "description": "Market orders placed by a character", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "volume_remain": 4422, 
-                                    "region_id": 123, 
-                                    "type_id": 456, 
-                                    "order_id": 123, 
-                                    "issued": "2016-09-03T05:12:25Z", 
-                                    "price": 33.3, 
-                                    "min_volume": 1, 
-                                    "state": "open", 
-                                    "escrow": 45.6, 
-                                    "is_buy_order": true, 
-                                    "is_corp": false, 
-                                    "range": "station", 
-                                    "duration": 30, 
-                                    "volume_total": 123456, 
-                                    "location_id": 456, 
-                                    "account_id": 1000
+                                "cycle_time": {
+                                    "title": "get_universe_schematics_schematic_id_cycle_time", 
+                                    "type": "integer", 
+                                    "description": "Time in seconds to process a run", 
+                                    "format": "int32"
                                 }
-                            ]
-                        }
-                    }, 
-                    "403": {
+                            }, 
+                            "title": "get_universe_schematics_schematic_id_ok"
+                        }, 
+                        "description": "Public data about a schematic", 
                         "examples": {
                             "application/json": {
-                                "error": "Forbidden message"
+                                "schematic_name": "Bacteria", 
+                                "cycle_time": 1800
+                            }
+                        }
+                    }, 
+                    "404": {
+                        "schema": {
+                            "title": "get_universe_schematics_schematic_id_not_found", 
+                            "type": "object", 
+                            "description": "Schematic not found", 
+                            "properties": {
+                                "error": {
+                                    "type": "string", 
+                                    "description": "error message", 
+                                    "title": "get_universe_schematics_schematic_id_error"
+                                }
                             }
                         }, 
-                        "description": "Forbidden", 
-                        "schema": {
-                            "$ref": "#/definitions/forbidden"
+                        "description": "Schematic not found", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Schematic not found"
+                            }
                         }
                     }, 
                     "500": {
@@ -4454,13 +4511,15 @@
                 }, 
                 "parameters": [
                     {
-                        "$ref": "#/parameters/character_id"
-                    }, 
-                    {
                         "$ref": "#/parameters/datasource"
                     }, 
                     {
-                        "$ref": "#/parameters/token"
+                        "description": "A PI schematic ID", 
+                        "format": "int32", 
+                        "required": true, 
+                        "in": "path", 
+                        "type": "integer", 
+                        "name": "schematic_id"
                     }, 
                     {
                         "$ref": "#/parameters/user_agent"
@@ -4470,23 +4529,17 @@
                     }
                 ], 
                 "tags": [
-                    "Market"
+                    "Planetary Interaction"
                 ], 
                 "x-alternate-versions": [
+                    "dev", 
                     "legacy", 
                     "v1"
                 ], 
+                "description": "Get information on a planetary factory schematic\n\n---\n\nThis route is cached for up to 3600 seconds", 
                 "x-cached-seconds": 3600, 
-                "summary": "List open orders from a character", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-markets.read_character_orders.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "get_characters_character_id_orders", 
-                "description": "List market orders placed by a character\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\n[This route has an available update](https://esi.tech.ccp.is/diff/latest/dev/#GET-/characters/{character_id}/orders/)"
+                "summary": "Get schematic information", 
+                "operationId": "get_universe_schematics_schematic_id"
             }
         }, 
         "/v1/opportunities/groups/": {
@@ -7525,6 +7578,358 @@
                 "operationId": "get_status"
             }
         }, 
+        "/v2/corporations/{corporation_id}/containers/logs/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "schema": {
+                            "items": {
+                                "description": "200 ok object", 
+                                "required": [
+                                    "logged_at", 
+                                    "container_id", 
+                                    "container_type_id", 
+                                    "character_id", 
+                                    "location_id", 
+                                    "action", 
+                                    "location_flag"
+                                ], 
+                                "type": "object", 
+                                "properties": {
+                                    "new_config_bitmask": {
+                                        "title": "get_corporations_corporation_id_containers_logs_new_config_bitmask", 
+                                        "type": "integer", 
+                                        "description": "new_config_bitmask integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "character_id": {
+                                        "title": "get_corporations_corporation_id_containers_logs_character_id", 
+                                        "type": "integer", 
+                                        "description": "ID of the character who performed the action.", 
+                                        "format": "int32"
+                                    }, 
+                                    "type_id": {
+                                        "title": "get_corporations_corporation_id_containers_logs_type_id", 
+                                        "type": "integer", 
+                                        "description": "Type ID of the item being acted upon", 
+                                        "format": "int32"
+                                    }, 
+                                    "container_type_id": {
+                                        "title": "get_corporations_corporation_id_containers_logs_container_type_id", 
+                                        "type": "integer", 
+                                        "description": "Type ID of the container", 
+                                        "format": "int32"
+                                    }, 
+                                    "container_id": {
+                                        "title": "get_corporations_corporation_id_containers_logs_container_id", 
+                                        "type": "integer", 
+                                        "description": "ID of the container", 
+                                        "format": "int64"
+                                    }, 
+                                    "location_flag": {
+                                        "enum": [
+                                            "AssetSafety", 
+                                            "AutoFit", 
+                                            "Bonus", 
+                                            "Booster", 
+                                            "BoosterBay", 
+                                            "Capsule", 
+                                            "Cargo", 
+                                            "CorpDeliveries", 
+                                            "CorpSAG1", 
+                                            "CorpSAG2", 
+                                            "CorpSAG3", 
+                                            "CorpSAG4", 
+                                            "CorpSAG5", 
+                                            "CorpSAG6", 
+                                            "CorpSAG7", 
+                                            "CrateLoot", 
+                                            "Deliveries", 
+                                            "DroneBay", 
+                                            "DustBattle", 
+                                            "DustDatabank", 
+                                            "FighterBay", 
+                                            "FighterTube0", 
+                                            "FighterTube1", 
+                                            "FighterTube2", 
+                                            "FighterTube3", 
+                                            "FighterTube4", 
+                                            "FleetHangar", 
+                                            "Hangar", 
+                                            "HangarAll", 
+                                            "HiSlot0", 
+                                            "HiSlot1", 
+                                            "HiSlot2", 
+                                            "HiSlot3", 
+                                            "HiSlot4", 
+                                            "HiSlot5", 
+                                            "HiSlot6", 
+                                            "HiSlot7", 
+                                            "HiddenModifiers", 
+                                            "Implant", 
+                                            "Impounded", 
+                                            "JunkyardReprocessed", 
+                                            "JunkyardTrashed", 
+                                            "LoSlot0", 
+                                            "LoSlot1", 
+                                            "LoSlot2", 
+                                            "LoSlot3", 
+                                            "LoSlot4", 
+                                            "LoSlot5", 
+                                            "LoSlot6", 
+                                            "LoSlot7", 
+                                            "Locked", 
+                                            "MedSlot0", 
+                                            "MedSlot1", 
+                                            "MedSlot2", 
+                                            "MedSlot3", 
+                                            "MedSlot4", 
+                                            "MedSlot5", 
+                                            "MedSlot6", 
+                                            "MedSlot7", 
+                                            "OfficeFolder", 
+                                            "Pilot", 
+                                            "PlanetSurface", 
+                                            "QuafeBay", 
+                                            "Reward", 
+                                            "RigSlot0", 
+                                            "RigSlot1", 
+                                            "RigSlot2", 
+                                            "RigSlot3", 
+                                            "RigSlot4", 
+                                            "RigSlot5", 
+                                            "RigSlot6", 
+                                            "RigSlot7", 
+                                            "SecondaryStorage", 
+                                            "ServiceSlot0", 
+                                            "ServiceSlot1", 
+                                            "ServiceSlot2", 
+                                            "ServiceSlot3", 
+                                            "ServiceSlot4", 
+                                            "ServiceSlot5", 
+                                            "ServiceSlot6", 
+                                            "ServiceSlot7", 
+                                            "ShipHangar", 
+                                            "ShipOffline", 
+                                            "Skill", 
+                                            "SkillInTraining", 
+                                            "SpecializedAmmoHold", 
+                                            "SpecializedCommandCenterHold", 
+                                            "SpecializedFuelBay", 
+                                            "SpecializedGasHold", 
+                                            "SpecializedIndustrialShipHold", 
+                                            "SpecializedLargeShipHold", 
+                                            "SpecializedMaterialBay", 
+                                            "SpecializedMediumShipHold", 
+                                            "SpecializedMineralHold", 
+                                            "SpecializedOreHold", 
+                                            "SpecializedPlanetaryCommoditiesHold", 
+                                            "SpecializedSalvageHold", 
+                                            "SpecializedShipHold", 
+                                            "SpecializedSmallShipHold", 
+                                            "StructureActive", 
+                                            "StructureFuel", 
+                                            "StructureInactive", 
+                                            "StructureOffline", 
+                                            "SubSystemBay", 
+                                            "SubSystemSlot0", 
+                                            "SubSystemSlot1", 
+                                            "SubSystemSlot2", 
+                                            "SubSystemSlot3", 
+                                            "SubSystemSlot4", 
+                                            "SubSystemSlot5", 
+                                            "SubSystemSlot6", 
+                                            "SubSystemSlot7", 
+                                            "Unlocked", 
+                                            "Wallet", 
+                                            "Wardrobe"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "location_flag string", 
+                                        "title": "get_corporations_corporation_id_containers_logs_location_flag"
+                                    }, 
+                                    "password_type": {
+                                        "enum": [
+                                            "config", 
+                                            "general"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "Type of password set if action is of type SetPassword or EnterPassword", 
+                                        "title": "get_corporations_corporation_id_containers_logs_password_type"
+                                    }, 
+                                    "action": {
+                                        "enum": [
+                                            "add", 
+                                            "assemble", 
+                                            "configure", 
+                                            "enter_password", 
+                                            "lock", 
+                                            "move", 
+                                            "repackage", 
+                                            "set_name", 
+                                            "set_password", 
+                                            "unlock"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "action string", 
+                                        "title": "get_corporations_corporation_id_containers_logs_action"
+                                    }, 
+                                    "old_config_bitmask": {
+                                        "title": "get_corporations_corporation_id_containers_logs_old_config_bitmask", 
+                                        "type": "integer", 
+                                        "description": "old_config_bitmask integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "logged_at": {
+                                        "title": "get_corporations_corporation_id_containers_logs_logged_at", 
+                                        "type": "string", 
+                                        "description": "Timestamp when this log was created", 
+                                        "format": "date-time"
+                                    }, 
+                                    "location_id": {
+                                        "title": "get_corporations_corporation_id_containers_logs_location_id", 
+                                        "type": "integer", 
+                                        "description": "location_id integer", 
+                                        "format": "int64"
+                                    }, 
+                                    "quantity": {
+                                        "title": "get_corporations_corporation_id_containers_logs_quantity", 
+                                        "type": "integer", 
+                                        "description": "Quantity of the item being acted upon", 
+                                        "format": "int32"
+                                    }
+                                }, 
+                                "title": "get_corporations_corporation_id_containers_logs_200_ok"
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 1000, 
+                            "title": "get_corporations_corporation_id_containers_logs_ok"
+                        }, 
+                        "description": "List of corporation ALSC logs", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "character_id": 2112625428, 
+                                    "container_type_id": 17365, 
+                                    "container_id": 1000000012279, 
+                                    "location_flag": "CorpSAG1", 
+                                    "password_type": "general", 
+                                    "action": "set_password", 
+                                    "logged_at": "2017-10-10T14:00:00Z", 
+                                    "location_id": 1000000012278
+                                }, 
+                                {
+                                    "character_id": 2112625428, 
+                                    "type_id": 1230, 
+                                    "container_type_id": 17365, 
+                                    "container_id": 1000000012279, 
+                                    "location_flag": "CorpSAG1", 
+                                    "action": "lock", 
+                                    "logged_at": "2017-10-11T12:04:33Z", 
+                                    "location_id": 1000000012278, 
+                                    "quantity": 30
+                                }, 
+                                {
+                                    "new_config_bitmask": 31, 
+                                    "character_id": 2112625428, 
+                                    "container_type_id": 17365, 
+                                    "container_id": 1000000012279, 
+                                    "location_flag": "CorpSAG2", 
+                                    "action": "configure", 
+                                    "old_config_bitmask": 23, 
+                                    "logged_at": "2017-10-11T12:06:29Z", 
+                                    "location_id": 1000000012278
+                                }
+                            ]
+                        }
+                    }, 
+                    "403": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "description": "Forbidden", 
+                        "schema": {
+                            "$ref": "#/definitions/forbidden"
+                        }
+                    }, 
+                    "500": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "description": "Internal server error", 
+                        "schema": {
+                            "$ref": "#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/corporation_id"
+                    }, 
+                    {
+                        "$ref": "#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "#/parameters/page"
+                    }, 
+                    {
+                        "$ref": "#/parameters/token"
+                    }, 
+                    {
+                        "$ref": "#/parameters/user_agent"
+                    }, 
+                    {
+                        "$ref": "#/parameters/X-User-Agent"
+                    }
+                ], 
+                "tags": [
+                    "Corporation"
+                ], 
+                "x-alternate-versions": [
+                    "dev", 
+                    "v2"
+                ], 
+                "x-cached-seconds": 600, 
+                "summary": "Get all corporation ALSC logs", 
+                "x-required-roles": [
+                    "Director"
+                ], 
+                "operationId": "get_corporations_corporation_id_containers_logs", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-corporations.read_container_logs.v1"
+                        ]
+                    }
+                ], 
+                "description": "Returns logs recorded in the past seven days from all audit log secure containers (ALSC) owned by a given corporation\n\n---\n\nThis route is cached for up to 600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
+            }
+        }, 
         "/v1/fw/wars/": {
             "get": {
                 "responses": {
@@ -10278,6 +10683,12 @@
                 "responses": {
                     "200": {
                         "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
                             "Last-Modified": {
                                 "type": "string", 
                                 "description": "RFC7231 formatted datetime string"
@@ -10383,6 +10794,9 @@
                     }, 
                     {
                         "$ref": "#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "#/parameters/page"
                     }, 
                     {
                         "$ref": "#/parameters/token"
@@ -11765,7 +12179,7 @@
                 "description": "Return a list of blueprints the character owns\n\n---\n\nThis route is cached for up to 3600 seconds"
             }
         }, 
-        "/v1/corporations/{corporation_id}/blueprints/": {
+        "/v3/corporations/{corporation_id}/assets/": {
             "get": {
                 "responses": {
                     "200": {
@@ -11793,25 +12207,16 @@
                             "items": {
                                 "description": "200 ok object", 
                                 "required": [
-                                    "item_id", 
                                     "type_id", 
-                                    "location_id", 
-                                    "location_flag", 
                                     "quantity", 
-                                    "time_efficiency", 
-                                    "material_efficiency", 
-                                    "runs"
+                                    "location_id", 
+                                    "location_type", 
+                                    "item_id", 
+                                    "location_flag", 
+                                    "is_singleton"
                                 ], 
                                 "type": "object", 
                                 "properties": {
-                                    "time_efficiency": {
-                                        "description": "Time Efficiency Level of the blueprint.", 
-                                        "title": "get_corporations_corporation_id_blueprints_time_efficiency", 
-                                        "format": "int32", 
-                                        "maximum": 20, 
-                                        "minimum": 0, 
-                                        "type": "integer"
-                                    }, 
                                     "location_flag": {
                                         "enum": [
                                             "AssetSafety", 
@@ -11851,7 +12256,7 @@
                                             "HiSlot5", 
                                             "HiSlot6", 
                                             "HiSlot7", 
-                                            "HiddenModifers", 
+                                            "HiddenModifiers", 
                                             "Implant", 
                                             "Impounded", 
                                             "JunkyardReprocessed", 
@@ -11917,6 +12322,7 @@
                                             "StructureFuel", 
                                             "StructureInactive", 
                                             "StructureOffline", 
+                                            "SubSystemBay", 
                                             "SubSystemSlot0", 
                                             "SubSystemSlot1", 
                                             "SubSystemSlot2", 
@@ -11925,74 +12331,71 @@
                                             "SubSystemSlot5", 
                                             "SubSystemSlot6", 
                                             "SubSystemSlot7", 
-                                            "SubsystemBay", 
                                             "Unlocked", 
                                             "Wallet", 
                                             "Wardrobe"
                                         ], 
                                         "type": "string", 
-                                        "description": "Type of the location_id", 
-                                        "title": "get_corporations_corporation_id_blueprints_location_flag"
+                                        "description": "location_flag string", 
+                                        "title": "get_corporations_corporation_id_assets_location_flag"
                                     }, 
                                     "type_id": {
-                                        "title": "get_corporations_corporation_id_blueprints_type_id", 
+                                        "title": "get_corporations_corporation_id_assets_type_id", 
                                         "type": "integer", 
                                         "description": "type_id integer", 
                                         "format": "int32"
                                     }, 
-                                    "runs": {
-                                        "title": "get_corporations_corporation_id_blueprints_runs", 
-                                        "minimum": -1, 
-                                        "type": "integer", 
-                                        "description": "Number of runs remaining if the blueprint is a copy, -1 if it is an original.", 
-                                        "format": "int32"
-                                    }, 
-                                    "material_efficiency": {
-                                        "description": "Material Efficiency Level of the blueprint.", 
-                                        "title": "get_corporations_corporation_id_blueprints_material_efficiency", 
-                                        "format": "int32", 
-                                        "maximum": 25, 
-                                        "minimum": 0, 
-                                        "type": "integer"
+                                    "is_singleton": {
+                                        "type": "boolean", 
+                                        "description": "is_singleton boolean", 
+                                        "title": "get_corporations_corporation_id_assets_is_singleton"
                                     }, 
                                     "item_id": {
-                                        "title": "get_corporations_corporation_id_blueprints_item_id", 
+                                        "title": "get_corporations_corporation_id_assets_item_id", 
                                         "type": "integer", 
-                                        "description": "Unique ID for this item.", 
+                                        "description": "item_id integer", 
                                         "format": "int64"
                                     }, 
                                     "location_id": {
-                                        "title": "get_corporations_corporation_id_blueprints_location_id", 
+                                        "title": "get_corporations_corporation_id_assets_location_id", 
                                         "type": "integer", 
-                                        "description": "References a solar system, station or item_id if this blueprint is located within a container.", 
+                                        "description": "location_id integer", 
                                         "format": "int64"
                                     }, 
+                                    "location_type": {
+                                        "enum": [
+                                            "station", 
+                                            "solar_system", 
+                                            "other"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "location_type string", 
+                                        "title": "get_corporations_corporation_id_assets_location_type"
+                                    }, 
                                     "quantity": {
-                                        "title": "get_corporations_corporation_id_blueprints_quantity", 
-                                        "minimum": -2, 
+                                        "title": "get_corporations_corporation_id_assets_quantity", 
                                         "type": "integer", 
-                                        "description": "A range of numbers with a minimum of -2 and no maximum value where -1 is an original and -2 is a copy. It can be a positive integer if it is a stack of blueprint originals fresh from the market (e.g. no activities performed on them yet).", 
+                                        "description": "quantity integer", 
                                         "format": "int32"
                                     }
                                 }, 
-                                "title": "get_corporations_corporation_id_blueprints_200_ok"
+                                "title": "get_corporations_corporation_id_assets_200_ok"
                             }, 
                             "type": "array", 
                             "description": "200 ok array", 
                             "maxItems": 1000, 
-                            "title": "get_corporations_corporation_id_blueprints_ok"
+                            "title": "get_corporations_corporation_id_assets_ok"
                         }, 
-                        "description": "List of corporation blueprints", 
+                        "description": "A list of assets", 
                         "examples": {
                             "application/json": [
                                 {
-                                    "time_efficiency": 0, 
-                                    "location_flag": "CorpSAG1", 
-                                    "type_id": 691, 
-                                    "runs": -1, 
-                                    "material_efficiency": 0, 
-                                    "item_id": 1000000010495, 
-                                    "location_id": 60014719, 
+                                    "location_flag": "Hangar", 
+                                    "type_id": 3516, 
+                                    "is_singleton": true, 
+                                    "item_id": 1000000016835, 
+                                    "location_id": 60002959, 
+                                    "location_type": "station", 
                                     "quantity": 1
                                 }
                             ]
@@ -12042,27 +12445,26 @@
                     }
                 ], 
                 "tags": [
-                    "Corporation"
+                    "Assets"
                 ], 
                 "x-alternate-versions": [
                     "dev", 
-                    "legacy", 
-                    "v1"
+                    "v3"
                 ], 
                 "x-cached-seconds": 3600, 
-                "summary": "Get corporation blueprints", 
+                "summary": "Get corporation assets", 
                 "x-required-roles": [
                     "Director"
                 ], 
-                "operationId": "get_corporations_corporation_id_blueprints", 
+                "operationId": "get_corporations_corporation_id_assets", 
                 "security": [
                     {
                         "evesso": [
-                            "esi-corporations.read_blueprints.v1"
+                            "esi-assets.read_corporation_assets.v1"
                         ]
                     }
                 ], 
-                "description": "Returns a list of blueprints the corporation owns\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
+                "description": "Return a list of the corporation assets\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
             }
         }, 
         "/v1/universe/planets/{planet_id}/": {
@@ -12846,261 +13248,6 @@
                     }
                 ], 
                 "description": "Returns a corporation's members' titles\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
-            }
-        }, 
-        "/v1/corporations/{corporation_id}/orders/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "X-Pages": {
-                                "default": 1, 
-                                "type": "integer", 
-                                "description": "Maximum page number", 
-                                "format": "int32"
-                            }, 
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "schema": {
-                            "items": {
-                                "description": "200 ok object", 
-                                "required": [
-                                    "order_id", 
-                                    "type_id", 
-                                    "region_id", 
-                                    "location_id", 
-                                    "range", 
-                                    "is_buy_order", 
-                                    "price", 
-                                    "volume_total", 
-                                    "volume_remain", 
-                                    "issued", 
-                                    "state", 
-                                    "min_volume", 
-                                    "wallet_division", 
-                                    "duration", 
-                                    "escrow"
-                                ], 
-                                "type": "object", 
-                                "properties": {
-                                    "volume_remain": {
-                                        "title": "get_corporations_corporation_id_orders_volume_remain", 
-                                        "type": "integer", 
-                                        "description": "Quantity of items still required or offered", 
-                                        "format": "int32"
-                                    }, 
-                                    "region_id": {
-                                        "title": "get_corporations_corporation_id_orders_region_id", 
-                                        "type": "integer", 
-                                        "description": "ID of the region where order was placed", 
-                                        "format": "int32"
-                                    }, 
-                                    "type_id": {
-                                        "title": "get_corporations_corporation_id_orders_type_id", 
-                                        "type": "integer", 
-                                        "description": "The type ID of the item transacted in this order", 
-                                        "format": "int32"
-                                    }, 
-                                    "order_id": {
-                                        "title": "get_corporations_corporation_id_orders_order_id", 
-                                        "type": "integer", 
-                                        "description": "Unique order ID", 
-                                        "format": "int64"
-                                    }, 
-                                    "issued": {
-                                        "title": "get_corporations_corporation_id_orders_issued", 
-                                        "type": "string", 
-                                        "description": "Date and time when this order was issued", 
-                                        "format": "date-time"
-                                    }, 
-                                    "price": {
-                                        "title": "get_corporations_corporation_id_orders_price", 
-                                        "type": "number", 
-                                        "description": "Cost per unit for this order", 
-                                        "format": "double"
-                                    }, 
-                                    "min_volume": {
-                                        "title": "get_corporations_corporation_id_orders_min_volume", 
-                                        "type": "integer", 
-                                        "description": "For bids (buy orders), the minimum quantity that will be accepted in a matching offer (sell order)", 
-                                        "format": "int32"
-                                    }, 
-                                    "wallet_division": {
-                                        "description": "The corporation wallet division used for this order.", 
-                                        "title": "get_corporations_corporation_id_orders_wallet_division", 
-                                        "format": "int32", 
-                                        "maximum": 7, 
-                                        "minimum": 1, 
-                                        "type": "integer"
-                                    }, 
-                                    "state": {
-                                        "enum": [
-                                            "cancelled", 
-                                            "character_deleted", 
-                                            "closed", 
-                                            "expired", 
-                                            "open", 
-                                            "pending"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "Current order state", 
-                                        "title": "get_corporations_corporation_id_orders_state"
-                                    }, 
-                                    "escrow": {
-                                        "title": "get_corporations_corporation_id_orders_escrow", 
-                                        "type": "number", 
-                                        "description": "For buy orders, the amount of ISK in escrow", 
-                                        "format": "double"
-                                    }, 
-                                    "is_buy_order": {
-                                        "type": "boolean", 
-                                        "description": "True for a bid (buy) order. False for an offer (sell) order", 
-                                        "title": "get_corporations_corporation_id_orders_is_buy_order"
-                                    }, 
-                                    "range": {
-                                        "enum": [
-                                            "1", 
-                                            "10", 
-                                            "2", 
-                                            "20", 
-                                            "3", 
-                                            "30", 
-                                            "4", 
-                                            "40", 
-                                            "5", 
-                                            "region", 
-                                            "solarsystem", 
-                                            "station"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "Valid order range, numbers are ranges in jumps", 
-                                        "title": "get_corporations_corporation_id_orders_range"
-                                    }, 
-                                    "duration": {
-                                        "title": "get_corporations_corporation_id_orders_duration", 
-                                        "type": "integer", 
-                                        "description": "Number of days the order is valid for (starting from the issued date). An order expires at time issued + duration", 
-                                        "format": "int32"
-                                    }, 
-                                    "volume_total": {
-                                        "title": "get_corporations_corporation_id_orders_volume_total", 
-                                        "type": "integer", 
-                                        "description": "Quantity of items required or offered at time order was placed", 
-                                        "format": "int32"
-                                    }, 
-                                    "location_id": {
-                                        "title": "get_corporations_corporation_id_orders_location_id", 
-                                        "type": "integer", 
-                                        "description": "ID of the location where order was placed", 
-                                        "format": "int64"
-                                    }
-                                }, 
-                                "title": "get_corporations_corporation_id_orders_200_ok"
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 1000, 
-                            "title": "get_corporations_corporation_id_orders_ok"
-                        }, 
-                        "description": "A list of open market orders", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "volume_remain": 4422, 
-                                    "region_id": 123, 
-                                    "type_id": 456, 
-                                    "order_id": 123, 
-                                    "issued": "2016-09-03T05:12:25Z", 
-                                    "price": 33.3, 
-                                    "min_volume": 1, 
-                                    "wallet_division": 1, 
-                                    "state": "open", 
-                                    "escrow": 45.6, 
-                                    "is_buy_order": true, 
-                                    "range": "station", 
-                                    "duration": 30, 
-                                    "volume_total": 123456, 
-                                    "location_id": 456
-                                }
-                            ]
-                        }
-                    }, 
-                    "403": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "description": "Forbidden", 
-                        "schema": {
-                            "$ref": "#/definitions/forbidden"
-                        }
-                    }, 
-                    "500": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "description": "Internal server error", 
-                        "schema": {
-                            "$ref": "#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/corporation_id"
-                    }, 
-                    {
-                        "$ref": "#/parameters/datasource"
-                    }, 
-                    {
-                        "$ref": "#/parameters/page"
-                    }, 
-                    {
-                        "$ref": "#/parameters/token"
-                    }, 
-                    {
-                        "$ref": "#/parameters/user_agent"
-                    }, 
-                    {
-                        "$ref": "#/parameters/X-User-Agent"
-                    }
-                ], 
-                "tags": [
-                    "Market"
-                ], 
-                "x-alternate-versions": [
-                    "legacy", 
-                    "v1"
-                ], 
-                "x-cached-seconds": 1200, 
-                "summary": "List open orders from a corporation", 
-                "x-required-roles": [
-                    "Accountant", 
-                    "Trader"
-                ], 
-                "operationId": "get_corporations_corporation_id_orders", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-markets.read_corporation_orders.v1"
-                        ]
-                    }
-                ], 
-                "description": "List open market orders placed on behalf of a corporation\n\n---\n\nThis route is cached for up to 1200 seconds\n\n---\nRequires one of the following EVE corporation role(s): Accountant, Trader\n\n---\n[This route has an available update](https://esi.tech.ccp.is/diff/latest/dev/#GET-/corporations/{corporation_id}/orders/)"
             }
         }, 
         "/v3/characters/{character_id}/calendar/{event_id}/": {
@@ -19548,7 +19695,7 @@
                 "description": "Return a list of medals the character has\n\n---\n\nThis route is cached for up to 3600 seconds"
             }
         }, 
-        "/v1/characters/{character_id}/notifications/": {
+        "/v1/characters/{character_id}/fleet/": {
             "get": {
                 "responses": {
                     "200": {
@@ -19567,261 +19714,75 @@
                             }
                         }, 
                         "schema": {
-                            "items": {
-                                "description": "200 ok object", 
-                                "required": [
-                                    "notification_id", 
-                                    "type", 
-                                    "sender_id", 
-                                    "sender_type", 
-                                    "timestamp"
-                                ], 
-                                "type": "object", 
-                                "properties": {
-                                    "notification_id": {
-                                        "title": "get_characters_character_id_notifications_notification_id", 
-                                        "type": "integer", 
-                                        "description": "notification_id integer", 
-                                        "format": "int64"
-                                    }, 
-                                    "timestamp": {
-                                        "title": "get_characters_character_id_notifications_timestamp", 
-                                        "type": "string", 
-                                        "description": "timestamp string", 
-                                        "format": "date-time"
-                                    }, 
-                                    "sender_id": {
-                                        "title": "get_characters_character_id_notifications_sender_id", 
-                                        "type": "integer", 
-                                        "description": "sender_id integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "sender_type": {
-                                        "enum": [
-                                            "character", 
-                                            "corporation", 
-                                            "alliance", 
-                                            "faction", 
-                                            "other"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "sender_type string", 
-                                        "title": "get_characters_character_id_notifications_sender_type"
-                                    }, 
-                                    "is_read": {
-                                        "type": "boolean", 
-                                        "description": "is_read boolean", 
-                                        "title": "get_characters_character_id_notifications_is_read"
-                                    }, 
-                                    "text": {
-                                        "type": "string", 
-                                        "description": "text string", 
-                                        "title": "get_characters_character_id_notifications_text"
-                                    }, 
-                                    "type": {
-                                        "enum": [
-                                            "AcceptedAlly", 
-                                            "AcceptedSurrender", 
-                                            "AllAnchoringMsg", 
-                                            "AllMaintenanceBillMsg", 
-                                            "AllStrucInvulnerableMsg", 
-                                            "AllStructVulnerableMsg", 
-                                            "AllWarCorpJoinedAllianceMsg", 
-                                            "AllWarDeclaredMsg", 
-                                            "AllWarInvalidatedMsg", 
-                                            "AllWarRetractedMsg", 
-                                            "AllWarSurrenderMsg", 
-                                            "AllianceCapitalChanged", 
-                                            "AllyContractCancelled", 
-                                            "AllyJoinedWarAggressorMsg", 
-                                            "AllyJoinedWarAllyMsg", 
-                                            "AllyJoinedWarDefenderMsg", 
-                                            "BattlePunishFriendlyFire", 
-                                            "BillOutOfMoneyMsg", 
-                                            "BillPaidCorpAllMsg", 
-                                            "BountyClaimMsg", 
-                                            "BountyESSShared", 
-                                            "BountyESSTaken", 
-                                            "BountyPlacedAlliance", 
-                                            "BountyPlacedChar", 
-                                            "BountyPlacedCorp", 
-                                            "BountyYourBountyClaimed", 
-                                            "BuddyConnectContactAdd", 
-                                            "CharAppAcceptMsg", 
-                                            "CharAppRejectMsg", 
-                                            "CharAppWithdrawMsg", 
-                                            "CharLeftCorpMsg", 
-                                            "CharMedalMsg", 
-                                            "CharTerminationMsg", 
-                                            "CloneActivationMsg", 
-                                            "CloneActivationMsg2", 
-                                            "CloneMovedMsg", 
-                                            "CloneRevokedMsg1", 
-                                            "CloneRevokedMsg2", 
-                                            "ContactAdd", 
-                                            "ContactEdit", 
-                                            "ContainerPasswordMsg", 
-                                            "CorpAllBillMsg", 
-                                            "CorpAppAcceptMsg", 
-                                            "CorpAppInvitedMsg", 
-                                            "CorpAppNewMsg", 
-                                            "CorpAppRejectCustomMsg", 
-                                            "CorpAppRejectMsg", 
-                                            "CorpDividendMsg", 
-                                            "CorpFriendlyFireDisableTimerCompleted", 
-                                            "CorpFriendlyFireDisableTimerStarted", 
-                                            "CorpFriendlyFireEnableTimerCompleted", 
-                                            "CorpFriendlyFireEnableTimerStarted", 
-                                            "CorpKicked", 
-                                            "CorpLiquidationMsg", 
-                                            "CorpNewCEOMsg", 
-                                            "CorpNewsMsg", 
-                                            "CorpOfficeExpirationMsg", 
-                                            "CorpStructLostMsg", 
-                                            "CorpTaxChangeMsg", 
-                                            "CorpVoteCEORevokedMsg", 
-                                            "CorpVoteMsg", 
-                                            "CorpWarDeclaredMsg", 
-                                            "CorpWarFightingLegalMsg", 
-                                            "CorpWarInvalidatedMsg", 
-                                            "CorpWarRetractedMsg", 
-                                            "CorpWarSurrenderMsg", 
-                                            "CustomsMsg", 
-                                            "DeclareWar", 
-                                            "DistrictAttacked", 
-                                            "DustAppAcceptedMsg", 
-                                            "EntosisCaptureStarted", 
-                                            "FWAllianceKickMsg", 
-                                            "FWAllianceWarningMsg", 
-                                            "FWCharKickMsg", 
-                                            "FWCharRankGainMsg", 
-                                            "FWCharRankLossMsg", 
-                                            "FWCharWarningMsg", 
-                                            "FWCorpJoinMsg", 
-                                            "FWCorpKickMsg", 
-                                            "FWCorpLeaveMsg", 
-                                            "FWCorpWarningMsg", 
-                                            "FacWarCorpJoinRequestMsg", 
-                                            "FacWarCorpJoinWithdrawMsg", 
-                                            "FacWarCorpLeaveRequestMsg", 
-                                            "FacWarCorpLeaveWithdrawMsg", 
-                                            "FacWarLPDisqualifiedEvent", 
-                                            "FacWarLPDisqualifiedKill", 
-                                            "FacWarLPPayoutEvent", 
-                                            "FacWarLPPayoutKill", 
-                                            "GameTimeAdded", 
-                                            "GameTimeReceived", 
-                                            "GameTimeSent", 
-                                            "GiftReceived", 
-                                            "IHubDestroyedByBillFailure", 
-                                            "IncursionCompletedMsg", 
-                                            "IndustryTeamAuctionLost", 
-                                            "IndustryTeamAuctionWon", 
-                                            "InfrastructureHubBillAboutToExpire", 
-                                            "InsuranceExpirationMsg", 
-                                            "InsuranceFirstShipMsg", 
-                                            "InsuranceInvalidatedMsg", 
-                                            "InsuranceIssuedMsg", 
-                                            "InsurancePayoutMsg", 
-                                            "JumpCloneDeletedMsg1", 
-                                            "JumpCloneDeletedMsg2", 
-                                            "KillReportFinalBlow", 
-                                            "KillReportVictim", 
-                                            "KillRightAvailable", 
-                                            "KillRightAvailableOpen", 
-                                            "KillRightEarned", 
-                                            "KillRightUnavailable", 
-                                            "KillRightUnavailableOpen", 
-                                            "KillRightUsed", 
-                                            "LocateCharMsg", 
-                                            "MadeWarMutual", 
-                                            "MercOfferedNegotiationMsg", 
-                                            "MissionOfferExpirationMsg", 
-                                            "MissionTimeoutMsg", 
-                                            "MoonminingAutomaticFracture", 
-                                            "MoonminingExtractionCancelled", 
-                                            "MoonminingExtractionFinished", 
-                                            "MoonminingLaserFired", 
-                                            "NPCStandingsGained", 
-                                            "NPCStandingsLost", 
-                                            "OfferedSurrender", 
-                                            "OfferedToAlly", 
-                                            "OldLscMessages", 
-                                            "OperationFinished", 
-                                            "OrbitalAttacked", 
-                                            "OrbitalReinforced", 
-                                            "OwnershipTransferred", 
-                                            "ReimbursementMsg", 
-                                            "ResearchMissionAvailableMsg", 
-                                            "RetractsWar", 
-                                            "SeasonalChallengeCompleted", 
-                                            "SovAllClaimAquiredMsg", 
-                                            "SovAllClaimLostMsg", 
-                                            "SovCommandNodeEventStarted", 
-                                            "SovCorpBillLateMsg", 
-                                            "SovCorpClaimFailMsg", 
-                                            "SovDisruptorMsg", 
-                                            "SovStationEnteredFreeport", 
-                                            "SovStructureDestroyed", 
-                                            "SovStructureReinforced", 
-                                            "SovStructureSelfDestructCancel", 
-                                            "SovStructureSelfDestructFinished", 
-                                            "SovStructureSelfDestructRequested", 
-                                            "SovereigntyIHDamageMsg", 
-                                            "SovereigntySBUDamageMsg", 
-                                            "SovereigntyTCUDamageMsg", 
-                                            "StationAggressionMsg1", 
-                                            "StationAggressionMsg2", 
-                                            "StationConquerMsg", 
-                                            "StationServiceDisabled", 
-                                            "StationServiceEnabled", 
-                                            "StationStateChangeMsg", 
-                                            "StoryLineMissionAvailableMsg", 
-                                            "StructureAnchoring", 
-                                            "StructureCourierContractChanged", 
-                                            "StructureDestroyed", 
-                                            "StructureFuelAlert", 
-                                            "StructureItemsDelivered", 
-                                            "StructureLostArmor", 
-                                            "StructureLostShields", 
-                                            "StructureOnline", 
-                                            "StructureServicesOffline", 
-                                            "StructureUnanchoring", 
-                                            "StructureUnderAttack", 
-                                            "TowerAlertMsg", 
-                                            "TowerResourceAlertMsg", 
-                                            "TransactionReversalMsg", 
-                                            "TutorialMsg", 
-                                            "WarAllyOfferDeclinedMsg", 
-                                            "WarSurrenderDeclinedMsg", 
-                                            "WarSurrenderOfferMsg", 
-                                            "notificationTypeMoonminingExtractionStarted"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "type string", 
-                                        "title": "get_characters_character_id_notifications_type"
-                                    }
+                            "description": "200 ok object", 
+                            "required": [
+                                "fleet_id", 
+                                "wing_id", 
+                                "squad_id", 
+                                "role"
+                            ], 
+                            "type": "object", 
+                            "properties": {
+                                "wing_id": {
+                                    "title": "get_characters_character_id_fleet_wing_id", 
+                                    "type": "integer", 
+                                    "description": "ID of the wing the member is in. If not applicable, will be set to -1", 
+                                    "format": "int64"
                                 }, 
-                                "title": "get_characters_character_id_notifications_200_ok"
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 500, 
-                            "title": "get_characters_character_id_notifications_ok"
-                        }, 
-                        "description": "Returns your recent notifications", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "notification_id": 1, 
-                                    "timestamp": "2017-08-16T10:08:00Z", 
-                                    "sender_id": 1000132, 
-                                    "sender_type": "corporation", 
-                                    "is_read": true, 
-                                    "text": "amount: 3731016.4000000004\\nitemID: 1024881021663\\npayout: 1\\n", 
-                                    "type": "InsurancePayoutMsg"
+                                "role": {
+                                    "enum": [
+                                        "fleet_commander", 
+                                        "squad_commander", 
+                                        "squad_member", 
+                                        "wing_commander"
+                                    ], 
+                                    "type": "string", 
+                                    "description": "Member\u2019s role in fleet", 
+                                    "title": "get_characters_character_id_fleet_role"
+                                }, 
+                                "fleet_id": {
+                                    "title": "get_characters_character_id_fleet_fleet_id", 
+                                    "type": "integer", 
+                                    "description": "The character's current fleet ID", 
+                                    "format": "int64"
+                                }, 
+                                "squad_id": {
+                                    "title": "get_characters_character_id_fleet_squad_id", 
+                                    "type": "integer", 
+                                    "description": "ID of the squad the member is in. If not applicable, will be set to -1", 
+                                    "format": "int64"
                                 }
-                            ]
+                            }, 
+                            "title": "get_characters_character_id_fleet_ok"
+                        }, 
+                        "description": "Details about the character's fleet", 
+                        "examples": {
+                            "application/json": {
+                                "wing_id": -1, 
+                                "role": "fleet_commander", 
+                                "fleet_id": 1234567890, 
+                                "squad_id": -1
+                            }
+                        }
+                    }, 
+                    "404": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Not found message"
+                            }
+                        }, 
+                        "description": "The character is not in a fleet", 
+                        "schema": {
+                            "properties": {
+                                "error": {
+                                    "type": "string", 
+                                    "description": "Not found message", 
+                                    "title": "get_characters_character_id_fleet_404_not_found"
+                                }
+                            }, 
+                            "type": "object", 
+                            "description": "Not found", 
+                            "title": "get_characters_character_id_fleet_not_found"
                         }
                     }, 
                     "403": {
@@ -19865,24 +19826,24 @@
                     }
                 ], 
                 "tags": [
-                    "Character"
+                    "Fleets"
                 ], 
                 "x-alternate-versions": [
                     "dev", 
                     "legacy", 
                     "v1"
                 ], 
-                "x-cached-seconds": 600, 
-                "summary": "Get character notifications", 
+                "x-cached-seconds": 60, 
+                "summary": "Get character fleet info", 
                 "security": [
                     {
                         "evesso": [
-                            "esi-characters.read_notifications.v1"
+                            "esi-fleets.read_fleet.v1"
                         ]
                     }
                 ], 
-                "operationId": "get_characters_character_id_notifications", 
-                "description": "Return character notifications\n\n---\n\nThis route is cached for up to 600 seconds"
+                "operationId": "get_characters_character_id_fleet", 
+                "description": "Return the fleet ID the character is in, if any.\n\n---\n\nThis route is cached for up to 60 seconds"
             }
         }, 
         "/v1/corporations/{corporation_id}/bookmarks/": {
@@ -25568,647 +25529,6 @@
                 "operationId": "get_characters_names"
             }
         }, 
-        "/v1/corporations/{corporation_id}/containers/logs/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "X-Pages": {
-                                "default": 1, 
-                                "type": "integer", 
-                                "description": "Maximum page number", 
-                                "format": "int32"
-                            }, 
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "schema": {
-                            "items": {
-                                "description": "200 ok object", 
-                                "required": [
-                                    "logged_at", 
-                                    "container_id", 
-                                    "container_type_id", 
-                                    "character_id", 
-                                    "location_id", 
-                                    "action", 
-                                    "location_flag"
-                                ], 
-                                "type": "object", 
-                                "properties": {
-                                    "new_config_bitmask": {
-                                        "title": "get_corporations_corporation_id_containers_logs_new_config_bitmask", 
-                                        "type": "integer", 
-                                        "description": "new_config_bitmask integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "character_id": {
-                                        "title": "get_corporations_corporation_id_containers_logs_character_id", 
-                                        "type": "integer", 
-                                        "description": "ID of the character who performed the action.", 
-                                        "format": "int32"
-                                    }, 
-                                    "type_id": {
-                                        "title": "get_corporations_corporation_id_containers_logs_type_id", 
-                                        "type": "integer", 
-                                        "description": "Type ID of the item being acted upon", 
-                                        "format": "int32"
-                                    }, 
-                                    "container_type_id": {
-                                        "title": "get_corporations_corporation_id_containers_logs_container_type_id", 
-                                        "type": "integer", 
-                                        "description": "Type ID of the container", 
-                                        "format": "int32"
-                                    }, 
-                                    "container_id": {
-                                        "title": "get_corporations_corporation_id_containers_logs_container_id", 
-                                        "type": "integer", 
-                                        "description": "ID of the container", 
-                                        "format": "int64"
-                                    }, 
-                                    "location_flag": {
-                                        "enum": [
-                                            "AssetSafety", 
-                                            "AutoFit", 
-                                            "Bonus", 
-                                            "Booster", 
-                                            "BoosterBay", 
-                                            "Capsule", 
-                                            "Cargo", 
-                                            "CorpDeliveries", 
-                                            "CorpSAG1", 
-                                            "CorpSAG2", 
-                                            "CorpSAG3", 
-                                            "CorpSAG4", 
-                                            "CorpSAG5", 
-                                            "CorpSAG6", 
-                                            "CorpSAG7", 
-                                            "CrateLoot", 
-                                            "Deliveries", 
-                                            "DroneBay", 
-                                            "DustBattle", 
-                                            "DustDatabank", 
-                                            "FighterBay", 
-                                            "FighterTube0", 
-                                            "FighterTube1", 
-                                            "FighterTube2", 
-                                            "FighterTube3", 
-                                            "FighterTube4", 
-                                            "FleetHangar", 
-                                            "Hangar", 
-                                            "HangarAll", 
-                                            "HiSlot0", 
-                                            "HiSlot1", 
-                                            "HiSlot2", 
-                                            "HiSlot3", 
-                                            "HiSlot4", 
-                                            "HiSlot5", 
-                                            "HiSlot6", 
-                                            "HiSlot7", 
-                                            "HiddenModifers", 
-                                            "Implant", 
-                                            "Impounded", 
-                                            "JunkyardReprocessed", 
-                                            "JunkyardTrashed", 
-                                            "LoSlot0", 
-                                            "LoSlot1", 
-                                            "LoSlot2", 
-                                            "LoSlot3", 
-                                            "LoSlot4", 
-                                            "LoSlot5", 
-                                            "LoSlot6", 
-                                            "LoSlot7", 
-                                            "Locked", 
-                                            "MedSlot0", 
-                                            "MedSlot1", 
-                                            "MedSlot2", 
-                                            "MedSlot3", 
-                                            "MedSlot4", 
-                                            "MedSlot5", 
-                                            "MedSlot6", 
-                                            "MedSlot7", 
-                                            "OfficeFolder", 
-                                            "Pilot", 
-                                            "PlanetSurface", 
-                                            "QuafeBay", 
-                                            "Reward", 
-                                            "RigSlot0", 
-                                            "RigSlot1", 
-                                            "RigSlot2", 
-                                            "RigSlot3", 
-                                            "RigSlot4", 
-                                            "RigSlot5", 
-                                            "RigSlot6", 
-                                            "RigSlot7", 
-                                            "SecondaryStorage", 
-                                            "ServiceSlot0", 
-                                            "ServiceSlot1", 
-                                            "ServiceSlot2", 
-                                            "ServiceSlot3", 
-                                            "ServiceSlot4", 
-                                            "ServiceSlot5", 
-                                            "ServiceSlot6", 
-                                            "ServiceSlot7", 
-                                            "ShipHangar", 
-                                            "ShipOffline", 
-                                            "Skill", 
-                                            "SkillInTraining", 
-                                            "SpecializedAmmoHold", 
-                                            "SpecializedCommandCenterHold", 
-                                            "SpecializedFuelBay", 
-                                            "SpecializedGasHold", 
-                                            "SpecializedIndustrialShipHold", 
-                                            "SpecializedLargeShipHold", 
-                                            "SpecializedMaterialBay", 
-                                            "SpecializedMediumShipHold", 
-                                            "SpecializedMineralHold", 
-                                            "SpecializedOreHold", 
-                                            "SpecializedPlanetaryCommoditiesHold", 
-                                            "SpecializedSalvageHold", 
-                                            "SpecializedShipHold", 
-                                            "SpecializedSmallShipHold", 
-                                            "StructureActive", 
-                                            "StructureFuel", 
-                                            "StructureInactive", 
-                                            "StructureOffline", 
-                                            "SubSystemSlot0", 
-                                            "SubSystemSlot1", 
-                                            "SubSystemSlot2", 
-                                            "SubSystemSlot3", 
-                                            "SubSystemSlot4", 
-                                            "SubSystemSlot5", 
-                                            "SubSystemSlot6", 
-                                            "SubSystemSlot7", 
-                                            "SubsystemBay", 
-                                            "Unlocked", 
-                                            "Wallet", 
-                                            "Wardrobe"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "location_flag string", 
-                                        "title": "get_corporations_corporation_id_containers_logs_location_flag"
-                                    }, 
-                                    "password_type": {
-                                        "enum": [
-                                            "config", 
-                                            "general"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "Type of password set if action is of type SetPassword or EnterPassword", 
-                                        "title": "get_corporations_corporation_id_containers_logs_password_type"
-                                    }, 
-                                    "action": {
-                                        "enum": [
-                                            "add", 
-                                            "assemble", 
-                                            "configure", 
-                                            "enter_password", 
-                                            "lock", 
-                                            "move", 
-                                            "repackage", 
-                                            "set_name", 
-                                            "set_password", 
-                                            "unlock"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "action string", 
-                                        "title": "get_corporations_corporation_id_containers_logs_action"
-                                    }, 
-                                    "old_config_bitmask": {
-                                        "title": "get_corporations_corporation_id_containers_logs_old_config_bitmask", 
-                                        "type": "integer", 
-                                        "description": "old_config_bitmask integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "logged_at": {
-                                        "title": "get_corporations_corporation_id_containers_logs_logged_at", 
-                                        "type": "string", 
-                                        "description": "Timestamp when this log was created", 
-                                        "format": "date-time"
-                                    }, 
-                                    "location_id": {
-                                        "title": "get_corporations_corporation_id_containers_logs_location_id", 
-                                        "type": "integer", 
-                                        "description": "location_id integer", 
-                                        "format": "int64"
-                                    }, 
-                                    "quantity": {
-                                        "title": "get_corporations_corporation_id_containers_logs_quantity", 
-                                        "type": "integer", 
-                                        "description": "Quantity of the item being acted upon", 
-                                        "format": "int32"
-                                    }
-                                }, 
-                                "title": "get_corporations_corporation_id_containers_logs_200_ok"
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 1000, 
-                            "title": "get_corporations_corporation_id_containers_logs_ok"
-                        }, 
-                        "description": "List of corporation ALSC logs", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "character_id": 2112625428, 
-                                    "container_type_id": 17365, 
-                                    "container_id": 1000000012279, 
-                                    "location_flag": "CorpSAG1", 
-                                    "password_type": "general", 
-                                    "action": "set_password", 
-                                    "logged_at": "2017-10-10T14:00:00Z", 
-                                    "location_id": 1000000012278
-                                }, 
-                                {
-                                    "character_id": 2112625428, 
-                                    "type_id": 1230, 
-                                    "container_type_id": 17365, 
-                                    "container_id": 1000000012279, 
-                                    "location_flag": "CorpSAG1", 
-                                    "action": "lock", 
-                                    "logged_at": "2017-10-11T12:04:33Z", 
-                                    "location_id": 1000000012278, 
-                                    "quantity": 30
-                                }, 
-                                {
-                                    "new_config_bitmask": 31, 
-                                    "character_id": 2112625428, 
-                                    "container_type_id": 17365, 
-                                    "container_id": 1000000012279, 
-                                    "location_flag": "CorpSAG2", 
-                                    "action": "configure", 
-                                    "old_config_bitmask": 23, 
-                                    "logged_at": "2017-10-11T12:06:29Z", 
-                                    "location_id": 1000000012278
-                                }
-                            ]
-                        }
-                    }, 
-                    "403": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "description": "Forbidden", 
-                        "schema": {
-                            "$ref": "#/definitions/forbidden"
-                        }
-                    }, 
-                    "500": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "description": "Internal server error", 
-                        "schema": {
-                            "$ref": "#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/corporation_id"
-                    }, 
-                    {
-                        "$ref": "#/parameters/datasource"
-                    }, 
-                    {
-                        "$ref": "#/parameters/page"
-                    }, 
-                    {
-                        "$ref": "#/parameters/token"
-                    }, 
-                    {
-                        "$ref": "#/parameters/user_agent"
-                    }, 
-                    {
-                        "$ref": "#/parameters/X-User-Agent"
-                    }
-                ], 
-                "tags": [
-                    "Corporation"
-                ], 
-                "x-alternate-versions": [
-                    "dev", 
-                    "legacy", 
-                    "v1"
-                ], 
-                "x-cached-seconds": 600, 
-                "summary": "Get all corporation ALSC logs", 
-                "x-required-roles": [
-                    "Director"
-                ], 
-                "operationId": "get_corporations_corporation_id_containers_logs", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-corporations.read_container_logs.v1"
-                        ]
-                    }
-                ], 
-                "description": "Returns logs recorded in the past seven days from all audit log secure containers (ALSC) owned by a given corporation\n\n---\n\nThis route is cached for up to 600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
-            }
-        }, 
-        "/v2/corporations/{corporation_id}/assets/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "X-Pages": {
-                                "default": 1, 
-                                "type": "integer", 
-                                "description": "Maximum page number", 
-                                "format": "int32"
-                            }, 
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "schema": {
-                            "items": {
-                                "description": "200 ok object", 
-                                "required": [
-                                    "type_id", 
-                                    "quantity", 
-                                    "location_id", 
-                                    "location_type", 
-                                    "item_id", 
-                                    "location_flag", 
-                                    "is_singleton"
-                                ], 
-                                "type": "object", 
-                                "properties": {
-                                    "location_flag": {
-                                        "enum": [
-                                            "AssetSafety", 
-                                            "AutoFit", 
-                                            "Bonus", 
-                                            "Booster", 
-                                            "BoosterBay", 
-                                            "Capsule", 
-                                            "Cargo", 
-                                            "CorpDeliveries", 
-                                            "CorpSAG1", 
-                                            "CorpSAG2", 
-                                            "CorpSAG3", 
-                                            "CorpSAG4", 
-                                            "CorpSAG5", 
-                                            "CorpSAG6", 
-                                            "CorpSAG7", 
-                                            "CrateLoot", 
-                                            "Deliveries", 
-                                            "DroneBay", 
-                                            "DustBattle", 
-                                            "DustDatabank", 
-                                            "FighterBay", 
-                                            "FighterTube0", 
-                                            "FighterTube1", 
-                                            "FighterTube2", 
-                                            "FighterTube3", 
-                                            "FighterTube4", 
-                                            "FleetHangar", 
-                                            "Hangar", 
-                                            "HangarAll", 
-                                            "HiSlot0", 
-                                            "HiSlot1", 
-                                            "HiSlot2", 
-                                            "HiSlot3", 
-                                            "HiSlot4", 
-                                            "HiSlot5", 
-                                            "HiSlot6", 
-                                            "HiSlot7", 
-                                            "HiddenModifers", 
-                                            "Implant", 
-                                            "Impounded", 
-                                            "JunkyardReprocessed", 
-                                            "JunkyardTrashed", 
-                                            "LoSlot0", 
-                                            "LoSlot1", 
-                                            "LoSlot2", 
-                                            "LoSlot3", 
-                                            "LoSlot4", 
-                                            "LoSlot5", 
-                                            "LoSlot6", 
-                                            "LoSlot7", 
-                                            "Locked", 
-                                            "MedSlot0", 
-                                            "MedSlot1", 
-                                            "MedSlot2", 
-                                            "MedSlot3", 
-                                            "MedSlot4", 
-                                            "MedSlot5", 
-                                            "MedSlot6", 
-                                            "MedSlot7", 
-                                            "OfficeFolder", 
-                                            "Pilot", 
-                                            "PlanetSurface", 
-                                            "QuafeBay", 
-                                            "Reward", 
-                                            "RigSlot0", 
-                                            "RigSlot1", 
-                                            "RigSlot2", 
-                                            "RigSlot3", 
-                                            "RigSlot4", 
-                                            "RigSlot5", 
-                                            "RigSlot6", 
-                                            "RigSlot7", 
-                                            "SecondaryStorage", 
-                                            "ServiceSlot0", 
-                                            "ServiceSlot1", 
-                                            "ServiceSlot2", 
-                                            "ServiceSlot3", 
-                                            "ServiceSlot4", 
-                                            "ServiceSlot5", 
-                                            "ServiceSlot6", 
-                                            "ServiceSlot7", 
-                                            "ShipHangar", 
-                                            "ShipOffline", 
-                                            "Skill", 
-                                            "SkillInTraining", 
-                                            "SpecializedAmmoHold", 
-                                            "SpecializedCommandCenterHold", 
-                                            "SpecializedFuelBay", 
-                                            "SpecializedGasHold", 
-                                            "SpecializedIndustrialShipHold", 
-                                            "SpecializedLargeShipHold", 
-                                            "SpecializedMaterialBay", 
-                                            "SpecializedMediumShipHold", 
-                                            "SpecializedMineralHold", 
-                                            "SpecializedOreHold", 
-                                            "SpecializedPlanetaryCommoditiesHold", 
-                                            "SpecializedSalvageHold", 
-                                            "SpecializedShipHold", 
-                                            "SpecializedSmallShipHold", 
-                                            "StructureActive", 
-                                            "StructureFuel", 
-                                            "StructureInactive", 
-                                            "StructureOffline", 
-                                            "SubSystemSlot0", 
-                                            "SubSystemSlot1", 
-                                            "SubSystemSlot2", 
-                                            "SubSystemSlot3", 
-                                            "SubSystemSlot4", 
-                                            "SubSystemSlot5", 
-                                            "SubSystemSlot6", 
-                                            "SubSystemSlot7", 
-                                            "SubsystemBay", 
-                                            "Unlocked", 
-                                            "Wallet", 
-                                            "Wardrobe"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "location_flag string", 
-                                        "title": "get_corporations_corporation_id_assets_location_flag"
-                                    }, 
-                                    "type_id": {
-                                        "title": "get_corporations_corporation_id_assets_type_id", 
-                                        "type": "integer", 
-                                        "description": "type_id integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "is_singleton": {
-                                        "type": "boolean", 
-                                        "description": "is_singleton boolean", 
-                                        "title": "get_corporations_corporation_id_assets_is_singleton"
-                                    }, 
-                                    "item_id": {
-                                        "title": "get_corporations_corporation_id_assets_item_id", 
-                                        "type": "integer", 
-                                        "description": "item_id integer", 
-                                        "format": "int64"
-                                    }, 
-                                    "location_id": {
-                                        "title": "get_corporations_corporation_id_assets_location_id", 
-                                        "type": "integer", 
-                                        "description": "location_id integer", 
-                                        "format": "int64"
-                                    }, 
-                                    "location_type": {
-                                        "enum": [
-                                            "station", 
-                                            "solar_system", 
-                                            "other"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "location_type string", 
-                                        "title": "get_corporations_corporation_id_assets_location_type"
-                                    }, 
-                                    "quantity": {
-                                        "title": "get_corporations_corporation_id_assets_quantity", 
-                                        "type": "integer", 
-                                        "description": "quantity integer", 
-                                        "format": "int32"
-                                    }
-                                }, 
-                                "title": "get_corporations_corporation_id_assets_200_ok"
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 1000, 
-                            "title": "get_corporations_corporation_id_assets_ok"
-                        }, 
-                        "description": "A list of assets", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "location_flag": "Hangar", 
-                                    "type_id": 3516, 
-                                    "is_singleton": true, 
-                                    "item_id": 1000000016835, 
-                                    "location_id": 60002959, 
-                                    "location_type": "station", 
-                                    "quantity": 1
-                                }
-                            ]
-                        }
-                    }, 
-                    "403": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "description": "Forbidden", 
-                        "schema": {
-                            "$ref": "#/definitions/forbidden"
-                        }
-                    }, 
-                    "500": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "description": "Internal server error", 
-                        "schema": {
-                            "$ref": "#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/corporation_id"
-                    }, 
-                    {
-                        "$ref": "#/parameters/datasource"
-                    }, 
-                    {
-                        "$ref": "#/parameters/page"
-                    }, 
-                    {
-                        "$ref": "#/parameters/token"
-                    }, 
-                    {
-                        "$ref": "#/parameters/user_agent"
-                    }, 
-                    {
-                        "$ref": "#/parameters/X-User-Agent"
-                    }
-                ], 
-                "tags": [
-                    "Assets"
-                ], 
-                "x-alternate-versions": [
-                    "dev", 
-                    "v2"
-                ], 
-                "x-cached-seconds": 3600, 
-                "summary": "Get corporation assets", 
-                "x-required-roles": [
-                    "Director"
-                ], 
-                "operationId": "get_corporations_corporation_id_assets", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-assets.read_corporation_assets.v1"
-                        ]
-                    }
-                ], 
-                "description": "Return a list of the corporation assets\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
-            }
-        }, 
         "/v1/corporations/{corporation_id}/wallets/": {
             "get": {
                 "responses": {
@@ -28251,119 +27571,6 @@
                 "description": "Return fittings of a character\n\n---\n\nThis route is cached for up to 300 seconds"
             }
         }, 
-        "/v1/universe/schematics/{schematic_id}/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "schema": {
-                            "description": "200 ok object", 
-                            "required": [
-                                "schematic_name", 
-                                "cycle_time"
-                            ], 
-                            "type": "object", 
-                            "properties": {
-                                "schematic_name": {
-                                    "type": "string", 
-                                    "description": "schematic_name string", 
-                                    "title": "get_universe_schematics_schematic_id_schematic_name"
-                                }, 
-                                "cycle_time": {
-                                    "title": "get_universe_schematics_schematic_id_cycle_time", 
-                                    "type": "integer", 
-                                    "description": "Time in seconds to process a run", 
-                                    "format": "int32"
-                                }
-                            }, 
-                            "title": "get_universe_schematics_schematic_id_ok"
-                        }, 
-                        "description": "Public data about a schematic", 
-                        "examples": {
-                            "application/json": {
-                                "schematic_name": "Bacteria", 
-                                "cycle_time": 1800
-                            }
-                        }
-                    }, 
-                    "404": {
-                        "schema": {
-                            "title": "get_universe_schematics_schematic_id_not_found", 
-                            "type": "object", 
-                            "description": "Schematic not found", 
-                            "properties": {
-                                "error": {
-                                    "type": "string", 
-                                    "description": "error message", 
-                                    "title": "get_universe_schematics_schematic_id_error"
-                                }
-                            }
-                        }, 
-                        "description": "Schematic not found", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Schematic not found"
-                            }
-                        }
-                    }, 
-                    "500": {
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "description": "Internal server error", 
-                        "schema": {
-                            "$ref": "#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/datasource"
-                    }, 
-                    {
-                        "description": "A PI schematic ID", 
-                        "format": "int32", 
-                        "required": true, 
-                        "in": "path", 
-                        "type": "integer", 
-                        "name": "schematic_id"
-                    }, 
-                    {
-                        "$ref": "#/parameters/user_agent"
-                    }, 
-                    {
-                        "$ref": "#/parameters/X-User-Agent"
-                    }
-                ], 
-                "tags": [
-                    "Planetary Interaction"
-                ], 
-                "x-alternate-versions": [
-                    "dev", 
-                    "legacy", 
-                    "v1"
-                ], 
-                "description": "Get information on a planetary factory schematic\n\n---\n\nThis route is cached for up to 3600 seconds", 
-                "x-cached-seconds": 3600, 
-                "summary": "Get schematic information", 
-                "operationId": "get_universe_schematics_schematic_id"
-            }
-        }, 
         "/v1/route/{origin}/{destination}/": {
             "get": {
                 "responses": {
@@ -29913,7 +29120,6 @@
                     "Wallet"
                 ], 
                 "x-alternate-versions": [
-                    "dev", 
                     "v2"
                 ], 
                 "x-cached-seconds": 3600, 
@@ -29930,7 +29136,7 @@
                         ]
                     }
                 ], 
-                "description": "Retrieve corporation wallet journal\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Accountant, Junior_Accountant"
+                "description": "Retrieve corporation wallet journal\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Accountant, Junior_Accountant\n\n---\n[This route has an available update](https://esi.tech.ccp.is/diff/latest/dev/#GET-/corporations/{corporation_id}/wallets/{division}/journal/)"
             }
         }, 
         "/v1/characters/{character_id}/fw/stats/": {
@@ -32664,6 +31870,227 @@
                 "description": "A list of your character's personal bookmark folders\n\n---\n\nThis route is cached for up to 3600 seconds"
             }
         }, 
+        "/v2/characters/{character_id}/orders/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "schema": {
+                            "items": {
+                                "description": "200 ok object", 
+                                "required": [
+                                    "is_corporation", 
+                                    "duration", 
+                                    "order_id", 
+                                    "type_id", 
+                                    "region_id", 
+                                    "location_id", 
+                                    "range", 
+                                    "price", 
+                                    "volume_total", 
+                                    "volume_remain", 
+                                    "issued"
+                                ], 
+                                "type": "object", 
+                                "properties": {
+                                    "volume_remain": {
+                                        "title": "get_characters_character_id_orders_volume_remain", 
+                                        "type": "integer", 
+                                        "description": "Quantity of items still required or offered", 
+                                        "format": "int32"
+                                    }, 
+                                    "region_id": {
+                                        "title": "get_characters_character_id_orders_region_id", 
+                                        "type": "integer", 
+                                        "description": "ID of the region where order was placed", 
+                                        "format": "int32"
+                                    }, 
+                                    "type_id": {
+                                        "title": "get_characters_character_id_orders_type_id", 
+                                        "type": "integer", 
+                                        "description": "The type ID of the item transacted in this order", 
+                                        "format": "int32"
+                                    }, 
+                                    "order_id": {
+                                        "title": "get_characters_character_id_orders_order_id", 
+                                        "type": "integer", 
+                                        "description": "Unique order ID", 
+                                        "format": "int64"
+                                    }, 
+                                    "issued": {
+                                        "title": "get_characters_character_id_orders_issued", 
+                                        "type": "string", 
+                                        "description": "Date and time when this order was issued", 
+                                        "format": "date-time"
+                                    }, 
+                                    "price": {
+                                        "title": "get_characters_character_id_orders_price", 
+                                        "type": "number", 
+                                        "description": "Cost per unit for this order", 
+                                        "format": "double"
+                                    }, 
+                                    "min_volume": {
+                                        "title": "get_characters_character_id_orders_min_volume", 
+                                        "type": "integer", 
+                                        "description": "For buy orders, the minimum quantity that will be accepted in a matching sell order", 
+                                        "format": "int32"
+                                    }, 
+                                    "is_corporation": {
+                                        "type": "boolean", 
+                                        "description": "Signifies whether the buy/sell order was placed on behalf of a corporation.", 
+                                        "title": "get_characters_character_id_orders_is_corporation"
+                                    }, 
+                                    "escrow": {
+                                        "title": "get_characters_character_id_orders_escrow", 
+                                        "type": "number", 
+                                        "description": "For buy orders, the amount of ISK in escrow", 
+                                        "format": "double"
+                                    }, 
+                                    "is_buy_order": {
+                                        "type": "boolean", 
+                                        "description": "True if the order is a bid (buy) order", 
+                                        "title": "get_characters_character_id_orders_is_buy_order"
+                                    }, 
+                                    "range": {
+                                        "enum": [
+                                            "1", 
+                                            "10", 
+                                            "2", 
+                                            "20", 
+                                            "3", 
+                                            "30", 
+                                            "4", 
+                                            "40", 
+                                            "5", 
+                                            "region", 
+                                            "solarsystem", 
+                                            "station"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "Valid order range, numbers are ranges in jumps", 
+                                        "title": "get_characters_character_id_orders_range"
+                                    }, 
+                                    "duration": {
+                                        "title": "get_characters_character_id_orders_duration", 
+                                        "type": "integer", 
+                                        "description": "Number of days for which order is valid (starting from the issued date). An order expires at time issued + duration", 
+                                        "format": "int32"
+                                    }, 
+                                    "volume_total": {
+                                        "title": "get_characters_character_id_orders_volume_total", 
+                                        "type": "integer", 
+                                        "description": "Quantity of items required or offered at time order was placed", 
+                                        "format": "int32"
+                                    }, 
+                                    "location_id": {
+                                        "title": "get_characters_character_id_orders_location_id", 
+                                        "type": "integer", 
+                                        "description": "ID of the location where order was placed", 
+                                        "format": "int64"
+                                    }
+                                }, 
+                                "title": "get_characters_character_id_orders_200_ok"
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 305, 
+                            "title": "get_characters_character_id_orders_ok"
+                        }, 
+                        "description": "Open market orders placed by a character", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "volume_remain": 4422, 
+                                    "region_id": 123, 
+                                    "type_id": 456, 
+                                    "order_id": 123, 
+                                    "issued": "2016-09-03T05:12:25Z", 
+                                    "price": 33.3, 
+                                    "min_volume": 1, 
+                                    "is_corporation": false, 
+                                    "escrow": 45.6, 
+                                    "is_buy_order": true, 
+                                    "range": "station", 
+                                    "duration": 30, 
+                                    "volume_total": 123456, 
+                                    "location_id": 456
+                                }
+                            ]
+                        }
+                    }, 
+                    "403": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "description": "Forbidden", 
+                        "schema": {
+                            "$ref": "#/definitions/forbidden"
+                        }
+                    }, 
+                    "500": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "description": "Internal server error", 
+                        "schema": {
+                            "$ref": "#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/character_id"
+                    }, 
+                    {
+                        "$ref": "#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "#/parameters/token"
+                    }, 
+                    {
+                        "$ref": "#/parameters/user_agent"
+                    }, 
+                    {
+                        "$ref": "#/parameters/X-User-Agent"
+                    }
+                ], 
+                "tags": [
+                    "Market"
+                ], 
+                "x-alternate-versions": [
+                    "dev", 
+                    "v2"
+                ], 
+                "x-cached-seconds": 1200, 
+                "summary": "List open orders from a character", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-markets.read_character_orders.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "get_characters_character_id_orders", 
+                "description": "List open market orders placed by a character\n\n---\n\nThis route is cached for up to 1200 seconds"
+            }
+        }, 
         "/v1/characters/{character_id}/contacts/": {
             "put": {
                 "responses": {
@@ -34577,6 +34004,243 @@
                 "description": "Delete a fleet wing, only empty wings can be deleted. The wing may contain squads, but the squads must be empty\n\n---\n"
             }
         }, 
+        "/v2/corporations/{corporation_id}/orders/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "schema": {
+                            "items": {
+                                "description": "200 ok object", 
+                                "required": [
+                                    "duration", 
+                                    "wallet_division", 
+                                    "order_id", 
+                                    "type_id", 
+                                    "region_id", 
+                                    "location_id", 
+                                    "range", 
+                                    "price", 
+                                    "volume_total", 
+                                    "volume_remain", 
+                                    "issued"
+                                ], 
+                                "type": "object", 
+                                "properties": {
+                                    "volume_remain": {
+                                        "title": "get_corporations_corporation_id_orders_volume_remain", 
+                                        "type": "integer", 
+                                        "description": "Quantity of items still required or offered", 
+                                        "format": "int32"
+                                    }, 
+                                    "region_id": {
+                                        "title": "get_corporations_corporation_id_orders_region_id", 
+                                        "type": "integer", 
+                                        "description": "ID of the region where order was placed", 
+                                        "format": "int32"
+                                    }, 
+                                    "type_id": {
+                                        "title": "get_corporations_corporation_id_orders_type_id", 
+                                        "type": "integer", 
+                                        "description": "The type ID of the item transacted in this order", 
+                                        "format": "int32"
+                                    }, 
+                                    "order_id": {
+                                        "title": "get_corporations_corporation_id_orders_order_id", 
+                                        "type": "integer", 
+                                        "description": "Unique order ID", 
+                                        "format": "int64"
+                                    }, 
+                                    "issued": {
+                                        "title": "get_corporations_corporation_id_orders_issued", 
+                                        "type": "string", 
+                                        "description": "Date and time when this order was issued", 
+                                        "format": "date-time"
+                                    }, 
+                                    "price": {
+                                        "title": "get_corporations_corporation_id_orders_price", 
+                                        "type": "number", 
+                                        "description": "Cost per unit for this order", 
+                                        "format": "double"
+                                    }, 
+                                    "min_volume": {
+                                        "title": "get_corporations_corporation_id_orders_min_volume", 
+                                        "type": "integer", 
+                                        "description": "For buy orders, the minimum quantity that will be accepted in a matching sell order", 
+                                        "format": "int32"
+                                    }, 
+                                    "wallet_division": {
+                                        "description": "The corporation wallet division used for this order.", 
+                                        "title": "get_corporations_corporation_id_orders_wallet_division", 
+                                        "format": "int32", 
+                                        "maximum": 7, 
+                                        "minimum": 1, 
+                                        "type": "integer"
+                                    }, 
+                                    "escrow": {
+                                        "title": "get_corporations_corporation_id_orders_escrow", 
+                                        "type": "number", 
+                                        "description": "For buy orders, the amount of ISK in escrow", 
+                                        "format": "double"
+                                    }, 
+                                    "is_buy_order": {
+                                        "type": "boolean", 
+                                        "description": "True if the order is a bid (buy) order", 
+                                        "title": "get_corporations_corporation_id_orders_is_buy_order"
+                                    }, 
+                                    "range": {
+                                        "enum": [
+                                            "1", 
+                                            "10", 
+                                            "2", 
+                                            "20", 
+                                            "3", 
+                                            "30", 
+                                            "4", 
+                                            "40", 
+                                            "5", 
+                                            "region", 
+                                            "solarsystem", 
+                                            "station"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "Valid order range, numbers are ranges in jumps", 
+                                        "title": "get_corporations_corporation_id_orders_range"
+                                    }, 
+                                    "duration": {
+                                        "title": "get_corporations_corporation_id_orders_duration", 
+                                        "type": "integer", 
+                                        "description": "Number of days for which order is valid (starting from the issued date). An order expires at time issued + duration", 
+                                        "format": "int32"
+                                    }, 
+                                    "volume_total": {
+                                        "title": "get_corporations_corporation_id_orders_volume_total", 
+                                        "type": "integer", 
+                                        "description": "Quantity of items required or offered at time order was placed", 
+                                        "format": "int32"
+                                    }, 
+                                    "location_id": {
+                                        "title": "get_corporations_corporation_id_orders_location_id", 
+                                        "type": "integer", 
+                                        "description": "ID of the location where order was placed", 
+                                        "format": "int64"
+                                    }
+                                }, 
+                                "title": "get_corporations_corporation_id_orders_200_ok"
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 1000, 
+                            "title": "get_corporations_corporation_id_orders_ok"
+                        }, 
+                        "description": "A list of open market orders", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "volume_remain": 4422, 
+                                    "region_id": 123, 
+                                    "type_id": 456, 
+                                    "order_id": 123, 
+                                    "issued": "2016-09-03T05:12:25Z", 
+                                    "price": 33.3, 
+                                    "min_volume": 1, 
+                                    "wallet_division": 1, 
+                                    "escrow": 45.6, 
+                                    "is_buy_order": true, 
+                                    "range": "station", 
+                                    "duration": 30, 
+                                    "volume_total": 123456, 
+                                    "location_id": 456
+                                }
+                            ]
+                        }
+                    }, 
+                    "403": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "description": "Forbidden", 
+                        "schema": {
+                            "$ref": "#/definitions/forbidden"
+                        }
+                    }, 
+                    "500": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "description": "Internal server error", 
+                        "schema": {
+                            "$ref": "#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/corporation_id"
+                    }, 
+                    {
+                        "$ref": "#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "#/parameters/page"
+                    }, 
+                    {
+                        "$ref": "#/parameters/token"
+                    }, 
+                    {
+                        "$ref": "#/parameters/user_agent"
+                    }, 
+                    {
+                        "$ref": "#/parameters/X-User-Agent"
+                    }
+                ], 
+                "tags": [
+                    "Market"
+                ], 
+                "x-alternate-versions": [
+                    "dev", 
+                    "v2"
+                ], 
+                "x-cached-seconds": 1200, 
+                "summary": "List open orders from a corporation", 
+                "x-required-roles": [
+                    "Accountant", 
+                    "Trader"
+                ], 
+                "operationId": "get_corporations_corporation_id_orders", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-markets.read_corporation_orders.v1"
+                        ]
+                    }
+                ], 
+                "description": "List open market orders placed on behalf of a corporation\n\n---\n\nThis route is cached for up to 1200 seconds\n\n---\nRequires one of the following EVE corporation role(s): Accountant, Trader"
+            }
+        }, 
         "/v1/characters/{character_id}/wallet/transactions/": {
             "get": {
                 "responses": {
@@ -36212,6 +35876,305 @@
                 ], 
                 "operationId": "get_characters_character_id_orders_history", 
                 "description": "List cancelled and expired market orders placed by a character up to 90 days in the past.\n\n---\n\nThis route is cached for up to 3600 seconds"
+            }
+        }, 
+        "/v2/corporations/{corporation_id}/blueprints/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "schema": {
+                            "items": {
+                                "description": "200 ok object", 
+                                "required": [
+                                    "item_id", 
+                                    "type_id", 
+                                    "location_id", 
+                                    "location_flag", 
+                                    "quantity", 
+                                    "time_efficiency", 
+                                    "material_efficiency", 
+                                    "runs"
+                                ], 
+                                "type": "object", 
+                                "properties": {
+                                    "time_efficiency": {
+                                        "description": "Time Efficiency Level of the blueprint.", 
+                                        "title": "get_corporations_corporation_id_blueprints_time_efficiency", 
+                                        "format": "int32", 
+                                        "maximum": 20, 
+                                        "minimum": 0, 
+                                        "type": "integer"
+                                    }, 
+                                    "location_flag": {
+                                        "enum": [
+                                            "AssetSafety", 
+                                            "AutoFit", 
+                                            "Bonus", 
+                                            "Booster", 
+                                            "BoosterBay", 
+                                            "Capsule", 
+                                            "Cargo", 
+                                            "CorpDeliveries", 
+                                            "CorpSAG1", 
+                                            "CorpSAG2", 
+                                            "CorpSAG3", 
+                                            "CorpSAG4", 
+                                            "CorpSAG5", 
+                                            "CorpSAG6", 
+                                            "CorpSAG7", 
+                                            "CrateLoot", 
+                                            "Deliveries", 
+                                            "DroneBay", 
+                                            "DustBattle", 
+                                            "DustDatabank", 
+                                            "FighterBay", 
+                                            "FighterTube0", 
+                                            "FighterTube1", 
+                                            "FighterTube2", 
+                                            "FighterTube3", 
+                                            "FighterTube4", 
+                                            "FleetHangar", 
+                                            "Hangar", 
+                                            "HangarAll", 
+                                            "HiSlot0", 
+                                            "HiSlot1", 
+                                            "HiSlot2", 
+                                            "HiSlot3", 
+                                            "HiSlot4", 
+                                            "HiSlot5", 
+                                            "HiSlot6", 
+                                            "HiSlot7", 
+                                            "HiddenModifiers", 
+                                            "Implant", 
+                                            "Impounded", 
+                                            "JunkyardReprocessed", 
+                                            "JunkyardTrashed", 
+                                            "LoSlot0", 
+                                            "LoSlot1", 
+                                            "LoSlot2", 
+                                            "LoSlot3", 
+                                            "LoSlot4", 
+                                            "LoSlot5", 
+                                            "LoSlot6", 
+                                            "LoSlot7", 
+                                            "Locked", 
+                                            "MedSlot0", 
+                                            "MedSlot1", 
+                                            "MedSlot2", 
+                                            "MedSlot3", 
+                                            "MedSlot4", 
+                                            "MedSlot5", 
+                                            "MedSlot6", 
+                                            "MedSlot7", 
+                                            "OfficeFolder", 
+                                            "Pilot", 
+                                            "PlanetSurface", 
+                                            "QuafeBay", 
+                                            "Reward", 
+                                            "RigSlot0", 
+                                            "RigSlot1", 
+                                            "RigSlot2", 
+                                            "RigSlot3", 
+                                            "RigSlot4", 
+                                            "RigSlot5", 
+                                            "RigSlot6", 
+                                            "RigSlot7", 
+                                            "SecondaryStorage", 
+                                            "ServiceSlot0", 
+                                            "ServiceSlot1", 
+                                            "ServiceSlot2", 
+                                            "ServiceSlot3", 
+                                            "ServiceSlot4", 
+                                            "ServiceSlot5", 
+                                            "ServiceSlot6", 
+                                            "ServiceSlot7", 
+                                            "ShipHangar", 
+                                            "ShipOffline", 
+                                            "Skill", 
+                                            "SkillInTraining", 
+                                            "SpecializedAmmoHold", 
+                                            "SpecializedCommandCenterHold", 
+                                            "SpecializedFuelBay", 
+                                            "SpecializedGasHold", 
+                                            "SpecializedIndustrialShipHold", 
+                                            "SpecializedLargeShipHold", 
+                                            "SpecializedMaterialBay", 
+                                            "SpecializedMediumShipHold", 
+                                            "SpecializedMineralHold", 
+                                            "SpecializedOreHold", 
+                                            "SpecializedPlanetaryCommoditiesHold", 
+                                            "SpecializedSalvageHold", 
+                                            "SpecializedShipHold", 
+                                            "SpecializedSmallShipHold", 
+                                            "StructureActive", 
+                                            "StructureFuel", 
+                                            "StructureInactive", 
+                                            "StructureOffline", 
+                                            "SubSystemBay", 
+                                            "SubSystemSlot0", 
+                                            "SubSystemSlot1", 
+                                            "SubSystemSlot2", 
+                                            "SubSystemSlot3", 
+                                            "SubSystemSlot4", 
+                                            "SubSystemSlot5", 
+                                            "SubSystemSlot6", 
+                                            "SubSystemSlot7", 
+                                            "Unlocked", 
+                                            "Wallet", 
+                                            "Wardrobe"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "Type of the location_id", 
+                                        "title": "get_corporations_corporation_id_blueprints_location_flag"
+                                    }, 
+                                    "type_id": {
+                                        "title": "get_corporations_corporation_id_blueprints_type_id", 
+                                        "type": "integer", 
+                                        "description": "type_id integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "runs": {
+                                        "title": "get_corporations_corporation_id_blueprints_runs", 
+                                        "minimum": -1, 
+                                        "type": "integer", 
+                                        "description": "Number of runs remaining if the blueprint is a copy, -1 if it is an original.", 
+                                        "format": "int32"
+                                    }, 
+                                    "material_efficiency": {
+                                        "description": "Material Efficiency Level of the blueprint.", 
+                                        "title": "get_corporations_corporation_id_blueprints_material_efficiency", 
+                                        "format": "int32", 
+                                        "maximum": 25, 
+                                        "minimum": 0, 
+                                        "type": "integer"
+                                    }, 
+                                    "item_id": {
+                                        "title": "get_corporations_corporation_id_blueprints_item_id", 
+                                        "type": "integer", 
+                                        "description": "Unique ID for this item.", 
+                                        "format": "int64"
+                                    }, 
+                                    "location_id": {
+                                        "title": "get_corporations_corporation_id_blueprints_location_id", 
+                                        "type": "integer", 
+                                        "description": "References a solar system, station or item_id if this blueprint is located within a container.", 
+                                        "format": "int64"
+                                    }, 
+                                    "quantity": {
+                                        "title": "get_corporations_corporation_id_blueprints_quantity", 
+                                        "minimum": -2, 
+                                        "type": "integer", 
+                                        "description": "A range of numbers with a minimum of -2 and no maximum value where -1 is an original and -2 is a copy. It can be a positive integer if it is a stack of blueprint originals fresh from the market (e.g. no activities performed on them yet).", 
+                                        "format": "int32"
+                                    }
+                                }, 
+                                "title": "get_corporations_corporation_id_blueprints_200_ok"
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 1000, 
+                            "title": "get_corporations_corporation_id_blueprints_ok"
+                        }, 
+                        "description": "List of corporation blueprints", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "time_efficiency": 0, 
+                                    "location_flag": "CorpSAG1", 
+                                    "type_id": 691, 
+                                    "runs": -1, 
+                                    "material_efficiency": 0, 
+                                    "item_id": 1000000010495, 
+                                    "location_id": 60014719, 
+                                    "quantity": 1
+                                }
+                            ]
+                        }
+                    }, 
+                    "403": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "description": "Forbidden", 
+                        "schema": {
+                            "$ref": "#/definitions/forbidden"
+                        }
+                    }, 
+                    "500": {
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "description": "Internal server error", 
+                        "schema": {
+                            "$ref": "#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/corporation_id"
+                    }, 
+                    {
+                        "$ref": "#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "#/parameters/page"
+                    }, 
+                    {
+                        "$ref": "#/parameters/token"
+                    }, 
+                    {
+                        "$ref": "#/parameters/user_agent"
+                    }, 
+                    {
+                        "$ref": "#/parameters/X-User-Agent"
+                    }
+                ], 
+                "tags": [
+                    "Corporation"
+                ], 
+                "x-alternate-versions": [
+                    "dev", 
+                    "v2"
+                ], 
+                "x-cached-seconds": 3600, 
+                "summary": "Get corporation blueprints", 
+                "x-required-roles": [
+                    "Director"
+                ], 
+                "operationId": "get_corporations_corporation_id_blueprints", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-corporations.read_blueprints.v1"
+                        ]
+                    }
+                ], 
+                "description": "Returns a list of blueprints the corporation owns\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
             }
         }, 
         "/v1/universe/moons/{moon_id}/": {
