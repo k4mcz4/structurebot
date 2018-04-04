@@ -1,0 +1,5 @@
+urllib3[secure]
+esipy
+diskcache
+redis
+nose2
