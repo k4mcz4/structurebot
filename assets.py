@@ -5,6 +5,13 @@ from util import esi_api, access_token, name_to_id
 from bravado.exception import HTTPNotFound, HTTPForbidden
 
 
+def is_system_id(location_id):
+    if location_id >= 30000000 and location_id <= 32000000:
+        return True
+    else:
+        return False
+
+
 class Fitting(object):
     """docstring for Fitting"""
     def __init__(self, Cargo=[], DroneBay=[], FighterBay=[], FighterTube=[], HiSlot=[], LoSlot=[], MedSlot=[], RigSlot=[], ServiceSlot=[], SubSystemSlot=[]):
