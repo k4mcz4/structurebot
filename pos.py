@@ -3,6 +3,7 @@ from config import CONFIG
 from util import access_token, esi_api
 from util import pprinter, annotate_element, name_to_id
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
+from assets import is_system_id
 import sys
 import math
 from decimal import Decimal
@@ -29,9 +30,7 @@ def pos_assets():
     mods = {}
     for asset in assets:
         item_id = int(asset.get('item_id'))
-        # location_flags are a bit of mystery.  Trial and error for now
-        location_flag = asset.get('location_flag')
-        if location_flag not in ['AutoFit']:
+        if not is_system_id(asset.get('location_id')):
             continue
         # Filter out things that aren't POS mods
         type_id = int(asset.get('type_id'))
