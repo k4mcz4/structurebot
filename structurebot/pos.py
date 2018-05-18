@@ -1,7 +1,7 @@
 
 from config import CONFIG
 from util import esi, esi_client, annotate_element, name_to_id
-from assets import CorpAssets
+from assets import CorpAssets, is_system_id
 from pos_resources import pos_fuel, moon_goo, pos_mods, fuel_types
 import sys
 import math
@@ -43,9 +43,7 @@ def pos_assets(corporation_id, assets={}):
     pos = {}
     mods = {}
     for item_id, asset in assets.iteritems():
-        # location_flags are a bit of mystery.  Trial and error for now
-        location_flag = asset.get('location_flag')
-        if location_flag not in ['AutoFit']:
+        if not is_system_id(asset.get('location_id')):
             continue
         # Filter out things that aren't POS mods
         type_id = int(asset.get('type_id'))
