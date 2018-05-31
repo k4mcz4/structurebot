@@ -82,7 +82,8 @@ def esi_api(endpoint, **kwargs):
             result, http_response = esi_func(**kwargs).result()
             if http_response.headers.get('warning'):
                 message = endpoint + ' - ' + http_response.headers.get('warning')
-                raise PendingDeprecationWarning(message)
+                if message.startswith('299'):
+                    raise PendingDeprecationWarning(message)
             pages = int(http_response.headers.get('X-Pages', 1))
             if pages > 1:
                 requests = []
