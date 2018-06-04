@@ -37,8 +37,6 @@ class Category(object):
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
-        if type_response.status == 400:
-            return
         else:
             raise HTTPError(type_response.data['error'])
 
@@ -70,8 +68,6 @@ class Group(object):
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
-        if type_response.status == 400:
-            return
         else:
             raise HTTPError(type_response.data['error'])
 
@@ -139,8 +135,6 @@ class Type(BaseType):
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(quantity=quantity, **type_response.data)
-        if type_response.status == 400:
-            return
         else:
             raise HTTPError(type_response.data['error'])
 
