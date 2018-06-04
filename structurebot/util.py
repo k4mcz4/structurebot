@@ -1,8 +1,10 @@
 import requests
+from requests.exceptions import HTTPError
 import time
 from urlparse import urlparse
 from operator import attrgetter
 from esipy import App, EsiClient, EsiSecurity
+from esipy.cache import DictCache
 from xml.etree import cElementTree as ET
 
 from config import *
@@ -15,14 +17,14 @@ def config_esi_cache(cache_url):
         cache_url (string): diskcache or redis url
 
     Returns:
-        cache: None or esipy.cache
+        cache: esipy.cache
 
     >>> config_esi_cache('diskcache:/tmp/esipy-diskcache') # doctest: +ELLIPSIS
     <esipy.cache.FileCache object at 0x...>
     >>> config_esi_cache('redis://user:password@127.0.0.1:6379/') # doctest: +ELLIPSIS
     <esipy.cache.RedisCache object at 0x...>
     """
-    cache = None
+    cache = DictCache()
     if cache_url:
         cache_url = urlparse(cache_url)
         if cache_url.scheme == 'diskcache':
@@ -39,14 +41,14 @@ def config_esi_cache(cache_url):
     return cache
 
 
-def setup_esi(app_id, app_secret, refresh_token, cache=None):
+def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
     """Set up the ESI client
     
     Args:
         app_id (string): SSO Application ID from CCP
         app_secret (string): SSO Application Secret from CCP
         refresh_token (string): SSO refresh token
-        cache (None, optional): esipy.cache instance
+        cache (False, optional): esipy.cache instance
     
     Returns:
         tuple: esi app definition, esi client
@@ -81,11 +83,11 @@ def setup_esi(app_id, app_secret, refresh_token, cache=None):
         cache=cache
     )
 
-    return (esi, esi_client)
+    return (esi, esi_client, esi_security)
 
 cache = config_esi_cache(CONFIG['ESI_CACHE'])
-esi, esi_client = setup_esi(CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'],
-                            CONFIG['SSO_REFRESH_TOKEN'], cache)
+esi, esi_client, esi_security = setup_esi(CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'],
+                                          CONFIG['SSO_REFRESH_TOKEN'], cache)
 
 
 def name_to_id(name, name_type):
@@ -114,6 +116,33 @@ def name_to_id(name, name_type):
         return None
 
 
+def names_to_ids(names):
+    """Looks up ids from a list of names and a name type
+
+    Args:
+        names (list of strings): list of names to resolve to ids
+
+    Returns:
+        dict: dict of name to id mappings
+
+    >>> names_to_ids(['n0rman', 'Aunsou'])
+    {u'systems': {u'Aunsou': 30003801}, u'characters': {u'n0rman': 1073945516}}
+    >>> names_to_ids(['this is not a real name n0rman'])
+    {}
+    """
+    name_id = {}
+    chunk_size = 999
+    for chunk in [names[i:i + chunk_size] for i in xrange(0, len(names), chunk_size)]:
+        post_universe_ids = esi.op['post_universe_ids'](names=chunk)
+        response = esi_client.request(post_universe_ids)
+        if response.status == 200:
+            for category, category_names in response.data.iteritems():
+                name_id[category] = {i.name: i.id for i in category_names}
+        else:
+            raise HTTPError(response.data['error'])
+    return name_id
+
+
 def ids_to_names(ids):
     """Looks up names from a list of ids
 
@@ -138,7 +167,7 @@ def ids_to_names(ids):
         if response.status == 200:
             id_name.update({i.id: i.name for i in response.data})
         elif response.status == 404:
-            raise requests.exceptions.HTTPError(response.data['error'])
+            raise HTTPError(response.data['error'])
     return id_name
 
 

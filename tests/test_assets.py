@@ -1,63 +1,54 @@
 import unittest
-from random import sample
-from copy import deepcopy
-from structurebot.assets import CorpAssets
-from structurebot.citadels import Structure
+import doctest
+import structurebot.assets
+from structurebot.assets import Fitting, Asset, Type
 from structurebot.config import CONFIG
-from structurebot.util import name_to_id
+
+
+def load_tests(loader, tests, ignore):
+    tests.addTests(doctest.DocTestSuite(structurebot.assets))
+    return tests
 
 
 class TestAssets(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        corp_id = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
-        cls.assets = CorpAssets(corp_id)
-        structures = list(Structure.from_corporation(CONFIG['CORPORATION_NAME']))
-        cls.fittings = sample(structures, 1)
-        test_mod = {'type_id': 35947,
-                    'typeName': 'Standup Target Painter I',
-                    'quantity': 1}
-        test_fighter = {'type_id': 47140,
-                        'typeName': 'Standup Einherji I',
-                        'quantity': 1}
+        name = CONFIG['CORPORATION_NAME']
+        cls.assets = list(Asset.from_name(name))
+        cls.fittings = []
+        test_mod = Type.from_name('Standup Target Painter I')
         for n in range(1, 3):
-            copied = deepcopy(cls.fittings[0])
-            copied.fitting.MedSlot.extend([test_mod]*n)
-            cls.fittings.append(copied)
-        cls.fittings[2].fitting.FighterBay.append(test_fighter)
-        more_fighters = deepcopy(cls.fittings[2])
-        more_fighters.fitting.FighterBay[0]['quantity'] += 1
-        cls.fittings.append(more_fighters)
+            fitting = Fitting(MedSlot=[test_mod for x in range(0, n)])
+            cls.fittings.append(fitting)
+        for n in range(1, 3):
+            test_fighter = Type.from_name('Standup Einherji I')
+            test_fighter.quantity = n
+            fitting = Fitting(MedSlot=[test_mod],
+                              FighterBay=[test_fighter])
+            cls.fittings.append(fitting)
+
+    def test_group_category(self):
+        control_tower = Type.from_name('Amarr Control Tower')
+        self.assertEqual(control_tower.group.name, 'Control Tower')
+        self.assertEqual(control_tower.group.category.name, 'Starbase')
 
     def test_assets(self):
-        self.assertGreater(len(self.assets.assets), 1)
+        self.assertGreater(len(self.assets), 1)
 
     def test_multi_page_assets(self):
-        self.assertGreater(len(self.assets.assets), 1000)
-
-    def test_categories(self):
-        self.assertGreater(len(self.assets.categories), 1)
-
-    def test_types(self):
-        self.assertGreater(len(self.assets.types), 1)
-
-    def test_stations(self):
-        self.assertGreater(len(self.assets.stations), 1)
-
-    def test_structures(self):
-        self.assertGreater(len(self.assets.structures), 1)
+        self.assertGreater(len(self.assets), 1000)
 
     def test_fitting_equality(self):
-        self.assertEquals(self.fittings[0].fitting, self.fittings[0].fitting)
+        self.assertEquals(self.fittings[0], self.fittings[0])
 
     def test_fitting_less(self):
-        self.assertLess(self.fittings[0].fitting, self.fittings[1].fitting)
+        self.assertLess(self.fittings[0], self.fittings[1])
 
     def test_fitting_greater(self):
-        self.assertGreater(self.fittings[2].fitting, self.fittings[1].fitting)
+        self.assertGreater(self.fittings[1], self.fittings[0])
 
     def test_fitting_less_quantity(self):
-        self.assertLess(self.fittings[2].fitting, self.fittings[3].fitting)
+        self.assertLess(self.fittings[2], self.fittings[3])
 
     def test_fitting_greater_quantity(self):
-        self.assertGreater(self.fittings[3].fitting, self.fittings[2].fitting)
+        self.assertGreater(self.fittings[3], self.fittings[2])

@@ -29,40 +29,6 @@ for row in conn.execute(pos_query):
         fuel_types[resourceTypeID] = {'typeName': resourceTypeName, 'volume': volume}
     tower_dict[resourceTypeID] = quantity
 
-moon_goo = {}
-
-goo_query = 'select typeID, typeName, volume from invTypes where groupID = 427'
-
-# invTypes
-for row in conn.execute(goo_query):
-    (typeID, typeName, volume) = row
-    moon_goo[typeID] = {'typeName': typeName, 'volume': volume}
-
-
-pos_mods = {}
-
-mods_query = """select i.typeID, i.typeName, i.capacity, r.raceName, g.groupName \
-                from invTypes as i \
-                left join chrRaces as r on i.raceID=r.raceID \
-                join invGroups as g on i.groupID=g.groupID \
-                join invCategories as c on g.categoryID=c.categoryID \
-                where c.categoryID = 23 and i.published=1"""
-
-# invTypes
-for row in conn.execute(mods_query):
-    (typeID, typeName, capacity, raceName, groupName) = row
-    pos_mods[typeID] = {'typeName': typeName,
-                        'capacity': capacity,
-                        'raceName': raceName,
-                        'groupName': groupName}
-
-
 with open('pos_resources.py', 'w') as resources:
     resources.write('pos_fuel = ' + pprinter.pformat(pos_fuel))
     resources.write('\n\n')
-    resources.write('fuel_types = ' + pprinter.pformat(fuel_types))
-    resources.write('\n\n')
-    resources.write('moon_goo = ' + pprinter.pformat(moon_goo))
-    resources.write('\n\n')
-    resources.write('pos_mods = ' + pprint.pformat(pos_mods))
-    resources.write('\n')
