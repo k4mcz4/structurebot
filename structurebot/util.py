@@ -4,6 +4,7 @@ import time
 from urlparse import urlparse
 from operator import attrgetter
 from esipy import App, EsiClient, EsiSecurity
+from esipy.cache import DictCache
 from xml.etree import cElementTree as ET
 
 from config import *
@@ -16,14 +17,14 @@ def config_esi_cache(cache_url):
         cache_url (string): diskcache or redis url
 
     Returns:
-        cache: None or esipy.cache
+        cache: esipy.cache
 
     >>> config_esi_cache('diskcache:/tmp/esipy-diskcache') # doctest: +ELLIPSIS
     <esipy.cache.FileCache object at 0x...>
     >>> config_esi_cache('redis://user:password@127.0.0.1:6379/') # doctest: +ELLIPSIS
     <esipy.cache.RedisCache object at 0x...>
     """
-    cache = None
+    cache = DictCache()
     if cache_url:
         cache_url = urlparse(cache_url)
         if cache_url.scheme == 'diskcache':
@@ -40,14 +41,14 @@ def config_esi_cache(cache_url):
     return cache
 
 
-def setup_esi(app_id, app_secret, refresh_token, cache=None):
+def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
     """Set up the ESI client
     
     Args:
         app_id (string): SSO Application ID from CCP
         app_secret (string): SSO Application Secret from CCP
         refresh_token (string): SSO refresh token
-        cache (None, optional): esipy.cache instance
+        cache (False, optional): esipy.cache instance
     
     Returns:
         tuple: esi app definition, esi client
