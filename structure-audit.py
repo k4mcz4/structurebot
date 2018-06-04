@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 
+import logging
+
 from structurebot.citadels import Structure
 from structurebot.config import CONFIG
 
 
 if __name__ == '__main__':
+    level = logging.WARNING
+    if CONFIG['DEBUG']:
+        level = logging.INFO
+    logging.basicConfig(level=level)
     structures = Structure.from_corporation(CONFIG['CORPORATION_NAME'])
     total_fuel = 0
     for structure in sorted(structures, key=lambda x: x.name):
