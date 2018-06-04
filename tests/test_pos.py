@@ -27,4 +27,4 @@ class TestPOS(unittest.TestCase):
         [self.assertIsInstance(s, pos.Pos) for s in pos.Pos.from_corp_name(CONFIG['CORPORATION_NAME'])]
 
     def test_check_pos(self):
-        [self.assertIsInstance(s, str) for s in pos.check_pos()]
+        [self.assertIsInstance(s, str) for s in pos.check_pos(CONFIG['CORPORATION_NAME'])]

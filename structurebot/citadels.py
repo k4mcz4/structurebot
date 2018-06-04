@@ -107,8 +107,7 @@ class Structure(object):
     def from_corporation(cls, corporation_name, assets=None):
         structure_list = []
         corporation_id = name_to_id(corporation_name, 'corporation')
-        if not assets:
-            assets = Asset.from_id(corporation_id, 'corporations')
+        assets = assets or Asset.from_id(corporation_id, 'corporations')
         endpoint = 'get_corporations_corporation_id_structures'
         structures_request = esi.op[endpoint](corporation_id=corporation_id)
         structures_response = esi_client.request(structures_request)
@@ -138,17 +137,17 @@ class Structure(object):
                                      self.type_name)
 
 
-def check_citadels():
+def check_citadels(corp_name, corp_assets=None):
     """
     Check citadels for fuel and services status
 
     Returns:
         list: list of alert strings
 
-    >>> set([type(s) for s in check_citadels()])
+    >>> set([type(s) for s in check_citadels(CONFIG['CORPORATION_NAME'])])
     set([<type 'str'>])
     """
-    structures = Structure.from_corporation(CONFIG['CORPORATION_NAME'])
+    structures = Structure.from_corporation(corp_name, corp_assets)
     now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
     too_soon = datetime.timedelta(days=CONFIG['TOO_SOON'])
     detonation_warning = datetime.timedelta(days=CONFIG['DETONATION_WARNING'])

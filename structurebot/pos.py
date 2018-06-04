@@ -85,10 +85,11 @@ class Pos(Asset):
         raise NotImplemented
 
     @staticmethod
-    def from_corp_name(corp_name):
+    def from_corp_name(corp_name, corp_assets=None):
         pos_mod_dict = {}
         pos_list = []
-        assets = [a for a in Asset.from_name(corp_name) if Pos.is_pos_mod(a)]
+        corp_assets = corp_assets or Asset.from_name(corp_name)
+        assets = [a for a in corp_assets if Pos.is_pos_mod(a)]
         pos_mods = [m for m in assets if m.group.name != 'Control Tower']
         mod_locations = item_locations([m.item_id for m in pos_mods])
         pos_assets = {p.item_id: p for p in assets if p.group.name == 'Control Tower'}
@@ -187,7 +188,7 @@ def sov_systems(sov_holder_id):
     return sov_systems
 
 
-def check_pos():
+def check_pos(corp_name, corp_assets=None):
     """
     Check POS for fuel and status
     
@@ -196,7 +197,7 @@ def check_pos():
 
     """
     corp_id = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
-    pos_list = Pos.from_corp_name(CONFIG['CORPORATION_NAME'])
+    pos_list = Pos.from_corp_name(corp_name, corp_assets)
     messages = []
     alliance_id_request = esi.op['get_corporations_corporation_id'](corporation_id=corp_id)
     alliance_id = esi_client.request(alliance_id_request).data.get('alliance_id', None)
