@@ -87,6 +87,45 @@ class Structure(object):
                 # Structure Citadel Service Module
                 1321: 0.75
             },
+            # 'Moreau' Fortizar
+            47512: {
+                # Structure Citadel Service Module
+                1321: 0.65,
+                # Structure Engineering Service Module
+                1415: 0.65,
+                # Structure Resource Processing Service Module
+                1322: 0.65                
+            },
+            # 'Draccous' Fortizar
+            47513: {
+                # Structure Citadel Service Module
+                1321: 0.75,
+                # Structure Engineering Service Module
+                1415: 0.75
+            },
+            # 'Horizon' Fortizar
+            47514: {
+                # Structure Citadel Service Module
+                1321: 0.75,
+                # Structure Engineering Service Module
+                1415: 0.75
+            },
+            # 'Marginis' Fortizar
+            47515: {
+                # Structure Citadel Service Module
+                1321: 0.50,
+                # Structure Engineering Service Module
+                1415: 0.50,
+                # Structure Resource Processing Service Module
+                1322: 0.50
+            },
+            # 'Prometheus' Fortizar
+            47516: {
+                # Structure Citadel Service Module
+                1321: 0.75,
+                # Structure Resource Processing Service Module
+                1322: 0.75                
+            },
             # Keepstar
             35834: {
                 # Structure Citadel Service Module
