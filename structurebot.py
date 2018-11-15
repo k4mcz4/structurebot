@@ -1,17 +1,26 @@
 #!/usr/bin/env python
 
-from config import CONFIG
-from util import notify_slack, name_to_id
-from citadels import check_citadels
-from pos import check_pos
+import logging
+
+from structurebot.config import CONFIG
+from structurebot.util import notify_slack, name_to_id
+from structurebot.citadels import check_citadels
+from structurebot.assets import Asset
+from structurebot.pos import check_pos
 
 
 if __name__ == '__main__':
-    CONFIG['CORP_ID'] = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
+    level = logging.WARNING
+    if CONFIG['DEBUG']:
+        level = logging.INFO
+    logging.basicConfig(level=level)
+    corp_name = CONFIG['CORPORATION_NAME']
+    CONFIG['CORP_ID'] = name_to_id(corp_name, 'corporation')
+    assets = Asset.from_name(corp_name)
     messages = []
     try:
-    	messages += check_citadels()
-    	messages += check_pos()
+    	messages += check_citadels(corp_name, assets)
+    	messages += check_pos(corp_name, assets)
     except Exception, e:
         if CONFIG['DEBUG']:
             raise
@@ -20,7 +29,7 @@ if __name__ == '__main__':
     	else:
     		raise
     if messages:
-    	messages.insert(0, ' Upcoming {} Structure Maintenence Tasks'.format(CONFIG['CORPORATION_NAME']))
+    	messages.insert(0, ' Upcoming {} Structure Maintenence Tasks'.format(corp_name))
     	notify_slack(sorted(messages))
 
 

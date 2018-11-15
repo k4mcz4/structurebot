@@ -7,3 +7,4 @@ sqlite-latest.sqlite
 /env.sh
 *.env
 *.profile
+.coverage

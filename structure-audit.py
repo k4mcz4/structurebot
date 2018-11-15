@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 
-from assets import CorpAssets
-from citadels import Structure
-from config import CONFIG
-from util import access_token, name_to_id
+import logging
+
+from structurebot.citadels import Structure
+from structurebot.config import CONFIG
 
 
 if __name__ == '__main__':
-    corp_id = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
-    assets = CorpAssets(corp_id)
-    structures = Structure.from_corporation(CONFIG['CORPORATION_NAME'], access_token, assets.assets)
+    level = logging.WARNING
+    if CONFIG['DEBUG']:
+        level = logging.INFO
+    logging.basicConfig(level=level)
+    structures = Structure.from_corporation(CONFIG['CORPORATION_NAME'])
     total_fuel = 0
     for structure in sorted(structures, key=lambda x: x.name):
         if 'Rented by' in structure.name:
