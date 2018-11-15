@@ -5,11 +5,10 @@
 
 import json
 import requests
-from bravado.client import SwaggerClient
+from esipy import App
 
-response = requests.get('https://esi.tech.ccp.is/_latest/swagger.json')
-response.raise_for_status()
-SwaggerClient.from_spec(response.json(), config={'use_models': False})
+app = App.create('https://esi.tech.ccp.is/_latest/swagger.json', strict=True)
+
 with open('esi.json', 'w') as specfile:
-	json.dump(response.json(), specfile, indent=4)
+    json.dump(app.dump(), specfile, indent=4)
 
