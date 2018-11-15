@@ -1,6 +1,5 @@
 import datetime
 import pytz
-import sqlite3
 
 from config import CONFIG
 from util import esi, esi_client, name_to_id, ids_to_names
