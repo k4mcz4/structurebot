@@ -134,9 +134,12 @@ class Structure(object):
         service_fuel_usage = {}
         for service in self.fitting.ServiceSlot:
             hourly_fuel = [a.value for a in service.dogma_attributes if a.attribute_id == 2109][0]
-            if service.group_id in fuel_bonus[self.type_id]:
-                modifier = fuel_bonus[self.type_id][service.group_id]
-            else:
+            try:
+                if service.group_id in fuel_bonus[self.type_id]:
+                    modifier = fuel_bonus[self.type_id][service.group_id]
+                else:
+                    modifier = 1.0
+            except KeyError:
                 modifier = 1.0
             self._fuel_rate += hourly_fuel*modifier
         return self._fuel_rate
