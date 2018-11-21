@@ -134,9 +134,12 @@ class Structure(object):
         service_fuel_usage = {}
         for service in self.fitting.ServiceSlot:
             hourly_fuel = [a.value for a in service.dogma_attributes if a.attribute_id == 2109][0]
-            if service.group_id in fuel_bonus[self.type_id]:
-                modifier = fuel_bonus[self.type_id][service.group_id]
-            else:
+            try:
+                if service.group_id in fuel_bonus[self.type_id]:
+                    modifier = fuel_bonus[self.type_id][service.group_id]
+                else:
+                    modifier = 1.0
+            except KeyError:
                 modifier = 1.0
             self._fuel_rate += hourly_fuel*modifier
         return self._fuel_rate
@@ -171,7 +174,10 @@ class Structure(object):
         return structure_list
 
     def __str__(self):
-        return '{} ({}) - {}'.format(self.name, self.structure_id,
+        return unicode(self).encode('utf-8')
+
+    def __unicode__(self):
+        return u'{} ({}) - {}'.format(self.name, self.structure_id,
                                      self.type_name)
 
 
@@ -183,7 +189,7 @@ def check_citadels(corp_name, corp_assets=None):
         list: list of alert strings
 
     >>> set([type(s) for s in check_citadels(CONFIG['CORPORATION_NAME'])])
-    set([<type 'str'>])
+    set([<type 'unicode'>])
     """
     structures = Structure.from_corporation(corp_name, corp_assets)
     now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
@@ -221,7 +227,7 @@ def check_citadels(corp_name, corp_assets=None):
         elif offline:
             message.append('Offline services: {}'.format(', '.join(offline)))
         if message:
-            messages.append('\n'.join(['{}'.format(structure.name)] + message))
+            messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
     return messages
 
 if __name__ == '__main__':

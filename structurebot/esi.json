@@ -29658,7 +29658,7 @@
                                         "description": "The day of the week when the structure exits its final reinforcement period and becomes vulnerable to attack against its hull. Monday is 0 and Sunday is 6", 
                                         "title": "get_corporations_corporation_id_structures_reinforce_weekday", 
                                         "format": "int32", 
-                                        "maximum": 6, 
+                                        "maximum": 255, 
                                         "minimum": 0, 
                                         "type": "integer"
                                     }, 
