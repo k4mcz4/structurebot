@@ -222,7 +222,11 @@ class Asset(BaseType):
             assets_request = esi.op[op](**params)
             assets_response = esi_client.request(assets_request,
                                                  raw_body_only=True)
-            assets_api = json.loads(assets_response.raw)
+            try:
+                assets_api = json.loads(assets_response.raw)
+            except ValueError:
+                # no assets
+                break
             for asset in assets_api:
                 asset_type = Type.from_id(asset['type_id'])
                 asset.update(asset_type.__dict__)
