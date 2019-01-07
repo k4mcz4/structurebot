@@ -220,9 +220,9 @@ class Asset(BaseType):
         pages_left = params['page']
         while(pages_left):
             assets_request = esi.op[op](**params)
-            assets_response = esi_client.request(assets_request,
-                                                 raw_body_only=True)
             try:
+                assets_response = esi_client.request(assets_request,
+                                                     raw_body_only=True)
                 assets_api = json.loads(assets_response.raw)
             except ValueError:
                 # no assets
