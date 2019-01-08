@@ -1,26 +1,21 @@
 -i https://pypi.org/simple
-certifi==2018.10.15
+certifi==2018.11.29
 chardet==3.0.4
-coverage==4.5.2
-diskcache==3.1.0
+diskcache==3.1.1
 ecdsa==0.13
 esipy==1.0.0
-funcsigs==1.0.2 ; python_version < '3.3'
 future==0.17.1
 futures==3.2.0
-idna==2.7
-mock==2.0.0 ; python_version == '2.7'
-nose2==0.8.0
-pbr==5.1.1
-pyaml==17.12.1
-pyasn1==0.4.4
+idna==2.8
+pyaml==18.11.0
+pyasn1==0.4.5
 pyswagger==0.8.39
 python-jose==3.0.1
-pytz==2018.7
-pyyaml==3.13
-redis==2.10.6
-requests==2.20.1
+pytz==2018.9
+pyyaml==4.2b4
+redis==3.0.1
+requests==2.21.0
 rsa==4.0
-six==1.11.0
+six==1.12.0
 urllib3==1.24.1
 validate-email==1.3

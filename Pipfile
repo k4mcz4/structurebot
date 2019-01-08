@@ -4,12 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+"nose2" = "*"
 
 [packages]
-nose2 = "*"
 redis = "*"
 diskcache = "*"
 esipy = "*"
+pyyaml = ">=4.2b1"
 
 [requires]
 python_version = "2.7"
