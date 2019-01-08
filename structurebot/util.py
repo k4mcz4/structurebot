@@ -63,10 +63,10 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
     esi = App.create(esi_dir_path + '/esi.json')
 
     esi_security = EsiSecurity(
-        app=esi,
         redirect_uri='http://localhost',
         client_id=app_id,
         secret_key=app_secret,
+        headers={'User-Agent': 'https://github.com/eve-n0rman/structurebot'}
     )
 
     esi_security.update_token({
@@ -77,7 +77,7 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
 
     esi_client = EsiClient(
         retry_requests=True,
-        header={'User-Agent': 'https://github.com/eve-n0rman/structurebot'},
+        headers={'User-Agent': 'https://github.com/eve-n0rman/structurebot'},
         raw_body_only=False,
         security=esi_security,
         cache=cache
