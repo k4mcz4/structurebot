@@ -35,9 +35,6 @@ class TestAssets(unittest.TestCase):
     def test_assets(self):
         self.assertGreater(len(self.assets), 1)
 
-    def test_multi_page_assets(self):
-        self.assertGreater(len(self.assets), 1000)
-
     def test_fitting_equality(self):
         self.assertEquals(self.fittings[0], self.fittings[0])
 
