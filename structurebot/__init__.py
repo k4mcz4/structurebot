@@ -1,3 +1,3 @@
 import logging
 
-__version__ = '20190108001'
+__version__ = '20190120001'
