@@ -3111,6 +3111,416 @@
                 "description": "Open the information window for a character, corporation or alliance inside the client\n\n---\n"
             }
         }, 
+        "/v5/characters/{character_id}/wallet/journal/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "Journal entries", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "second_party_id": 1000132, 
+                                    "description": "Contract Deposit", 
+                                    "context_id_type": "contract_id", 
+                                    "first_party_id": 2112625428, 
+                                    "amount": -100000, 
+                                    "context_id": 4, 
+                                    "date": "2018-02-23T14:31:32Z", 
+                                    "ref_type": "contract_deposit", 
+                                    "balance": 500000.4316, 
+                                    "id": 89
+                                }
+                            ]
+                        }, 
+                        "schema": {
+                            "items": {
+                                "required": [
+                                    "date", 
+                                    "id", 
+                                    "ref_type", 
+                                    "description"
+                                ], 
+                                "title": "get_characters_character_id_wallet_journal_200_ok", 
+                                "type": "object", 
+                                "description": "200 ok object", 
+                                "properties": {
+                                    "second_party_id": {
+                                        "title": "get_characters_character_id_wallet_journal_second_party_id", 
+                                        "type": "integer", 
+                                        "description": "The id of the second party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
+                                        "format": "int32"
+                                    }, 
+                                    "description": {
+                                        "type": "string", 
+                                        "description": "The reason for the transaction, mirrors what is seen in the client", 
+                                        "title": "get_characters_character_id_wallet_journal_description"
+                                    }, 
+                                    "context_id": {
+                                        "title": "get_characters_character_id_wallet_journal_context_id", 
+                                        "type": "integer", 
+                                        "description": "An ID that gives extra context to the particular transaction. Because of legacy reasons the context is completely different per ref_type and means different things. It is also possible to not have a context_id", 
+                                        "format": "int64"
+                                    }, 
+                                    "tax": {
+                                        "title": "get_characters_character_id_wallet_journal_tax", 
+                                        "type": "number", 
+                                        "description": "Tax amount received. Only applies to tax related transactions", 
+                                        "format": "double"
+                                    }, 
+                                    "reason": {
+                                        "type": "string", 
+                                        "description": "The user stated reason for the transaction. Only applies to some ref_types", 
+                                        "title": "get_characters_character_id_wallet_journal_reason"
+                                    }, 
+                                    "first_party_id": {
+                                        "title": "get_characters_character_id_wallet_journal_first_party_id", 
+                                        "type": "integer", 
+                                        "description": "The id of the first party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
+                                        "format": "int32"
+                                    }, 
+                                    "amount": {
+                                        "title": "get_characters_character_id_wallet_journal_amount", 
+                                        "type": "number", 
+                                        "description": "The amount of ISK given or taken from the wallet as a result of the given transaction. Positive when ISK is deposited into the wallet and negative when ISK is withdrawn", 
+                                        "format": "double"
+                                    }, 
+                                    "context_id_type": {
+                                        "enum": [
+                                            "structure_id", 
+                                            "station_id", 
+                                            "market_transaction_id", 
+                                            "character_id", 
+                                            "corporation_id", 
+                                            "alliance_id", 
+                                            "eve_system", 
+                                            "industry_job_id", 
+                                            "contract_id", 
+                                            "planet_id", 
+                                            "system_id", 
+                                            "type_id"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "The type of the given context_id if present", 
+                                        "title": "get_characters_character_id_wallet_journal_context_id_type"
+                                    }, 
+                                    "date": {
+                                        "title": "get_characters_character_id_wallet_journal_date", 
+                                        "type": "string", 
+                                        "description": "Date and time of transaction", 
+                                        "format": "date-time"
+                                    }, 
+                                    "ref_type": {
+                                        "enum": [
+                                            "acceleration_gate_fee", 
+                                            "advertisement_listing_fee", 
+                                            "agent_donation", 
+                                            "agent_location_services", 
+                                            "agent_miscellaneous", 
+                                            "agent_mission_collateral_paid", 
+                                            "agent_mission_collateral_refunded", 
+                                            "agent_mission_reward", 
+                                            "agent_mission_reward_corporation_tax", 
+                                            "agent_mission_time_bonus_reward", 
+                                            "agent_mission_time_bonus_reward_corporation_tax", 
+                                            "agent_security_services", 
+                                            "agent_services_rendered", 
+                                            "agents_preward", 
+                                            "alliance_maintainance_fee", 
+                                            "alliance_registration_fee", 
+                                            "asset_safety_recovery_tax", 
+                                            "bounty", 
+                                            "bounty_prize", 
+                                            "bounty_prize_corporation_tax", 
+                                            "bounty_prizes", 
+                                            "bounty_reimbursement", 
+                                            "bounty_surcharge", 
+                                            "brokers_fee", 
+                                            "clone_activation", 
+                                            "clone_transfer", 
+                                            "contraband_fine", 
+                                            "contract_auction_bid", 
+                                            "contract_auction_bid_corp", 
+                                            "contract_auction_bid_refund", 
+                                            "contract_auction_sold", 
+                                            "contract_brokers_fee", 
+                                            "contract_brokers_fee_corp", 
+                                            "contract_collateral", 
+                                            "contract_collateral_deposited_corp", 
+                                            "contract_collateral_payout", 
+                                            "contract_collateral_refund", 
+                                            "contract_deposit", 
+                                            "contract_deposit_corp", 
+                                            "contract_deposit_refund", 
+                                            "contract_deposit_sales_tax", 
+                                            "contract_price", 
+                                            "contract_price_payment_corp", 
+                                            "contract_reversal", 
+                                            "contract_reward", 
+                                            "contract_reward_deposited", 
+                                            "contract_reward_deposited_corp", 
+                                            "contract_reward_refund", 
+                                            "contract_sales_tax", 
+                                            "copying", 
+                                            "corporate_reward_payout", 
+                                            "corporate_reward_tax", 
+                                            "corporation_account_withdrawal", 
+                                            "corporation_bulk_payment", 
+                                            "corporation_dividend_payment", 
+                                            "corporation_liquidation", 
+                                            "corporation_logo_change_cost", 
+                                            "corporation_payment", 
+                                            "corporation_registration_fee", 
+                                            "courier_mission_escrow", 
+                                            "cspa", 
+                                            "cspaofflinerefund", 
+                                            "datacore_fee", 
+                                            "dna_modification_fee", 
+                                            "docking_fee", 
+                                            "duel_wager_escrow", 
+                                            "duel_wager_payment", 
+                                            "duel_wager_refund", 
+                                            "factory_slot_rental_fee", 
+                                            "gm_cash_transfer", 
+                                            "industry_job_tax", 
+                                            "infrastructure_hub_maintenance", 
+                                            "inheritance", 
+                                            "insurance", 
+                                            "jump_clone_activation_fee", 
+                                            "jump_clone_installation_fee", 
+                                            "kill_right_fee", 
+                                            "lp_store", 
+                                            "manufacturing", 
+                                            "market_escrow", 
+                                            "market_fine_paid", 
+                                            "market_transaction", 
+                                            "medal_creation", 
+                                            "medal_issued", 
+                                            "mission_completion", 
+                                            "mission_cost", 
+                                            "mission_expiration", 
+                                            "mission_reward", 
+                                            "office_rental_fee", 
+                                            "operation_bonus", 
+                                            "opportunity_reward", 
+                                            "planetary_construction", 
+                                            "planetary_export_tax", 
+                                            "planetary_import_tax", 
+                                            "player_donation", 
+                                            "player_trading", 
+                                            "project_discovery_reward", 
+                                            "project_discovery_tax", 
+                                            "reaction", 
+                                            "release_of_impounded_property", 
+                                            "repair_bill", 
+                                            "reprocessing_tax", 
+                                            "researching_material_productivity", 
+                                            "researching_technology", 
+                                            "researching_time_productivity", 
+                                            "resource_wars_reward", 
+                                            "reverse_engineering", 
+                                            "security_processing_fee", 
+                                            "shares", 
+                                            "sovereignity_bill", 
+                                            "store_purchase", 
+                                            "store_purchase_refund", 
+                                            "structure_gate_jump", 
+                                            "transaction_tax", 
+                                            "upkeep_adjustment_fee", 
+                                            "war_ally_contract", 
+                                            "war_fee", 
+                                            "war_fee_surrender"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "\"The transaction type for the given. transaction. Different transaction types will populate different attributes. Note: If you have an existing XML API application that is using ref_types, you will need to know which string ESI ref_type maps to which integer. You can look at the following file to see string->int mappings: https://github.com/ccpgames/eve-glue/blob/master/eve_glue/wallet_journal_ref.py\"", 
+                                        "title": "get_characters_character_id_wallet_journal_ref_type"
+                                    }, 
+                                    "balance": {
+                                        "title": "get_characters_character_id_wallet_journal_balance", 
+                                        "type": "number", 
+                                        "description": "Wallet balance after transaction occurred", 
+                                        "format": "double"
+                                    }, 
+                                    "tax_receiver_id": {
+                                        "title": "get_characters_character_id_wallet_journal_tax_receiver_id", 
+                                        "type": "integer", 
+                                        "description": "The corporation ID receiving any tax paid. Only applies to tax related transactions", 
+                                        "format": "int32"
+                                    }, 
+                                    "id": {
+                                        "title": "get_characters_character_id_wallet_journal_id", 
+                                        "type": "integer", 
+                                        "description": "Unique journal reference ID", 
+                                        "format": "int64"
+                                    }
+                                }
+                            }, 
+                            "type": "array", 
+                            "description": "Wallet journal entries", 
+                            "maxItems": 2500, 
+                            "title": "get_characters_character_id_wallet_journal_ok"
+                        }
+                    }, 
+                    "304": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "Not modified"
+                    }, 
+                    "403": {
+                        "description": "Forbidden", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
+                        }
+                    }, 
+                    "401": {
+                        "description": "Unauthorized", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Unauthorized message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
+                        }
+                    }, 
+                    "400": {
+                        "description": "Bad request", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Bad request message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
+                        }
+                    }, 
+                    "420": {
+                        "description": "Error limited", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Error limited message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
+                        }
+                    }, 
+                    "504": {
+                        "description": "Gateway timeout", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Gateway timeout message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
+                        }
+                    }, 
+                    "503": {
+                        "description": "Service unavailable", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Service unavailable message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
+                        }
+                    }, 
+                    "500": {
+                        "description": "Internal server error", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/character_id"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
+                    }
+                ], 
+                "produces": [
+                    "application/json"
+                ], 
+                "tags": [
+                    "Wallet"
+                ], 
+                "summary": "Get character wallet journal", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-wallet.read_character_wallet.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "get_characters_character_id_wallet_journal", 
+                "consumes": [
+                    "application/json"
+                ], 
+                "description": "Retrieve the given character's wallet journal going 30 days back\n\n---\n\nThis route is cached for up to 3600 seconds"
+            }
+        }, 
         "/v1/characters/{character_id}/fittings/{fitting_id}/": {
             "delete": {
                 "responses": {
@@ -22604,17 +23014,11 @@
                 "description": "Get information on a region\n\n---\n\nThis route expires daily at 11:05"
             }
         }, 
-        "/v4/characters/{character_id}/wallet/journal/": {
+        "/v2/universe/stations/{station_id}/": {
             "get": {
                 "responses": {
                     "200": {
                         "headers": {
-                            "X-Pages": {
-                                "default": 1, 
-                                "type": "integer", 
-                                "description": "Maximum page number", 
-                                "format": "int32"
-                            }, 
                             "Last-Modified": {
                                 "type": "string", 
                                 "description": "RFC7231 formatted datetime string"
@@ -22632,248 +23036,187 @@
                                 "description": "The caching mechanism used"
                             }
                         }, 
-                        "description": "Journal entries", 
+                        "description": "Information about a station", 
                         "examples": {
-                            "application/json": [
-                                {
-                                    "second_party_id": 1000132, 
-                                    "description": "Contract Deposit", 
-                                    "context_id_type": "contract_id", 
-                                    "first_party_id": 2112625428, 
-                                    "amount": -100000, 
-                                    "context_id": 4, 
-                                    "date": "2018-02-23T14:31:32Z", 
-                                    "ref_type": "contract_deposit", 
-                                    "balance": 500000.4316, 
-                                    "id": 89
-                                }
-                            ]
+                            "application/json": {
+                                "name": "Jakanerva III - Moon 15 - Prompt Delivery Storage", 
+                                "type_id": 1531, 
+                                "station_id": 60000277, 
+                                "owner": 1000003, 
+                                "system_id": 30000148, 
+                                "office_rental_cost": 10000, 
+                                "race_id": 1, 
+                                "services": [
+                                    "courier-missions", 
+                                    "reprocessing-plant", 
+                                    "market", 
+                                    "repair-facilities", 
+                                    "fitting", 
+                                    "news", 
+                                    "storage", 
+                                    "insurance", 
+                                    "docking", 
+                                    "office-rental", 
+                                    "loyalty-point-store", 
+                                    "navy-offices"
+                                ], 
+                                "position": {
+                                    "y": 2771804160, 
+                                    "x": 165632286720, 
+                                    "z": -2455331266560
+                                }, 
+                                "max_dockable_ship_volume": 50000000, 
+                                "reprocessing_stations_take": 0.05, 
+                                "reprocessing_efficiency": 0.5
+                            }
                         }, 
                         "schema": {
-                            "items": {
-                                "required": [
-                                    "date", 
-                                    "id", 
-                                    "ref_type", 
-                                    "description"
-                                ], 
-                                "title": "get_characters_character_id_wallet_journal_200_ok", 
-                                "type": "object", 
-                                "description": "200 ok object", 
-                                "properties": {
-                                    "second_party_id": {
-                                        "title": "get_characters_character_id_wallet_journal_second_party_id", 
-                                        "type": "integer", 
-                                        "description": "The id of the second party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
-                                        "format": "int32"
-                                    }, 
-                                    "description": {
-                                        "type": "string", 
-                                        "description": "The reason for the transaction, mirrors what is seen in the client", 
-                                        "title": "get_characters_character_id_wallet_journal_description"
-                                    }, 
-                                    "context_id": {
-                                        "title": "get_characters_character_id_wallet_journal_context_id", 
-                                        "type": "integer", 
-                                        "description": "An ID that gives extra context to the particular transaction. Because of legacy reasons the context is completely different per ref_type and means different things. It is also possible to not have a context_id", 
-                                        "format": "int64"
-                                    }, 
-                                    "tax": {
-                                        "title": "get_characters_character_id_wallet_journal_tax", 
-                                        "type": "number", 
-                                        "description": "Tax amount received. Only applies to tax related transactions", 
-                                        "format": "double"
-                                    }, 
-                                    "reason": {
-                                        "type": "string", 
-                                        "description": "The user stated reason for the transaction. Only applies to some ref_types", 
-                                        "title": "get_characters_character_id_wallet_journal_reason"
-                                    }, 
-                                    "first_party_id": {
-                                        "title": "get_characters_character_id_wallet_journal_first_party_id", 
-                                        "type": "integer", 
-                                        "description": "The id of the first party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
-                                        "format": "int32"
-                                    }, 
-                                    "amount": {
-                                        "title": "get_characters_character_id_wallet_journal_amount", 
-                                        "type": "number", 
-                                        "description": "The amount of ISK given or taken from the wallet as a result of the given transaction. Positive when ISK is deposited into the wallet and negative when ISK is withdrawn", 
-                                        "format": "double"
-                                    }, 
-                                    "context_id_type": {
+                            "required": [
+                                "station_id", 
+                                "name", 
+                                "type_id", 
+                                "position", 
+                                "system_id", 
+                                "reprocessing_efficiency", 
+                                "reprocessing_stations_take", 
+                                "max_dockable_ship_volume", 
+                                "office_rental_cost", 
+                                "services"
+                            ], 
+                            "title": "get_universe_stations_station_id_ok", 
+                            "type": "object", 
+                            "description": "200 ok object", 
+                            "properties": {
+                                "name": {
+                                    "type": "string", 
+                                    "description": "name string", 
+                                    "title": "get_universe_stations_station_id_name"
+                                }, 
+                                "type_id": {
+                                    "title": "get_universe_stations_station_id_type_id", 
+                                    "type": "integer", 
+                                    "description": "type_id integer", 
+                                    "format": "int32"
+                                }, 
+                                "station_id": {
+                                    "title": "get_universe_stations_station_id_station_id", 
+                                    "type": "integer", 
+                                    "description": "station_id integer", 
+                                    "format": "int32"
+                                }, 
+                                "services": {
+                                    "items": {
                                         "enum": [
-                                            "structure_id", 
-                                            "station_id", 
-                                            "market_transaction_id", 
-                                            "character_id", 
-                                            "corporation_id", 
-                                            "alliance_id", 
-                                            "eve_system", 
-                                            "industry_job_id", 
-                                            "contract_id", 
-                                            "planet_id", 
-                                            "system_id", 
-                                            "type_id"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "The type of the given context_id if present", 
-                                        "title": "get_characters_character_id_wallet_journal_context_id_type"
-                                    }, 
-                                    "date": {
-                                        "title": "get_characters_character_id_wallet_journal_date", 
-                                        "type": "string", 
-                                        "description": "Date and time of transaction", 
-                                        "format": "date-time"
-                                    }, 
-                                    "ref_type": {
-                                        "enum": [
-                                            "acceleration_gate_fee", 
-                                            "advertisement_listing_fee", 
-                                            "agent_donation", 
-                                            "agent_location_services", 
-                                            "agent_miscellaneous", 
-                                            "agent_mission_collateral_paid", 
-                                            "agent_mission_collateral_refunded", 
-                                            "agent_mission_reward", 
-                                            "agent_mission_reward_corporation_tax", 
-                                            "agent_mission_time_bonus_reward", 
-                                            "agent_mission_time_bonus_reward_corporation_tax", 
-                                            "agent_security_services", 
-                                            "agent_services_rendered", 
-                                            "agents_preward", 
-                                            "alliance_maintainance_fee", 
-                                            "alliance_registration_fee", 
-                                            "asset_safety_recovery_tax", 
-                                            "bounty", 
-                                            "bounty_prize", 
-                                            "bounty_prize_corporation_tax", 
-                                            "bounty_prizes", 
-                                            "bounty_reimbursement", 
-                                            "bounty_surcharge", 
-                                            "brokers_fee", 
-                                            "clone_activation", 
-                                            "clone_transfer", 
-                                            "contraband_fine", 
-                                            "contract_auction_bid", 
-                                            "contract_auction_bid_corp", 
-                                            "contract_auction_bid_refund", 
-                                            "contract_auction_sold", 
-                                            "contract_brokers_fee", 
-                                            "contract_brokers_fee_corp", 
-                                            "contract_collateral", 
-                                            "contract_collateral_deposited_corp", 
-                                            "contract_collateral_payout", 
-                                            "contract_collateral_refund", 
-                                            "contract_deposit", 
-                                            "contract_deposit_corp", 
-                                            "contract_deposit_refund", 
-                                            "contract_deposit_sales_tax", 
-                                            "contract_price", 
-                                            "contract_price_payment_corp", 
-                                            "contract_reversal", 
-                                            "contract_reward", 
-                                            "contract_reward_deposited", 
-                                            "contract_reward_deposited_corp", 
-                                            "contract_reward_refund", 
-                                            "contract_sales_tax", 
-                                            "copying", 
-                                            "corporate_reward_payout", 
-                                            "corporate_reward_tax", 
-                                            "corporation_account_withdrawal", 
-                                            "corporation_bulk_payment", 
-                                            "corporation_dividend_payment", 
-                                            "corporation_liquidation", 
-                                            "corporation_logo_change_cost", 
-                                            "corporation_payment", 
-                                            "corporation_registration_fee", 
-                                            "courier_mission_escrow", 
-                                            "cspa", 
-                                            "cspaofflinerefund", 
-                                            "datacore_fee", 
-                                            "dna_modification_fee", 
-                                            "docking_fee", 
-                                            "duel_wager_escrow", 
-                                            "duel_wager_payment", 
-                                            "duel_wager_refund", 
-                                            "factory_slot_rental_fee", 
-                                            "gm_cash_transfer", 
-                                            "industry_job_tax", 
-                                            "infrastructure_hub_maintenance", 
-                                            "inheritance", 
+                                            "bounty-missions", 
+                                            "assasination-missions", 
+                                            "courier-missions", 
+                                            "interbus", 
+                                            "reprocessing-plant", 
+                                            "refinery", 
+                                            "market", 
+                                            "black-market", 
+                                            "stock-exchange", 
+                                            "cloning", 
+                                            "surgery", 
+                                            "dna-therapy", 
+                                            "repair-facilities", 
+                                            "factory", 
+                                            "labratory", 
+                                            "gambling", 
+                                            "fitting", 
+                                            "paintshop", 
+                                            "news", 
+                                            "storage", 
                                             "insurance", 
-                                            "jump_clone_activation_fee", 
-                                            "jump_clone_installation_fee", 
-                                            "kill_right_fee", 
-                                            "lp_store", 
-                                            "manufacturing", 
-                                            "market_escrow", 
-                                            "market_fine_paid", 
-                                            "market_transaction", 
-                                            "medal_creation", 
-                                            "medal_issued", 
-                                            "mission_completion", 
-                                            "mission_cost", 
-                                            "mission_expiration", 
-                                            "mission_reward", 
-                                            "office_rental_fee", 
-                                            "operation_bonus", 
-                                            "opportunity_reward", 
-                                            "planetary_construction", 
-                                            "planetary_export_tax", 
-                                            "planetary_import_tax", 
-                                            "player_donation", 
-                                            "player_trading", 
-                                            "project_discovery_reward", 
-                                            "project_discovery_tax", 
-                                            "reaction", 
-                                            "release_of_impounded_property", 
-                                            "repair_bill", 
-                                            "reprocessing_tax", 
-                                            "researching_material_productivity", 
-                                            "researching_technology", 
-                                            "researching_time_productivity", 
-                                            "resource_wars_reward", 
-                                            "reverse_engineering", 
-                                            "security_processing_fee", 
-                                            "shares", 
-                                            "sovereignity_bill", 
-                                            "store_purchase", 
-                                            "store_purchase_refund", 
-                                            "transaction_tax", 
-                                            "upkeep_adjustment_fee", 
-                                            "war_ally_contract", 
-                                            "war_fee", 
-                                            "war_fee_surrender"
+                                            "docking", 
+                                            "office-rental", 
+                                            "jump-clone-facility", 
+                                            "loyalty-point-store", 
+                                            "navy-offices", 
+                                            "security-offices"
                                         ], 
                                         "type": "string", 
-                                        "description": "\"The transaction type for the given. transaction. Different transaction types will populate different attributes. Note: If you have an existing XML API application that is using ref_types, you will need to know which string ESI ref_type maps to which integer. You can look at the following file to see string->int mappings: https://github.com/ccpgames/eve-glue/blob/master/eve_glue/wallet_journal_ref.py\"", 
-                                        "title": "get_characters_character_id_wallet_journal_ref_type"
+                                        "description": "service string", 
+                                        "title": "get_universe_stations_station_id_service"
                                     }, 
-                                    "balance": {
-                                        "title": "get_characters_character_id_wallet_journal_balance", 
-                                        "type": "number", 
-                                        "description": "Wallet balance after transaction occurred", 
-                                        "format": "double"
-                                    }, 
-                                    "tax_receiver_id": {
-                                        "title": "get_characters_character_id_wallet_journal_tax_receiver_id", 
-                                        "type": "integer", 
-                                        "description": "The corporation ID receiving any tax paid. Only applies to tax related transactions", 
-                                        "format": "int32"
-                                    }, 
-                                    "id": {
-                                        "title": "get_characters_character_id_wallet_journal_id", 
-                                        "type": "integer", 
-                                        "description": "Unique journal reference ID", 
-                                        "format": "int64"
+                                    "type": "array", 
+                                    "description": "services array", 
+                                    "maxItems": 30, 
+                                    "title": "get_universe_stations_station_id_services"
+                                }, 
+                                "system_id": {
+                                    "title": "get_universe_stations_station_id_system_id", 
+                                    "type": "integer", 
+                                    "description": "The solar system this station is in", 
+                                    "format": "int32"
+                                }, 
+                                "office_rental_cost": {
+                                    "title": "get_universe_stations_station_id_office_rental_cost", 
+                                    "type": "number", 
+                                    "description": "office_rental_cost number", 
+                                    "format": "float"
+                                }, 
+                                "race_id": {
+                                    "title": "get_universe_stations_station_id_race_id", 
+                                    "type": "integer", 
+                                    "description": "race_id integer", 
+                                    "format": "int32"
+                                }, 
+                                "owner": {
+                                    "title": "get_universe_stations_station_id_owner", 
+                                    "type": "integer", 
+                                    "description": "ID of the corporation that controls this station", 
+                                    "format": "int32"
+                                }, 
+                                "position": {
+                                    "required": [
+                                        "x", 
+                                        "y", 
+                                        "z"
+                                    ], 
+                                    "title": "get_universe_stations_station_id_position", 
+                                    "type": "object", 
+                                    "description": "position object", 
+                                    "properties": {
+                                        "y": {
+                                            "title": "get_universe_stations_station_id_y", 
+                                            "type": "number", 
+                                            "description": "y number", 
+                                            "format": "double"
+                                        }, 
+                                        "x": {
+                                            "title": "get_universe_stations_station_id_x", 
+                                            "type": "number", 
+                                            "description": "x number", 
+                                            "format": "double"
+                                        }, 
+                                        "z": {
+                                            "title": "get_universe_stations_station_id_z", 
+                                            "type": "number", 
+                                            "description": "z number", 
+                                            "format": "double"
+                                        }
                                     }
+                                }, 
+                                "max_dockable_ship_volume": {
+                                    "title": "get_universe_stations_station_id_max_dockable_ship_volume", 
+                                    "type": "number", 
+                                    "description": "max_dockable_ship_volume number", 
+                                    "format": "float"
+                                }, 
+                                "reprocessing_stations_take": {
+                                    "title": "get_universe_stations_station_id_reprocessing_stations_take", 
+                                    "type": "number", 
+                                    "description": "reprocessing_stations_take number", 
+                                    "format": "float"
+                                }, 
+                                "reprocessing_efficiency": {
+                                    "title": "get_universe_stations_station_id_reprocessing_efficiency", 
+                                    "type": "number", 
+                                    "description": "reprocessing_efficiency number", 
+                                    "format": "float"
                                 }
-                            }, 
-                            "type": "array", 
-                            "description": "Wallet journal entries", 
-                            "maxItems": 2500, 
-                            "title": "get_characters_character_id_wallet_journal_ok"
+                            }
                         }
                     }, 
                     "304": {
@@ -22897,26 +23240,24 @@
                         }, 
                         "description": "Not modified"
                     }, 
-                    "403": {
-                        "description": "Forbidden", 
+                    "404": {
+                        "description": "Station not found", 
                         "examples": {
                             "application/json": {
-                                "error": "Forbidden message"
+                                "error": "Not found message"
                             }
                         }, 
                         "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
-                        }
-                    }, 
-                    "401": {
-                        "description": "Unauthorized", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Unauthorized message"
+                            "title": "get_universe_stations_station_id_not_found", 
+                            "type": "object", 
+                            "description": "Not found", 
+                            "properties": {
+                                "error": {
+                                    "type": "string", 
+                                    "description": "Not found message", 
+                                    "title": "get_universe_stations_station_id_404_not_found"
+                                }
                             }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
                         }
                     }, 
                     "400": {
@@ -22977,40 +23318,32 @@
                 }, 
                 "parameters": [
                     {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/character_id"
-                    }, 
-                    {
                         "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
                     }, 
                     {
                         "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
                     }, 
                     {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
+                        "description": "station_id integer", 
+                        "format": "int32", 
+                        "required": true, 
+                        "in": "path", 
+                        "type": "integer", 
+                        "name": "station_id"
                     }
                 ], 
                 "produces": [
                     "application/json"
                 ], 
                 "tags": [
-                    "Wallet"
+                    "Universe"
                 ], 
-                "summary": "Get character wallet journal", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-wallet.read_character_wallet.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "get_characters_character_id_wallet_journal", 
+                "summary": "Get station information", 
+                "operationId": "get_universe_stations_station_id", 
                 "consumes": [
                     "application/json"
                 ], 
-                "description": "Retrieve the given character's wallet journal going 30 days back\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nWarning: This route has an upgrade available\n\n---\n[Diff of the upcoming changes](https://esi.evetech.net/diff/latest/dev/#GET-/characters/{character_id}/wallet/journal/)"
+                "description": "Get information on a station\n\n---\n\nThis route expires daily at 11:05"
             }
         }, 
         "/v2/alliances/{alliance_id}/contacts/": {
@@ -25382,425 +25715,6 @@
                 "description": "Return the fleet ID the character is in, if any.\n\n---\n\nThis route is cached for up to 60 seconds"
             }
         }, 
-        "/v3/corporations/{corporation_id}/wallets/{division}/journal/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "X-Pages": {
-                                "default": 1, 
-                                "type": "integer", 
-                                "description": "Maximum page number", 
-                                "format": "int32"
-                            }, 
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "Journal entries", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "second_party_id": 95538921, 
-                                    "description": "CCP Zoetrope transferred cash from C C P's corporate account to CCP SnowedIn's account", 
-                                    "context_id_type": "character_id", 
-                                    "first_party_id": 109299958, 
-                                    "amount": -1000, 
-                                    "context_id": 2112625428, 
-                                    "date": "2016-10-24T09:00:00Z", 
-                                    "ref_type": "corporation_account_withdrawal", 
-                                    "balance": 100000.0, 
-                                    "id": 1234567890
-                                }
-                            ]
-                        }, 
-                        "schema": {
-                            "items": {
-                                "required": [
-                                    "date", 
-                                    "id", 
-                                    "ref_type", 
-                                    "description"
-                                ], 
-                                "title": "get_corporations_corporation_id_wallets_division_journal_200_ok", 
-                                "type": "object", 
-                                "description": "200 ok object", 
-                                "properties": {
-                                    "second_party_id": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_second_party_id", 
-                                        "type": "integer", 
-                                        "description": "The id of the second party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
-                                        "format": "int32"
-                                    }, 
-                                    "description": {
-                                        "type": "string", 
-                                        "description": "The reason for the transaction, mirrors what is seen in the client", 
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_description"
-                                    }, 
-                                    "context_id": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_context_id", 
-                                        "type": "integer", 
-                                        "description": "An ID that gives extra context to the particular transaction. Because of legacy reasons the context is completely different per ref_type and means different things. It is also possible to not have a context_id", 
-                                        "format": "int64"
-                                    }, 
-                                    "tax": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_tax", 
-                                        "type": "number", 
-                                        "description": "Tax amount received. Only applies to tax related transactions", 
-                                        "format": "double"
-                                    }, 
-                                    "reason": {
-                                        "type": "string", 
-                                        "description": "The user stated reason for the transaction. Only applies to some ref_types", 
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_reason"
-                                    }, 
-                                    "first_party_id": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_first_party_id", 
-                                        "type": "integer", 
-                                        "description": "The id of the first party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
-                                        "format": "int32"
-                                    }, 
-                                    "amount": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_amount", 
-                                        "type": "number", 
-                                        "description": "The amount of ISK given or taken from the wallet as a result of the given transaction. Positive when ISK is deposited into the wallet and negative when ISK is withdrawn", 
-                                        "format": "double"
-                                    }, 
-                                    "context_id_type": {
-                                        "enum": [
-                                            "structure_id", 
-                                            "station_id", 
-                                            "market_transaction_id", 
-                                            "character_id", 
-                                            "corporation_id", 
-                                            "alliance_id", 
-                                            "eve_system", 
-                                            "industry_job_id", 
-                                            "contract_id", 
-                                            "planet_id", 
-                                            "system_id", 
-                                            "type_id"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "The type of the given context_id if present", 
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_context_id_type"
-                                    }, 
-                                    "date": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_date", 
-                                        "type": "string", 
-                                        "description": "Date and time of transaction", 
-                                        "format": "date-time"
-                                    }, 
-                                    "ref_type": {
-                                        "enum": [
-                                            "acceleration_gate_fee", 
-                                            "advertisement_listing_fee", 
-                                            "agent_donation", 
-                                            "agent_location_services", 
-                                            "agent_miscellaneous", 
-                                            "agent_mission_collateral_paid", 
-                                            "agent_mission_collateral_refunded", 
-                                            "agent_mission_reward", 
-                                            "agent_mission_reward_corporation_tax", 
-                                            "agent_mission_time_bonus_reward", 
-                                            "agent_mission_time_bonus_reward_corporation_tax", 
-                                            "agent_security_services", 
-                                            "agent_services_rendered", 
-                                            "agents_preward", 
-                                            "alliance_maintainance_fee", 
-                                            "alliance_registration_fee", 
-                                            "asset_safety_recovery_tax", 
-                                            "bounty", 
-                                            "bounty_prize", 
-                                            "bounty_prize_corporation_tax", 
-                                            "bounty_prizes", 
-                                            "bounty_reimbursement", 
-                                            "bounty_surcharge", 
-                                            "brokers_fee", 
-                                            "clone_activation", 
-                                            "clone_transfer", 
-                                            "contraband_fine", 
-                                            "contract_auction_bid", 
-                                            "contract_auction_bid_corp", 
-                                            "contract_auction_bid_refund", 
-                                            "contract_auction_sold", 
-                                            "contract_brokers_fee", 
-                                            "contract_brokers_fee_corp", 
-                                            "contract_collateral", 
-                                            "contract_collateral_deposited_corp", 
-                                            "contract_collateral_payout", 
-                                            "contract_collateral_refund", 
-                                            "contract_deposit", 
-                                            "contract_deposit_corp", 
-                                            "contract_deposit_refund", 
-                                            "contract_deposit_sales_tax", 
-                                            "contract_price", 
-                                            "contract_price_payment_corp", 
-                                            "contract_reversal", 
-                                            "contract_reward", 
-                                            "contract_reward_deposited", 
-                                            "contract_reward_deposited_corp", 
-                                            "contract_reward_refund", 
-                                            "contract_sales_tax", 
-                                            "copying", 
-                                            "corporate_reward_payout", 
-                                            "corporate_reward_tax", 
-                                            "corporation_account_withdrawal", 
-                                            "corporation_bulk_payment", 
-                                            "corporation_dividend_payment", 
-                                            "corporation_liquidation", 
-                                            "corporation_logo_change_cost", 
-                                            "corporation_payment", 
-                                            "corporation_registration_fee", 
-                                            "courier_mission_escrow", 
-                                            "cspa", 
-                                            "cspaofflinerefund", 
-                                            "datacore_fee", 
-                                            "dna_modification_fee", 
-                                            "docking_fee", 
-                                            "duel_wager_escrow", 
-                                            "duel_wager_payment", 
-                                            "duel_wager_refund", 
-                                            "factory_slot_rental_fee", 
-                                            "gm_cash_transfer", 
-                                            "industry_job_tax", 
-                                            "infrastructure_hub_maintenance", 
-                                            "inheritance", 
-                                            "insurance", 
-                                            "jump_clone_activation_fee", 
-                                            "jump_clone_installation_fee", 
-                                            "kill_right_fee", 
-                                            "lp_store", 
-                                            "manufacturing", 
-                                            "market_escrow", 
-                                            "market_fine_paid", 
-                                            "market_transaction", 
-                                            "medal_creation", 
-                                            "medal_issued", 
-                                            "mission_completion", 
-                                            "mission_cost", 
-                                            "mission_expiration", 
-                                            "mission_reward", 
-                                            "office_rental_fee", 
-                                            "operation_bonus", 
-                                            "opportunity_reward", 
-                                            "planetary_construction", 
-                                            "planetary_export_tax", 
-                                            "planetary_import_tax", 
-                                            "player_donation", 
-                                            "player_trading", 
-                                            "project_discovery_reward", 
-                                            "project_discovery_tax", 
-                                            "reaction", 
-                                            "release_of_impounded_property", 
-                                            "repair_bill", 
-                                            "reprocessing_tax", 
-                                            "researching_material_productivity", 
-                                            "researching_technology", 
-                                            "researching_time_productivity", 
-                                            "resource_wars_reward", 
-                                            "reverse_engineering", 
-                                            "security_processing_fee", 
-                                            "shares", 
-                                            "sovereignity_bill", 
-                                            "store_purchase", 
-                                            "store_purchase_refund", 
-                                            "transaction_tax", 
-                                            "upkeep_adjustment_fee", 
-                                            "war_ally_contract", 
-                                            "war_fee", 
-                                            "war_fee_surrender"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "\"The transaction type for the given. transaction. Different transaction types will populate different attributes. Note: If you have an existing XML API application that is using ref_types, you will need to know which string ESI ref_type maps to which integer. You can look at the following file to see string->int mappings: https://github.com/ccpgames/eve-glue/blob/master/eve_glue/wallet_journal_ref.py\"", 
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_ref_type"
-                                    }, 
-                                    "balance": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_balance", 
-                                        "type": "number", 
-                                        "description": "Wallet balance after transaction occurred", 
-                                        "format": "double"
-                                    }, 
-                                    "tax_receiver_id": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_tax_receiver_id", 
-                                        "type": "integer", 
-                                        "description": "The corporation ID receiving any tax paid. Only applies to tax related transactions", 
-                                        "format": "int32"
-                                    }, 
-                                    "id": {
-                                        "title": "get_corporations_corporation_id_wallets_division_journal_id", 
-                                        "type": "integer", 
-                                        "description": "Unique journal reference ID", 
-                                        "format": "int64"
-                                    }
-                                }
-                            }, 
-                            "type": "array", 
-                            "description": "Journal entries", 
-                            "maxItems": 2500, 
-                            "title": "get_corporations_corporation_id_wallets_division_journal_ok"
-                        }
-                    }, 
-                    "304": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "Not modified"
-                    }, 
-                    "403": {
-                        "description": "Forbidden", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
-                        }
-                    }, 
-                    "401": {
-                        "description": "Unauthorized", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Unauthorized message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
-                        }
-                    }, 
-                    "400": {
-                        "description": "Bad request", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Bad request message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
-                        }
-                    }, 
-                    "420": {
-                        "description": "Error limited", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Error limited message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
-                        }
-                    }, 
-                    "504": {
-                        "description": "Gateway timeout", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Gateway timeout message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
-                        }
-                    }, 
-                    "503": {
-                        "description": "Service unavailable", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Service unavailable message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
-                        }
-                    }, 
-                    "500": {
-                        "description": "Internal server error", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/corporation_id"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
-                    }, 
-                    {
-                        "description": "Wallet key of the division to fetch journals from", 
-                        "format": "int32", 
-                        "required": true, 
-                        "maximum": 7, 
-                        "minimum": 1, 
-                        "in": "path", 
-                        "type": "integer", 
-                        "name": "division"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
-                    }
-                ], 
-                "produces": [
-                    "application/json"
-                ], 
-                "tags": [
-                    "Wallet"
-                ], 
-                "summary": "Get corporation wallet journal", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-wallet.read_corporation_wallets.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "get_corporations_corporation_id_wallets_division_journal", 
-                "consumes": [
-                    "application/json"
-                ], 
-                "description": "Retrieve the given corporation's wallet journal for the given division going 30 days back. Note: any journal records having to do with the new navigation structures from the release of Onslaught will not show up in this version. To see those, use the v4 version of this route.\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Accountant, Junior_Accountant\n\n---\nWarning: This route has an upgrade available\n\n---\n[Diff of the upcoming changes](https://esi.evetech.net/diff/latest/dev/#GET-/corporations/{corporation_id}/wallets/{division}/journal/)"
-            }
-        }, 
         "/v1/corporations/{corporation_id}/bookmarks/": {
             "get": {
                 "responses": {
@@ -27563,6 +27477,426 @@
                     "application/json"
                 ], 
                 "description": "List industry jobs run by a corporation\n\n---\n\nThis route is cached for up to 300 seconds\n\n---\nRequires one of the following EVE corporation role(s): Factory_Manager"
+            }
+        }, 
+        "/v4/corporations/{corporation_id}/wallets/{division}/journal/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "Journal entries", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "second_party_id": 95538921, 
+                                    "description": "CCP Zoetrope transferred cash from C C P's corporate account to CCP SnowedIn's account", 
+                                    "context_id_type": "character_id", 
+                                    "first_party_id": 109299958, 
+                                    "amount": -1000, 
+                                    "context_id": 2112625428, 
+                                    "date": "2016-10-24T09:00:00Z", 
+                                    "ref_type": "corporation_account_withdrawal", 
+                                    "balance": 100000.0, 
+                                    "id": 1234567890
+                                }
+                            ]
+                        }, 
+                        "schema": {
+                            "items": {
+                                "required": [
+                                    "date", 
+                                    "id", 
+                                    "ref_type", 
+                                    "description"
+                                ], 
+                                "title": "get_corporations_corporation_id_wallets_division_journal_200_ok", 
+                                "type": "object", 
+                                "description": "200 ok object", 
+                                "properties": {
+                                    "second_party_id": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_second_party_id", 
+                                        "type": "integer", 
+                                        "description": "The id of the second party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
+                                        "format": "int32"
+                                    }, 
+                                    "description": {
+                                        "type": "string", 
+                                        "description": "The reason for the transaction, mirrors what is seen in the client", 
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_description"
+                                    }, 
+                                    "context_id": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_context_id", 
+                                        "type": "integer", 
+                                        "description": "An ID that gives extra context to the particular transaction. Because of legacy reasons the context is completely different per ref_type and means different things. It is also possible to not have a context_id", 
+                                        "format": "int64"
+                                    }, 
+                                    "tax": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_tax", 
+                                        "type": "number", 
+                                        "description": "Tax amount received. Only applies to tax related transactions", 
+                                        "format": "double"
+                                    }, 
+                                    "reason": {
+                                        "type": "string", 
+                                        "description": "The user stated reason for the transaction. Only applies to some ref_types", 
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_reason"
+                                    }, 
+                                    "first_party_id": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_first_party_id", 
+                                        "type": "integer", 
+                                        "description": "The id of the first party involved in the transaction. This attribute has no consistency and is different or non existant for particular ref_types. The description attribute will help make sense of what this attribute means. For more info about the given ID it can be dropped into the /universe/names/ ESI route to determine its type and name", 
+                                        "format": "int32"
+                                    }, 
+                                    "amount": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_amount", 
+                                        "type": "number", 
+                                        "description": "The amount of ISK given or taken from the wallet as a result of the given transaction. Positive when ISK is deposited into the wallet and negative when ISK is withdrawn", 
+                                        "format": "double"
+                                    }, 
+                                    "context_id_type": {
+                                        "enum": [
+                                            "structure_id", 
+                                            "station_id", 
+                                            "market_transaction_id", 
+                                            "character_id", 
+                                            "corporation_id", 
+                                            "alliance_id", 
+                                            "eve_system", 
+                                            "industry_job_id", 
+                                            "contract_id", 
+                                            "planet_id", 
+                                            "system_id", 
+                                            "type_id"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "The type of the given context_id if present", 
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_context_id_type"
+                                    }, 
+                                    "date": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_date", 
+                                        "type": "string", 
+                                        "description": "Date and time of transaction", 
+                                        "format": "date-time"
+                                    }, 
+                                    "ref_type": {
+                                        "enum": [
+                                            "acceleration_gate_fee", 
+                                            "advertisement_listing_fee", 
+                                            "agent_donation", 
+                                            "agent_location_services", 
+                                            "agent_miscellaneous", 
+                                            "agent_mission_collateral_paid", 
+                                            "agent_mission_collateral_refunded", 
+                                            "agent_mission_reward", 
+                                            "agent_mission_reward_corporation_tax", 
+                                            "agent_mission_time_bonus_reward", 
+                                            "agent_mission_time_bonus_reward_corporation_tax", 
+                                            "agent_security_services", 
+                                            "agent_services_rendered", 
+                                            "agents_preward", 
+                                            "alliance_maintainance_fee", 
+                                            "alliance_registration_fee", 
+                                            "asset_safety_recovery_tax", 
+                                            "bounty", 
+                                            "bounty_prize", 
+                                            "bounty_prize_corporation_tax", 
+                                            "bounty_prizes", 
+                                            "bounty_reimbursement", 
+                                            "bounty_surcharge", 
+                                            "brokers_fee", 
+                                            "clone_activation", 
+                                            "clone_transfer", 
+                                            "contraband_fine", 
+                                            "contract_auction_bid", 
+                                            "contract_auction_bid_corp", 
+                                            "contract_auction_bid_refund", 
+                                            "contract_auction_sold", 
+                                            "contract_brokers_fee", 
+                                            "contract_brokers_fee_corp", 
+                                            "contract_collateral", 
+                                            "contract_collateral_deposited_corp", 
+                                            "contract_collateral_payout", 
+                                            "contract_collateral_refund", 
+                                            "contract_deposit", 
+                                            "contract_deposit_corp", 
+                                            "contract_deposit_refund", 
+                                            "contract_deposit_sales_tax", 
+                                            "contract_price", 
+                                            "contract_price_payment_corp", 
+                                            "contract_reversal", 
+                                            "contract_reward", 
+                                            "contract_reward_deposited", 
+                                            "contract_reward_deposited_corp", 
+                                            "contract_reward_refund", 
+                                            "contract_sales_tax", 
+                                            "copying", 
+                                            "corporate_reward_payout", 
+                                            "corporate_reward_tax", 
+                                            "corporation_account_withdrawal", 
+                                            "corporation_bulk_payment", 
+                                            "corporation_dividend_payment", 
+                                            "corporation_liquidation", 
+                                            "corporation_logo_change_cost", 
+                                            "corporation_payment", 
+                                            "corporation_registration_fee", 
+                                            "courier_mission_escrow", 
+                                            "cspa", 
+                                            "cspaofflinerefund", 
+                                            "datacore_fee", 
+                                            "dna_modification_fee", 
+                                            "docking_fee", 
+                                            "duel_wager_escrow", 
+                                            "duel_wager_payment", 
+                                            "duel_wager_refund", 
+                                            "factory_slot_rental_fee", 
+                                            "gm_cash_transfer", 
+                                            "industry_job_tax", 
+                                            "infrastructure_hub_maintenance", 
+                                            "inheritance", 
+                                            "insurance", 
+                                            "jump_clone_activation_fee", 
+                                            "jump_clone_installation_fee", 
+                                            "kill_right_fee", 
+                                            "lp_store", 
+                                            "manufacturing", 
+                                            "market_escrow", 
+                                            "market_fine_paid", 
+                                            "market_transaction", 
+                                            "medal_creation", 
+                                            "medal_issued", 
+                                            "mission_completion", 
+                                            "mission_cost", 
+                                            "mission_expiration", 
+                                            "mission_reward", 
+                                            "office_rental_fee", 
+                                            "operation_bonus", 
+                                            "opportunity_reward", 
+                                            "planetary_construction", 
+                                            "planetary_export_tax", 
+                                            "planetary_import_tax", 
+                                            "player_donation", 
+                                            "player_trading", 
+                                            "project_discovery_reward", 
+                                            "project_discovery_tax", 
+                                            "reaction", 
+                                            "release_of_impounded_property", 
+                                            "repair_bill", 
+                                            "reprocessing_tax", 
+                                            "researching_material_productivity", 
+                                            "researching_technology", 
+                                            "researching_time_productivity", 
+                                            "resource_wars_reward", 
+                                            "reverse_engineering", 
+                                            "security_processing_fee", 
+                                            "shares", 
+                                            "sovereignity_bill", 
+                                            "store_purchase", 
+                                            "store_purchase_refund", 
+                                            "structure_gate_jump", 
+                                            "transaction_tax", 
+                                            "upkeep_adjustment_fee", 
+                                            "war_ally_contract", 
+                                            "war_fee", 
+                                            "war_fee_surrender"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "\"The transaction type for the given. transaction. Different transaction types will populate different attributes. Note: If you have an existing XML API application that is using ref_types, you will need to know which string ESI ref_type maps to which integer. You can look at the following file to see string->int mappings: https://github.com/ccpgames/eve-glue/blob/master/eve_glue/wallet_journal_ref.py\"", 
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_ref_type"
+                                    }, 
+                                    "balance": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_balance", 
+                                        "type": "number", 
+                                        "description": "Wallet balance after transaction occurred", 
+                                        "format": "double"
+                                    }, 
+                                    "tax_receiver_id": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_tax_receiver_id", 
+                                        "type": "integer", 
+                                        "description": "The corporation ID receiving any tax paid. Only applies to tax related transactions", 
+                                        "format": "int32"
+                                    }, 
+                                    "id": {
+                                        "title": "get_corporations_corporation_id_wallets_division_journal_id", 
+                                        "type": "integer", 
+                                        "description": "Unique journal reference ID", 
+                                        "format": "int64"
+                                    }
+                                }
+                            }, 
+                            "type": "array", 
+                            "description": "Journal entries", 
+                            "maxItems": 2500, 
+                            "title": "get_corporations_corporation_id_wallets_division_journal_ok"
+                        }
+                    }, 
+                    "304": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "Not modified"
+                    }, 
+                    "403": {
+                        "description": "Forbidden", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
+                        }
+                    }, 
+                    "401": {
+                        "description": "Unauthorized", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Unauthorized message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
+                        }
+                    }, 
+                    "400": {
+                        "description": "Bad request", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Bad request message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
+                        }
+                    }, 
+                    "420": {
+                        "description": "Error limited", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Error limited message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
+                        }
+                    }, 
+                    "504": {
+                        "description": "Gateway timeout", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Gateway timeout message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
+                        }
+                    }, 
+                    "503": {
+                        "description": "Service unavailable", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Service unavailable message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
+                        }
+                    }, 
+                    "500": {
+                        "description": "Internal server error", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/corporation_id"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
+                    }, 
+                    {
+                        "description": "Wallet key of the division to fetch journals from", 
+                        "format": "int32", 
+                        "required": true, 
+                        "maximum": 7, 
+                        "minimum": 1, 
+                        "in": "path", 
+                        "type": "integer", 
+                        "name": "division"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
+                    }
+                ], 
+                "produces": [
+                    "application/json"
+                ], 
+                "tags": [
+                    "Wallet"
+                ], 
+                "summary": "Get corporation wallet journal", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-wallet.read_corporation_wallets.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "get_corporations_corporation_id_wallets_division_journal", 
+                "consumes": [
+                    "application/json"
+                ], 
+                "description": "Retrieve the given corporation's wallet journal for the given division going 30 days back\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Accountant, Junior_Accountant"
             }
         }, 
         "/v1/universe/systems/": {
@@ -29545,371 +29879,6 @@
                     "application/json"
                 ], 
                 "description": "List all trained skills for the given character\n\n---\n\nThis route is cached for up to 120 seconds"
-            }
-        }, 
-        "/v2/corporations/{corporation_id}/structures/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "X-Pages": {
-                                "default": 1, 
-                                "type": "integer", 
-                                "description": "Maximum page number", 
-                                "format": "int32"
-                            }, 
-                            "Content-Language": {
-                                "enum": [
-                                    "de", 
-                                    "en-us", 
-                                    "fr", 
-                                    "ja", 
-                                    "ru", 
-                                    "zh"
-                                ], 
-                                "type": "string", 
-                                "description": "The language used in the response"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "List of corporation structures' information", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "type_id": 35833, 
-                                    "profile_id": 11237, 
-                                    "corporation_id": 667531913, 
-                                    "reinforce_weekday": 2, 
-                                    "state": "shield_vulnerable", 
-                                    "system_id": 30004763, 
-                                    "reinforce_hour": 22, 
-                                    "structure_id": 1021975535893
-                                }
-                            ]
-                        }, 
-                        "schema": {
-                            "items": {
-                                "required": [
-                                    "structure_id", 
-                                    "type_id", 
-                                    "corporation_id", 
-                                    "system_id", 
-                                    "profile_id", 
-                                    "reinforce_hour", 
-                                    "reinforce_weekday", 
-                                    "state"
-                                ], 
-                                "title": "get_corporations_corporation_id_structures_200_ok", 
-                                "type": "object", 
-                                "description": "200 ok object", 
-                                "properties": {
-                                    "next_reinforce_weekday": {
-                                        "description": "The requested change to reinforce_weekday that will take effect at the time shown by next_reinforce_apply", 
-                                        "title": "get_corporations_corporation_id_structures_next_reinforce_weekday", 
-                                        "format": "int32", 
-                                        "maximum": 6, 
-                                        "minimum": 0, 
-                                        "type": "integer"
-                                    }, 
-                                    "state_timer_start": {
-                                        "title": "get_corporations_corporation_id_structures_state_timer_start", 
-                                        "type": "string", 
-                                        "description": "Date at which the structure entered it's current state", 
-                                        "format": "date-time"
-                                    }, 
-                                    "type_id": {
-                                        "title": "get_corporations_corporation_id_structures_type_id", 
-                                        "type": "integer", 
-                                        "description": "The type id of the structure", 
-                                        "format": "int32"
-                                    }, 
-                                    "next_reinforce_apply": {
-                                        "title": "get_corporations_corporation_id_structures_next_reinforce_apply", 
-                                        "type": "string", 
-                                        "description": "The date and time when the structure's newly requested reinforcement times (e.g. next_reinforce_hour and next_reinforce_day) will take effect", 
-                                        "format": "date-time"
-                                    }, 
-                                    "profile_id": {
-                                        "title": "get_corporations_corporation_id_structures_profile_id", 
-                                        "type": "integer", 
-                                        "description": "The id of the ACL profile for this citadel", 
-                                        "format": "int32"
-                                    }, 
-                                    "corporation_id": {
-                                        "title": "get_corporations_corporation_id_structures_corporation_id", 
-                                        "type": "integer", 
-                                        "description": "ID of the corporation that owns the structure", 
-                                        "format": "int32"
-                                    }, 
-                                    "reinforce_weekday": {
-                                        "description": "The day of the week when the structure exits its final reinforcement period and becomes vulnerable to attack against its hull. Monday is 0 and Sunday is 6", 
-                                        "title": "get_corporations_corporation_id_structures_reinforce_weekday", 
-                                        "format": "int32", 
-                                        "maximum": 6, 
-                                        "minimum": 0, 
-                                        "type": "integer"
-                                    }, 
-                                    "unanchors_at": {
-                                        "title": "get_corporations_corporation_id_structures_unanchors_at", 
-                                        "type": "string", 
-                                        "description": "Date at which the structure will unanchor", 
-                                        "format": "date-time"
-                                    }, 
-                                    "next_reinforce_hour": {
-                                        "description": "The requested change to reinforce_hour that will take effect at the time shown by next_reinforce_apply", 
-                                        "title": "get_corporations_corporation_id_structures_next_reinforce_hour", 
-                                        "format": "int32", 
-                                        "maximum": 23, 
-                                        "minimum": 0, 
-                                        "type": "integer"
-                                    }, 
-                                    "state": {
-                                        "enum": [
-                                            "anchor_vulnerable", 
-                                            "anchoring", 
-                                            "armor_reinforce", 
-                                            "armor_vulnerable", 
-                                            "fitting_invulnerable", 
-                                            "hull_reinforce", 
-                                            "hull_vulnerable", 
-                                            "online_deprecated", 
-                                            "onlining_vulnerable", 
-                                            "shield_vulnerable", 
-                                            "unanchored", 
-                                            "unknown"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "state string", 
-                                        "title": "get_corporations_corporation_id_structures_state"
-                                    }, 
-                                    "system_id": {
-                                        "title": "get_corporations_corporation_id_structures_system_id", 
-                                        "type": "integer", 
-                                        "description": "The solar system the structure is in", 
-                                        "format": "int32"
-                                    }, 
-                                    "reinforce_hour": {
-                                        "description": "The hour of day that determines the four hour window when the structure will randomly exit its reinforcement periods and become vulnerable to attack against its armor and/or hull. The structure will become vulnerable at a random time that is +/- 2 hours centered on the value of this property", 
-                                        "title": "get_corporations_corporation_id_structures_reinforce_hour", 
-                                        "format": "int32", 
-                                        "maximum": 23, 
-                                        "minimum": 0, 
-                                        "type": "integer"
-                                    }, 
-                                    "services": {
-                                        "items": {
-                                            "required": [
-                                                "name", 
-                                                "state"
-                                            ], 
-                                            "title": "get_corporations_corporation_id_structures_service", 
-                                            "type": "object", 
-                                            "description": "service object", 
-                                            "properties": {
-                                                "state": {
-                                                    "enum": [
-                                                        "online", 
-                                                        "offline", 
-                                                        "cleanup"
-                                                    ], 
-                                                    "type": "string", 
-                                                    "description": "state string", 
-                                                    "title": "get_corporations_corporation_id_structures_service_state"
-                                                }, 
-                                                "name": {
-                                                    "type": "string", 
-                                                    "description": "name string", 
-                                                    "title": "get_corporations_corporation_id_structures_name"
-                                                }
-                                            }
-                                        }, 
-                                        "type": "array", 
-                                        "description": "Contains a list of service upgrades, and their state", 
-                                        "maxItems": 10, 
-                                        "title": "get_corporations_corporation_id_structures_services"
-                                    }, 
-                                    "fuel_expires": {
-                                        "title": "get_corporations_corporation_id_structures_fuel_expires", 
-                                        "type": "string", 
-                                        "description": "Date on which the structure will run out of fuel", 
-                                        "format": "date-time"
-                                    }, 
-                                    "structure_id": {
-                                        "title": "get_corporations_corporation_id_structures_structure_id", 
-                                        "type": "integer", 
-                                        "description": "The Item ID of the structure", 
-                                        "format": "int64"
-                                    }, 
-                                    "state_timer_end": {
-                                        "title": "get_corporations_corporation_id_structures_state_timer_end", 
-                                        "type": "string", 
-                                        "description": "Date at which the structure will move to it's next state", 
-                                        "format": "date-time"
-                                    }
-                                }
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 1000, 
-                            "title": "get_corporations_corporation_id_structures_ok"
-                        }
-                    }, 
-                    "304": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "Not modified"
-                    }, 
-                    "403": {
-                        "description": "Forbidden", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
-                        }
-                    }, 
-                    "401": {
-                        "description": "Unauthorized", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Unauthorized message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
-                        }
-                    }, 
-                    "400": {
-                        "description": "Bad request", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Bad request message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
-                        }
-                    }, 
-                    "420": {
-                        "description": "Error limited", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Error limited message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
-                        }
-                    }, 
-                    "504": {
-                        "description": "Gateway timeout", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Gateway timeout message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
-                        }
-                    }, 
-                    "503": {
-                        "description": "Service unavailable", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Service unavailable message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
-                        }
-                    }, 
-                    "500": {
-                        "description": "Internal server error", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/Accept-Language"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/corporation_id"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/language"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
-                    }
-                ], 
-                "produces": [
-                    "application/json"
-                ], 
-                "tags": [
-                    "Corporation"
-                ], 
-                "summary": "Get corporation structures", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-corporations.read_structures.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "get_corporations_corporation_id_structures", 
-                "consumes": [
-                    "application/json"
-                ], 
-                "description": "Get a list of corporation structures. This route's version includes the changes to structures detailed in this blog: https://www.eveonline.com/article/upwell-2.0-structures-changes-coming-on-february-13th Note: this route will not return any flex structures owned by a corporation, use the v3 route to have those included in the response. A list of FLEX structures can be found here: https://support.eveonline.com/hc/en-us/articles/213021829-Upwell-Structures\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Station_Manager\n\n---\nWarning: This route has an upgrade available\n\n---\n[Diff of the upcoming changes](https://esi.evetech.net/diff/latest/dev/#GET-/corporations/{corporation_id}/structures/)"
             }
         }, 
         "/v1/universe/types/": {
@@ -38297,6 +38266,371 @@
                 "description": "Return names for a set of item ids, which you can get from corporation assets endpoint. Only valid for items that can customize names, like containers or ships\n\n---\n\nRequires one of the following EVE corporation role(s): Director"
             }
         }, 
+        "/v3/corporations/{corporation_id}/structures/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
+                            "Content-Language": {
+                                "enum": [
+                                    "de", 
+                                    "en-us", 
+                                    "fr", 
+                                    "ja", 
+                                    "ru", 
+                                    "zh"
+                                ], 
+                                "type": "string", 
+                                "description": "The language used in the response"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "List of corporation structures' information", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "type_id": 35833, 
+                                    "profile_id": 11237, 
+                                    "corporation_id": 667531913, 
+                                    "reinforce_weekday": 2, 
+                                    "state": "shield_vulnerable", 
+                                    "system_id": 30004763, 
+                                    "reinforce_hour": 22, 
+                                    "structure_id": 1021975535893
+                                }
+                            ]
+                        }, 
+                        "schema": {
+                            "items": {
+                                "required": [
+                                    "structure_id", 
+                                    "type_id", 
+                                    "corporation_id", 
+                                    "system_id", 
+                                    "profile_id", 
+                                    "reinforce_hour", 
+                                    "state"
+                                ], 
+                                "title": "get_corporations_corporation_id_structures_200_ok", 
+                                "type": "object", 
+                                "description": "200 ok object", 
+                                "properties": {
+                                    "next_reinforce_weekday": {
+                                        "description": "The requested change to reinforce_weekday that will take effect at the time shown by next_reinforce_apply", 
+                                        "title": "get_corporations_corporation_id_structures_next_reinforce_weekday", 
+                                        "format": "int32", 
+                                        "maximum": 6, 
+                                        "minimum": 0, 
+                                        "type": "integer"
+                                    }, 
+                                    "state_timer_start": {
+                                        "title": "get_corporations_corporation_id_structures_state_timer_start", 
+                                        "type": "string", 
+                                        "description": "Date at which the structure entered it's current state", 
+                                        "format": "date-time"
+                                    }, 
+                                    "type_id": {
+                                        "title": "get_corporations_corporation_id_structures_type_id", 
+                                        "type": "integer", 
+                                        "description": "The type id of the structure", 
+                                        "format": "int32"
+                                    }, 
+                                    "next_reinforce_apply": {
+                                        "title": "get_corporations_corporation_id_structures_next_reinforce_apply", 
+                                        "type": "string", 
+                                        "description": "The date and time when the structure's newly requested reinforcement times (e.g. next_reinforce_hour and next_reinforce_day) will take effect", 
+                                        "format": "date-time"
+                                    }, 
+                                    "profile_id": {
+                                        "title": "get_corporations_corporation_id_structures_profile_id", 
+                                        "type": "integer", 
+                                        "description": "The id of the ACL profile for this citadel", 
+                                        "format": "int32"
+                                    }, 
+                                    "corporation_id": {
+                                        "title": "get_corporations_corporation_id_structures_corporation_id", 
+                                        "type": "integer", 
+                                        "description": "ID of the corporation that owns the structure", 
+                                        "format": "int32"
+                                    }, 
+                                    "reinforce_weekday": {
+                                        "description": "The day of the week when the structure exits its final reinforcement period and becomes vulnerable to attack against its hull. Monday is 0 and Sunday is 6", 
+                                        "title": "get_corporations_corporation_id_structures_reinforce_weekday", 
+                                        "format": "int32", 
+                                        "maximum": 6, 
+                                        "minimum": 0, 
+                                        "type": "integer"
+                                    }, 
+                                    "unanchors_at": {
+                                        "title": "get_corporations_corporation_id_structures_unanchors_at", 
+                                        "type": "string", 
+                                        "description": "Date at which the structure will unanchor", 
+                                        "format": "date-time"
+                                    }, 
+                                    "next_reinforce_hour": {
+                                        "description": "The requested change to reinforce_hour that will take effect at the time shown by next_reinforce_apply", 
+                                        "title": "get_corporations_corporation_id_structures_next_reinforce_hour", 
+                                        "format": "int32", 
+                                        "maximum": 23, 
+                                        "minimum": 0, 
+                                        "type": "integer"
+                                    }, 
+                                    "state": {
+                                        "enum": [
+                                            "anchor_vulnerable", 
+                                            "anchoring", 
+                                            "armor_reinforce", 
+                                            "armor_vulnerable", 
+                                            "deploy_vulnerable", 
+                                            "fitting_invulnerable", 
+                                            "hull_reinforce", 
+                                            "hull_vulnerable", 
+                                            "online_deprecated", 
+                                            "onlining_vulnerable", 
+                                            "shield_vulnerable", 
+                                            "unanchored", 
+                                            "unknown"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "state string", 
+                                        "title": "get_corporations_corporation_id_structures_state"
+                                    }, 
+                                    "system_id": {
+                                        "title": "get_corporations_corporation_id_structures_system_id", 
+                                        "type": "integer", 
+                                        "description": "The solar system the structure is in", 
+                                        "format": "int32"
+                                    }, 
+                                    "reinforce_hour": {
+                                        "description": "The hour of day that determines the four hour window when the structure will randomly exit its reinforcement periods and become vulnerable to attack against its armor and/or hull. The structure will become vulnerable at a random time that is +/- 2 hours centered on the value of this property", 
+                                        "title": "get_corporations_corporation_id_structures_reinforce_hour", 
+                                        "format": "int32", 
+                                        "maximum": 23, 
+                                        "minimum": 0, 
+                                        "type": "integer"
+                                    }, 
+                                    "services": {
+                                        "items": {
+                                            "required": [
+                                                "name", 
+                                                "state"
+                                            ], 
+                                            "title": "get_corporations_corporation_id_structures_service", 
+                                            "type": "object", 
+                                            "description": "service object", 
+                                            "properties": {
+                                                "state": {
+                                                    "enum": [
+                                                        "online", 
+                                                        "offline", 
+                                                        "cleanup"
+                                                    ], 
+                                                    "type": "string", 
+                                                    "description": "state string", 
+                                                    "title": "get_corporations_corporation_id_structures_service_state"
+                                                }, 
+                                                "name": {
+                                                    "type": "string", 
+                                                    "description": "name string", 
+                                                    "title": "get_corporations_corporation_id_structures_name"
+                                                }
+                                            }
+                                        }, 
+                                        "type": "array", 
+                                        "description": "Contains a list of service upgrades, and their state", 
+                                        "maxItems": 10, 
+                                        "title": "get_corporations_corporation_id_structures_services"
+                                    }, 
+                                    "fuel_expires": {
+                                        "title": "get_corporations_corporation_id_structures_fuel_expires", 
+                                        "type": "string", 
+                                        "description": "Date on which the structure will run out of fuel", 
+                                        "format": "date-time"
+                                    }, 
+                                    "structure_id": {
+                                        "title": "get_corporations_corporation_id_structures_structure_id", 
+                                        "type": "integer", 
+                                        "description": "The Item ID of the structure", 
+                                        "format": "int64"
+                                    }, 
+                                    "state_timer_end": {
+                                        "title": "get_corporations_corporation_id_structures_state_timer_end", 
+                                        "type": "string", 
+                                        "description": "Date at which the structure will move to it's next state", 
+                                        "format": "date-time"
+                                    }
+                                }
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 1000, 
+                            "title": "get_corporations_corporation_id_structures_ok"
+                        }
+                    }, 
+                    "304": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "Not modified"
+                    }, 
+                    "403": {
+                        "description": "Forbidden", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
+                        }
+                    }, 
+                    "401": {
+                        "description": "Unauthorized", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Unauthorized message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
+                        }
+                    }, 
+                    "400": {
+                        "description": "Bad request", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Bad request message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
+                        }
+                    }, 
+                    "420": {
+                        "description": "Error limited", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Error limited message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
+                        }
+                    }, 
+                    "504": {
+                        "description": "Gateway timeout", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Gateway timeout message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
+                        }
+                    }, 
+                    "503": {
+                        "description": "Service unavailable", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Service unavailable message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
+                        }
+                    }, 
+                    "500": {
+                        "description": "Internal server error", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/Accept-Language"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/corporation_id"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/language"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
+                    }
+                ], 
+                "produces": [
+                    "application/json"
+                ], 
+                "tags": [
+                    "Corporation"
+                ], 
+                "summary": "Get corporation structures", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-corporations.read_structures.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "get_corporations_corporation_id_structures", 
+                "consumes": [
+                    "application/json"
+                ], 
+                "description": "Get a list of corporation structures. This route's version includes the changes to structures detailed in this blog: https://www.eveonline.com/article/upwell-2.0-structures-changes-coming-on-february-13th\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Station_Manager"
+            }
+        }, 
         "/v1/characters/{character_id}/fittings/": {
             "post": {
                 "responses": {
@@ -42432,7 +42766,7 @@
                 "description": "Open the New Mail window, according to settings from the request if applicable\n\n---\n"
             }
         }, 
-        "/v2/universe/stations/{station_id}/": {
+        "/v2/universe/structures/{structure_id}/": {
             "get": {
                 "responses": {
                     "200": {
@@ -42454,185 +42788,76 @@
                                 "description": "The caching mechanism used"
                             }
                         }, 
-                        "description": "Information about a station", 
+                        "description": "Data about a structure", 
                         "examples": {
                             "application/json": {
-                                "name": "Jakanerva III - Moon 15 - Prompt Delivery Storage", 
-                                "type_id": 1531, 
-                                "station_id": 60000277, 
-                                "owner": 1000003, 
-                                "system_id": 30000148, 
-                                "office_rental_cost": 10000, 
-                                "race_id": 1, 
-                                "services": [
-                                    "courier-missions", 
-                                    "reprocessing-plant", 
-                                    "market", 
-                                    "repair-facilities", 
-                                    "fitting", 
-                                    "news", 
-                                    "storage", 
-                                    "insurance", 
-                                    "docking", 
-                                    "office-rental", 
-                                    "loyalty-point-store", 
-                                    "navy-offices"
-                                ], 
-                                "position": {
-                                    "y": 2771804160, 
-                                    "x": 165632286720, 
-                                    "z": -2455331266560
-                                }, 
-                                "max_dockable_ship_volume": 50000000, 
-                                "reprocessing_stations_take": 0.05, 
-                                "reprocessing_efficiency": 0.5
+                                "solar_system_id": 30000142, 
+                                "name": "V-3YG7 VI - The Capital", 
+                                "owner_id": 109299958
                             }
                         }, 
                         "schema": {
                             "required": [
-                                "station_id", 
                                 "name", 
-                                "type_id", 
-                                "position", 
-                                "system_id", 
-                                "reprocessing_efficiency", 
-                                "reprocessing_stations_take", 
-                                "max_dockable_ship_volume", 
-                                "office_rental_cost", 
-                                "services"
+                                "solar_system_id", 
+                                "owner_id"
                             ], 
-                            "title": "get_universe_stations_station_id_ok", 
+                            "title": "get_universe_structures_structure_id_ok", 
                             "type": "object", 
                             "description": "200 ok object", 
                             "properties": {
-                                "name": {
-                                    "type": "string", 
-                                    "description": "name string", 
-                                    "title": "get_universe_stations_station_id_name"
-                                }, 
-                                "type_id": {
-                                    "title": "get_universe_stations_station_id_type_id", 
-                                    "type": "integer", 
-                                    "description": "type_id integer", 
-                                    "format": "int32"
-                                }, 
-                                "station_id": {
-                                    "title": "get_universe_stations_station_id_station_id", 
-                                    "type": "integer", 
-                                    "description": "station_id integer", 
-                                    "format": "int32"
-                                }, 
-                                "services": {
-                                    "items": {
-                                        "enum": [
-                                            "bounty-missions", 
-                                            "assasination-missions", 
-                                            "courier-missions", 
-                                            "interbus", 
-                                            "reprocessing-plant", 
-                                            "refinery", 
-                                            "market", 
-                                            "black-market", 
-                                            "stock-exchange", 
-                                            "cloning", 
-                                            "surgery", 
-                                            "dna-therapy", 
-                                            "repair-facilities", 
-                                            "factory", 
-                                            "labratory", 
-                                            "gambling", 
-                                            "fitting", 
-                                            "paintshop", 
-                                            "news", 
-                                            "storage", 
-                                            "insurance", 
-                                            "docking", 
-                                            "office-rental", 
-                                            "jump-clone-facility", 
-                                            "loyalty-point-store", 
-                                            "navy-offices", 
-                                            "security-offices"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "service string", 
-                                        "title": "get_universe_stations_station_id_service"
-                                    }, 
-                                    "type": "array", 
-                                    "description": "services array", 
-                                    "maxItems": 30, 
-                                    "title": "get_universe_stations_station_id_services"
-                                }, 
-                                "system_id": {
-                                    "title": "get_universe_stations_station_id_system_id", 
-                                    "type": "integer", 
-                                    "description": "The solar system this station is in", 
-                                    "format": "int32"
-                                }, 
-                                "office_rental_cost": {
-                                    "title": "get_universe_stations_station_id_office_rental_cost", 
-                                    "type": "number", 
-                                    "description": "office_rental_cost number", 
-                                    "format": "float"
-                                }, 
-                                "race_id": {
-                                    "title": "get_universe_stations_station_id_race_id", 
-                                    "type": "integer", 
-                                    "description": "race_id integer", 
-                                    "format": "int32"
-                                }, 
-                                "owner": {
-                                    "title": "get_universe_stations_station_id_owner", 
-                                    "type": "integer", 
-                                    "description": "ID of the corporation that controls this station", 
-                                    "format": "int32"
-                                }, 
                                 "position": {
                                     "required": [
                                         "x", 
                                         "y", 
                                         "z"
                                     ], 
-                                    "title": "get_universe_stations_station_id_position", 
+                                    "title": "get_universe_structures_structure_id_position", 
                                     "type": "object", 
-                                    "description": "position object", 
+                                    "description": "Coordinates of the structure in Cartesian space relative to the Sun, in metres.\n", 
                                     "properties": {
                                         "y": {
-                                            "title": "get_universe_stations_station_id_y", 
+                                            "title": "get_universe_structures_structure_id_y", 
                                             "type": "number", 
                                             "description": "y number", 
                                             "format": "double"
                                         }, 
                                         "x": {
-                                            "title": "get_universe_stations_station_id_x", 
+                                            "title": "get_universe_structures_structure_id_x", 
                                             "type": "number", 
                                             "description": "x number", 
                                             "format": "double"
                                         }, 
                                         "z": {
-                                            "title": "get_universe_stations_station_id_z", 
+                                            "title": "get_universe_structures_structure_id_z", 
                                             "type": "number", 
                                             "description": "z number", 
                                             "format": "double"
                                         }
                                     }
                                 }, 
-                                "max_dockable_ship_volume": {
-                                    "title": "get_universe_stations_station_id_max_dockable_ship_volume", 
-                                    "type": "number", 
-                                    "description": "max_dockable_ship_volume number", 
-                                    "format": "float"
+                                "type_id": {
+                                    "title": "get_universe_structures_structure_id_type_id", 
+                                    "type": "integer", 
+                                    "description": "type_id integer", 
+                                    "format": "int32"
                                 }, 
-                                "reprocessing_stations_take": {
-                                    "title": "get_universe_stations_station_id_reprocessing_stations_take", 
-                                    "type": "number", 
-                                    "description": "reprocessing_stations_take number", 
-                                    "format": "float"
+                                "solar_system_id": {
+                                    "title": "get_universe_structures_structure_id_solar_system_id", 
+                                    "type": "integer", 
+                                    "description": "solar_system_id integer", 
+                                    "format": "int32"
                                 }, 
-                                "reprocessing_efficiency": {
-                                    "title": "get_universe_stations_station_id_reprocessing_efficiency", 
-                                    "type": "number", 
-                                    "description": "reprocessing_efficiency number", 
-                                    "format": "float"
+                                "name": {
+                                    "type": "string", 
+                                    "description": "The full name of the structure", 
+                                    "title": "get_universe_structures_structure_id_name"
+                                }, 
+                                "owner_id": {
+                                    "title": "get_universe_structures_structure_id_owner_id", 
+                                    "type": "integer", 
+                                    "description": "The ID of the corporation who owns this particular structure", 
+                                    "format": "int32"
                                 }
                             }
                         }
@@ -42659,23 +42884,45 @@
                         "description": "Not modified"
                     }, 
                     "404": {
-                        "description": "Station not found", 
+                        "description": "Structure not found", 
                         "examples": {
                             "application/json": {
                                 "error": "Not found message"
                             }
                         }, 
                         "schema": {
-                            "title": "get_universe_stations_station_id_not_found", 
+                            "title": "get_universe_structures_structure_id_not_found", 
                             "type": "object", 
                             "description": "Not found", 
                             "properties": {
                                 "error": {
                                     "type": "string", 
                                     "description": "Not found message", 
-                                    "title": "get_universe_stations_station_id_404_not_found"
+                                    "title": "get_universe_structures_structure_id_404_not_found"
                                 }
                             }
+                        }
+                    }, 
+                    "403": {
+                        "description": "Forbidden", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
+                        }
+                    }, 
+                    "401": {
+                        "description": "Unauthorized", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Unauthorized message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
                         }
                     }, 
                     "400": {
@@ -42742,12 +42989,15 @@
                         "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
                     }, 
                     {
-                        "description": "station_id integer", 
-                        "format": "int32", 
+                        "description": "An Eve structure ID", 
+                        "format": "int64", 
                         "required": true, 
                         "in": "path", 
                         "type": "integer", 
-                        "name": "station_id"
+                        "name": "structure_id"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
                     }
                 ], 
                 "produces": [
@@ -42756,12 +43006,19 @@
                 "tags": [
                     "Universe"
                 ], 
-                "summary": "Get station information", 
-                "operationId": "get_universe_stations_station_id", 
+                "summary": "Get structure information", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-universe.read_structures.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "get_universe_structures_structure_id", 
                 "consumes": [
                     "application/json"
                 ], 
-                "description": "Get information on a station\n\n---\n\nThis route expires daily at 11:05"
+                "description": "Returns information on requested structure if you are on the ACL. Otherwise, returns \"Forbidden\" for all inputs.\n\n---\n\nThis route is cached for up to 3600 seconds"
             }
         }, 
         "/v1/universe/groups/{group_id}/": {
@@ -50523,261 +50780,6 @@
                     "application/json"
                 ], 
                 "description": "Returns a list of blueprints the corporation owns\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
-            }
-        }, 
-        "/v2/universe/structures/{structure_id}/": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "Data about a structure", 
-                        "examples": {
-                            "application/json": {
-                                "solar_system_id": 30000142, 
-                                "name": "V-3YG7 VI - The Capital", 
-                                "owner_id": 109299958
-                            }
-                        }, 
-                        "schema": {
-                            "required": [
-                                "name", 
-                                "solar_system_id", 
-                                "owner_id"
-                            ], 
-                            "title": "get_universe_structures_structure_id_ok", 
-                            "type": "object", 
-                            "description": "200 ok object", 
-                            "properties": {
-                                "position": {
-                                    "required": [
-                                        "x", 
-                                        "y", 
-                                        "z"
-                                    ], 
-                                    "title": "get_universe_structures_structure_id_position", 
-                                    "type": "object", 
-                                    "description": "Coordinates of the structure in Cartesian space relative to the Sun, in metres.\n", 
-                                    "properties": {
-                                        "y": {
-                                            "title": "get_universe_structures_structure_id_y", 
-                                            "type": "number", 
-                                            "description": "y number", 
-                                            "format": "double"
-                                        }, 
-                                        "x": {
-                                            "title": "get_universe_structures_structure_id_x", 
-                                            "type": "number", 
-                                            "description": "x number", 
-                                            "format": "double"
-                                        }, 
-                                        "z": {
-                                            "title": "get_universe_structures_structure_id_z", 
-                                            "type": "number", 
-                                            "description": "z number", 
-                                            "format": "double"
-                                        }
-                                    }
-                                }, 
-                                "type_id": {
-                                    "title": "get_universe_structures_structure_id_type_id", 
-                                    "type": "integer", 
-                                    "description": "type_id integer", 
-                                    "format": "int32"
-                                }, 
-                                "solar_system_id": {
-                                    "title": "get_universe_structures_structure_id_solar_system_id", 
-                                    "type": "integer", 
-                                    "description": "solar_system_id integer", 
-                                    "format": "int32"
-                                }, 
-                                "name": {
-                                    "type": "string", 
-                                    "description": "The full name of the structure", 
-                                    "title": "get_universe_structures_structure_id_name"
-                                }, 
-                                "owner_id": {
-                                    "title": "get_universe_structures_structure_id_owner_id", 
-                                    "type": "integer", 
-                                    "description": "The ID of the corporation who owns this particular structure", 
-                                    "format": "int32"
-                                }
-                            }
-                        }
-                    }, 
-                    "304": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "Not modified"
-                    }, 
-                    "404": {
-                        "description": "Structure not found", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Not found message"
-                            }
-                        }, 
-                        "schema": {
-                            "title": "get_universe_structures_structure_id_not_found", 
-                            "type": "object", 
-                            "description": "Not found", 
-                            "properties": {
-                                "error": {
-                                    "type": "string", 
-                                    "description": "Not found message", 
-                                    "title": "get_universe_structures_structure_id_404_not_found"
-                                }
-                            }
-                        }
-                    }, 
-                    "403": {
-                        "description": "Forbidden", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
-                        }
-                    }, 
-                    "401": {
-                        "description": "Unauthorized", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Unauthorized message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
-                        }
-                    }, 
-                    "400": {
-                        "description": "Bad request", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Bad request message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
-                        }
-                    }, 
-                    "420": {
-                        "description": "Error limited", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Error limited message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
-                        }
-                    }, 
-                    "504": {
-                        "description": "Gateway timeout", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Gateway timeout message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
-                        }
-                    }, 
-                    "503": {
-                        "description": "Service unavailable", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Service unavailable message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
-                        }
-                    }, 
-                    "500": {
-                        "description": "Internal server error", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
-                    }, 
-                    {
-                        "description": "An Eve structure ID", 
-                        "format": "int64", 
-                        "required": true, 
-                        "in": "path", 
-                        "type": "integer", 
-                        "name": "structure_id"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
-                    }
-                ], 
-                "produces": [
-                    "application/json"
-                ], 
-                "tags": [
-                    "Universe"
-                ], 
-                "summary": "Get structure information", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-universe.read_structures.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "get_universe_structures_structure_id", 
-                "consumes": [
-                    "application/json"
-                ], 
-                "description": "Returns information on requested structure if you are on the ACL. Otherwise, returns \"Forbidden\" for all inputs.\n\n---\n\nThis route is cached for up to 3600 seconds"
             }
         }
     }, 

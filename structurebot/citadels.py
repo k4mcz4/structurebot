@@ -10,12 +10,13 @@ class Structure(object):
     def __init__(self, structure_id, type_id=None, type_name=None,
                  system_id=None, services=None, fuel_expires=None,
                  accessible=None, name=None, detonation=None,
-                 fitting=Fitting()):
+                 fuel=[], fitting=Fitting()):
         super(Structure, self).__init__()
         self.structure_id = structure_id
         self.type_id = type_id
         self.type_name = type_name
         self.system_id = system_id
+        self.fuel = fuel
         self.fuel_expires = fuel_expires
         self.accessible = accessible
         self.name = name
@@ -93,7 +94,7 @@ class Structure(object):
                 # Structure Engineering Service Module
                 1415: 0.65,
                 # Structure Resource Processing Service Module
-                1322: 0.65                
+                1322: 0.65
             },
             # 'Draccous' Fortizar
             47513: {
@@ -123,7 +124,7 @@ class Structure(object):
                 # Structure Citadel Service Module
                 1321: 0.75,
                 # Structure Resource Processing Service Module
-                1322: 0.75                
+                1322: 0.75
             },
             # Keepstar
             35834: {
@@ -143,6 +144,10 @@ class Structure(object):
                 modifier = 1.0
             self._fuel_rate += hourly_fuel*modifier
         return self._fuel_rate
+
+    @property
+    def jump_fuel(self):
+        return sum([lo.quantity for lo in self.fuel if lo.name == 'Liquid Ozone'])
 
     @classmethod
     def from_corporation(cls, corporation_name, assets=None):
@@ -170,6 +175,7 @@ class Structure(object):
             structure_contents = [a for a in assets if a.location_id == sid]
             if structure_contents:
                 kwargs['fitting'] = Fitting.from_assets(structure_contents)
+                kwargs['fuel'] = [a for a in structure_contents if a.location_flag == 'StructureFuel']
             structure_list.append(cls(**kwargs))
         return structure_list
 
@@ -195,6 +201,7 @@ def check_citadels(corp_name, corp_assets=None):
     now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
     too_soon = datetime.timedelta(days=CONFIG['TOO_SOON'])
     detonation_warning = datetime.timedelta(days=CONFIG['DETONATION_WARNING'])
+    jump_fuel_warning = CONFIG['JUMPGATE_FUEL_WARN']
     messages = []
     for structure in structures:
         sid = structure.structure_id
@@ -216,6 +223,9 @@ def check_citadels(corp_name, corp_assets=None):
         if detonation and (detonation.v - now < detonation_warning):
             message.append('Ready to detonate {}'.format(structure.detonation))
 
+        # If Ansiblex has low ozone, alert
+        if structure.type_name == 'Ansiblex Jump Gate' and structure.jump_fuel < jump_fuel_warning:
+            message.append('Low on Liquid Ozone: {}'.format(structure.jump_fuel))
         # Build message for fuel running out and offline services
         fuel_expires = structure.fuel_expires
         if fuel_expires and (fuel_expires.v - now < too_soon):
