@@ -11,5 +11,6 @@ CONFIG = {
     'SLACK_CHANNEL': os.getenv('SLACK_CHANNEL', None),
     'STRONT_HOURS': os.getenv('STRONT_HOURS', 12),
     'DEBUG': os.getenv('DEBUG', False),
-    'DETONATION_WARNING': os.getenv('DETONATION_WARNING', 1)
+    'DETONATION_WARNING': os.getenv('DETONATION_WARNING', 1),
+    'JUMPGATE_FUEL_WARN': int(os.getenv('JUMPGATE_FUEL_WARN', 500000))
 }
