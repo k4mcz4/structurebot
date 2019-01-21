@@ -229,7 +229,9 @@ class Asset(BaseType):
                 break
             for asset in assets_api:
                 asset_type = Type.from_id(asset['type_id'])
-                asset.update(asset_type.__dict__)
+                type_dict = asset_type.__dict__
+                del type_dict['quantity']
+                asset.update(type_dict)
                 assets.append(cls(**asset))
             pages = assets_response.header['X-Pages'][0]
             pages_left = pages - params['page']
