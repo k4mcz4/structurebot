@@ -5,7 +5,8 @@ from urlparse import urlparse
 from operator import attrgetter
 from esipy import App, EsiClient, EsiSecurity
 from esipy.cache import DictCache
-from xml.etree import cElementTree as ET
+from pyswagger.primitives import MimeCodec
+from pyswagger.primitives.codec import PlainCodec
 
 from config import *
 
@@ -43,13 +44,13 @@ def config_esi_cache(cache_url):
 
 def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
     """Set up the ESI client
-    
+
     Args:
         app_id (string): SSO Application ID from CCP
         app_secret (string): SSO Application Secret from CCP
         refresh_token (string): SSO refresh token
         cache (False, optional): esipy.cache instance
-    
+
     Returns:
         tuple: esi app definition, esi client
 
@@ -60,7 +61,11 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
     esi_path = os.path.abspath(__file__)
     esi_dir_path = os.path.dirname(esi_path)
 
-    esi = App.create(esi_dir_path + '/esi.json')
+    mime_codec = MimeCodec()
+    mime_codec.register('text/html', PlainCodec())
+
+    esi = App.load(esi_dir_path + '/esi.json', mime_codec=mime_codec)
+    esi.prepare(strict=True)
 
     esi_security = EsiSecurity(
         redirect_uri='http://localhost',
