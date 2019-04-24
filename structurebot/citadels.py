@@ -146,6 +146,33 @@ class Structure(object):
         return self._fuel_rate
 
     @property
+    def needs_detonation(self):
+        for service in self.online_services:
+            if service == 'Moon Drilling' and not self.detonation:
+                return True
+        return False
+
+    @property
+    def detonates_soon(self):
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        if self.detonation and (self.detonation.v - now < CONFIG['DETONATION_WARNING']):
+            return True
+        return False
+
+    @property
+    def needs_ozone(self):
+        if self.type_name == 'Ansiblex Jump Gate' and self.jump_fuel < CONFIG['JUMPGATE_FUEL_WARN']:
+            return True
+        return False
+
+    @property
+    def needs_fuel(self):
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        if self.fuel_expires and (self.fuel_expires.v - now < CONFIG['TOO_SOON']):
+            return True
+        return False
+
+    @property
     def jump_fuel(self):
         return sum([lo.quantity for lo in self.fuel if lo.name == 'Liquid Ozone'])
 
