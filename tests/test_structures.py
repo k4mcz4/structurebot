@@ -6,11 +6,6 @@ from structurebot.config import CONFIG
 from structurebot.util import name_to_id
 
 
-def load_tests(loader, tests, ignore):
-    tests.addTests(doctest.DocTestSuite(citadels))
-    return tests
-
-
 class TestStructures(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
