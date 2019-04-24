@@ -146,6 +146,33 @@ class Structure(object):
         return self._fuel_rate
 
     @property
+    def needs_detonation(self):
+        for service in self.online_services:
+            if service == 'Moon Drilling' and not self.detonation:
+                return True
+        return False
+
+    @property
+    def detonates_soon(self):
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        if self.detonation and (self.detonation.v - now < CONFIG['DETONATION_WARNING']):
+            return True
+        return False
+
+    @property
+    def needs_ozone(self):
+        if self.type_name == 'Ansiblex Jump Gate' and self.jump_fuel < CONFIG['JUMPGATE_FUEL_WARN']:
+            return True
+        return False
+
+    @property
+    def needs_fuel(self):
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        if self.fuel_expires and (self.fuel_expires.v - now < CONFIG['TOO_SOON']):
+            return True
+        return False
+
+    @property
     def jump_fuel(self):
         return sum([lo.quantity for lo in self.fuel if lo.name == 'Liquid Ozone'])
 
@@ -186,59 +213,3 @@ class Structure(object):
         return u'{} ({}) - {}'.format(self.name, self.structure_id,
                                      self.type_name)
 
-
-def check_citadels(corp_name, corp_assets=None):
-    """
-    Check citadels for fuel and services status
-
-    Returns:
-        list: list of alert strings
-
-    >>> set([type(s) for s in check_citadels(CONFIG['CORPORATION_NAME'])])
-    set([<type 'unicode'>])
-    """
-    structures = Structure.from_corporation(corp_name, corp_assets)
-    now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-    too_soon = datetime.timedelta(days=CONFIG['TOO_SOON'])
-    detonation_warning = datetime.timedelta(days=CONFIG['DETONATION_WARNING'])
-    jump_fuel_warning = CONFIG['JUMPGATE_FUEL_WARN']
-    messages = []
-    for structure in structures:
-        sid = structure.structure_id
-        sysid = structure.system_id
-        online = structure.online_services
-        offline = structure.offline_services
-        message = []
-        if not structure.accessible:
-            msg = 'Found an inaccesible citadel ({}) in {}'.format(sid, sysid)
-            messages.append(msg)
-            continue
-        for service in online:
-            if service == 'Moon Drilling' and not structure.detonation:
-                message.append('Needs to have an extraction scheduled')
-
-        # Check for upcoming detonations
-        # TODO: yell at pyswagger.  Why is the actual datetime in an attribute?
-        detonation = structure.detonation
-        if detonation and (detonation.v - now < detonation_warning):
-            message.append('Ready to detonate {}'.format(structure.detonation))
-
-        # If Ansiblex has low ozone, alert
-        if structure.type_name == 'Ansiblex Jump Gate' and structure.jump_fuel < jump_fuel_warning:
-            message.append('Low on Liquid Ozone: {}'.format(structure.jump_fuel))
-        # Build message for fuel running out and offline services
-        fuel_expires = structure.fuel_expires
-        if fuel_expires and (fuel_expires.v - now < too_soon):
-            message.append('Runs out of fuel on {}'.format(fuel_expires))
-            if online:
-                message.append('Online Services: {}'.format(', '.join(online)))
-            if offline:
-                message.append('Offline Services: {}'.format(', '.join(offline)))
-        elif offline:
-            message.append('Offline services: {}'.format(', '.join(offline)))
-        if message:
-            messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
-    return messages
-
-if __name__ == '__main__':
-    check_citadels()
