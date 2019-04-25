@@ -37,13 +37,13 @@ try:
             msg = 'Found an inaccesible citadel ({}) in {}'.format(structure.structure_id, structure.system_id)
             messages.append(msg)
             continue
-        if structure.needs_detonation and args.unscheduled_detonations:
+        if args.unscheduled_detonations and structure.needs_detonation:
             message.append('Needs to have an extraction scheduled')
-        if structure.detonates_soon and args.upcoming_detonations:
+        if args.upcoming_detonations and structure.detonates_soon:
             message.append('Ready to detonate {}'.format(structure.detonation))
-        if structure.needs_ozone and args.ansiblex_ozone:
+        if args.ansiblex_ozone and structure.needs_ozone:
             message.append('Low on Liquid Ozone: {}'.format(structure.jump_fuel))
-        if structure.needs_fuel and args.fuel_warning:
+        if args.fuel_warning and structure.needs_fuel:
             message.append('Runs out of fuel on {}'.format(structure.fuel_expires))
             if args.service_status:
                 if structure.online_services:
