@@ -9,18 +9,20 @@ from assets import Fitting, Asset
 class Structure(object):
     def __init__(self, structure_id, type_id=None, type_name=None,
                  system_id=None, services=None, fuel_expires=None,
-                 accessible=None, name=None, detonation=None,
-                 fuel=[], fitting=Fitting()):
+                 accessible=None, name=None, state=None, state_timer_end=None,
+                 detonation=None, fuel=[], fitting=Fitting()):
         super(Structure, self).__init__()
         self.structure_id = structure_id
         self.type_id = type_id
         self.type_name = type_name
         self.system_id = system_id
         self.fuel = fuel
-        self.fuel_expires = fuel_expires
+        self.fuel_expires = getattr(fuel_expires, 'v', None)
         self.accessible = accessible
         self.name = name
-        self.detonation = detonation
+        self.state = state
+        self.state_timer_end = getattr(state_timer_end, 'v', None)
+        self.detonation = getattr(detonation, 'v', None)
         self.fitting = fitting
         self._fuel_rate = 0
         # Grab structure name
@@ -146,8 +148,47 @@ class Structure(object):
         return self._fuel_rate
 
     @property
+    def needs_detonation(self):
+        for service in self.online_services:
+            if service == 'Moon Drilling' and not self.detonation:
+                return True
+        return False
+
+    @property
+    def detonates_soon(self):
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        if self.detonation and (self.detonation - now < CONFIG['DETONATION_WARNING']):
+            return True
+        return False
+
+    @property
+    def needs_ozone(self):
+        if self.type_name == 'Ansiblex Jump Gate' and self.jump_fuel < CONFIG['JUMPGATE_FUEL_WARN']:
+            return True
+        return False
+
+    @property
+    def needs_fuel(self):
+        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        if self.fuel_expires and (self.fuel_expires - now < CONFIG['TOO_SOON']):
+            return True
+        return False
+
+    @property
     def jump_fuel(self):
         return sum([lo.quantity for lo in self.fuel if lo.name == 'Liquid Ozone'])
+
+    @property
+    def reinforced(self):
+        if self.state in ['armor_reinforce', 'hull_reinforce']:
+            return True
+        return False
+
+    @property
+    def vulnerable(self):
+        if self.state in ['deploy_vulnerable', 'armor_vulnerable', 'hull_vulnerable']:
+            return True
+        return False
 
     @classmethod
     def from_corporation(cls, corporation_name, assets=None):
@@ -164,12 +205,11 @@ class Structure(object):
         detonations = detonations_response.data
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
-        structure_keys = ['structure_id', 'system_id',
-                          'services', 'fuel_expires']
+        structure_keys = ['structure_id', 'system_id', 'type_id'
+                          'services', 'fuel_expires', 'state', 'state_timer_end']
         for s in structures:
             sid = s['structure_id']
             kwargs = {k: v for k, v in s.items() if k in structure_keys}
-            kwargs['type_id'] = s['type_id']
             kwargs['type_name'] = ids_to_names([s['type_id']])[s['type_id']]
             kwargs['detonation'] = detonations.get(sid)
             structure_contents = [a for a in assets if a.location_id == sid]
@@ -186,59 +226,3 @@ class Structure(object):
         return u'{} ({}) - {}'.format(self.name, self.structure_id,
                                      self.type_name)
 
-
-def check_citadels(corp_name, corp_assets=None):
-    """
-    Check citadels for fuel and services status
-
-    Returns:
-        list: list of alert strings
-
-    >>> set([type(s) for s in check_citadels(CONFIG['CORPORATION_NAME'])])
-    set([<type 'unicode'>])
-    """
-    structures = Structure.from_corporation(corp_name, corp_assets)
-    now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-    too_soon = datetime.timedelta(days=CONFIG['TOO_SOON'])
-    detonation_warning = datetime.timedelta(days=CONFIG['DETONATION_WARNING'])
-    jump_fuel_warning = CONFIG['JUMPGATE_FUEL_WARN']
-    messages = []
-    for structure in structures:
-        sid = structure.structure_id
-        sysid = structure.system_id
-        online = structure.online_services
-        offline = structure.offline_services
-        message = []
-        if not structure.accessible:
-            msg = 'Found an inaccesible citadel ({}) in {}'.format(sid, sysid)
-            messages.append(msg)
-            continue
-        for service in online:
-            if service == 'Moon Drilling' and not structure.detonation:
-                message.append('Needs to have an extraction scheduled')
-
-        # Check for upcoming detonations
-        # TODO: yell at pyswagger.  Why is the actual datetime in an attribute?
-        detonation = structure.detonation
-        if detonation and (detonation.v - now < detonation_warning):
-            message.append('Ready to detonate {}'.format(structure.detonation))
-
-        # If Ansiblex has low ozone, alert
-        if structure.type_name == 'Ansiblex Jump Gate' and structure.jump_fuel < jump_fuel_warning:
-            message.append('Low on Liquid Ozone: {}'.format(structure.jump_fuel))
-        # Build message for fuel running out and offline services
-        fuel_expires = structure.fuel_expires
-        if fuel_expires and (fuel_expires.v - now < too_soon):
-            message.append('Runs out of fuel on {}'.format(fuel_expires))
-            if online:
-                message.append('Online Services: {}'.format(', '.join(online)))
-            if offline:
-                message.append('Offline Services: {}'.format(', '.join(offline)))
-        elif offline:
-            message.append('Offline services: {}'.format(', '.join(offline)))
-        if message:
-            messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
-    return messages
-
-if __name__ == '__main__':
-    check_citadels()

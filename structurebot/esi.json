@@ -3355,7 +3355,7 @@
                                             "war_fee_surrender"
                                         ], 
                                         "type": "string", 
-                                        "description": "\"The transaction type for the given. transaction. Different transaction types will populate different attributes. Note: If you have an existing XML API application that is using ref_types, you will need to know which string ESI ref_type maps to which integer. You can look at the following file to see string->int mappings: https://github.com/ccpgames/eve-glue/blob/master/eve_glue/wallet_journal_ref.py\"", 
+                                        "description": "\"The transaction type for the given. transaction. Different transaction types will populate different attributes.\"", 
                                         "title": "get_characters_character_id_wallet_journal_ref_type"
                                     }, 
                                     "balance": {
@@ -3518,7 +3518,7 @@
                 "consumes": [
                     "application/json"
                 ], 
-                "description": "Retrieve the given character's wallet journal going 30 days back\n\n---\n\nThis route is cached for up to 3600 seconds"
+                "description": "Retrieve the given character's wallet journal going 30 days back\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nWarning: This route has an upgrade available\n\n---\n[Diff of the upcoming changes](https://esi.evetech.net/diff/latest/dev/#GET-/characters/{character_id}/wallet/journal/)"
             }
         }, 
         "/v1/characters/{character_id}/fittings/{fitting_id}/": {
@@ -5984,7 +5984,7 @@
                 "consumes": [
                     "application/json"
                 ], 
-                "description": "Return implants on the active clone of a character\n\n---\n\nThis route is cached for up to 300 seconds"
+                "description": "Return implants on the active clone of a character\n\n---\n\nThis route is cached for up to 120 seconds"
             }
         }, 
         "/v1/universe/stars/{star_id}/": {
@@ -20441,7 +20441,7 @@
                 "consumes": [
                     "application/json"
                 ], 
-                "description": "Return attributes of a character\n\n---\n\nThis route is cached for up to 3600 seconds"
+                "description": "Return attributes of a character\n\n---\n\nThis route is cached for up to 120 seconds"
             }
         }, 
         "/v1/industry/facilities/": {
@@ -24455,260 +24455,11 @@
                 "description": "Returns a corporation's titles\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
             }
         }, 
-        "/v1/characters/{character_id}/contracts/": {
-            "get": {
+        "/v1/characters/{character_id}/mail/labels/{label_id}/": {
+            "delete": {
                 "responses": {
-                    "200": {
-                        "headers": {
-                            "X-Pages": {
-                                "default": 1, 
-                                "type": "integer", 
-                                "description": "Maximum page number", 
-                                "format": "int32"
-                            }, 
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "A list of contracts", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "status": "outstanding", 
-                                    "assignee_id": 0, 
-                                    "date_issued": "2017-06-06T13:12:32Z", 
-                                    "date_completed": "2017-06-06T13:12:32Z", 
-                                    "contract_id": 1, 
-                                    "date_expired": "2017-06-13T13:12:32Z", 
-                                    "date_accepted": "2017-06-06T13:12:32Z", 
-                                    "price": 1000000.01, 
-                                    "issuer_corporation_id": 456, 
-                                    "for_corporation": true, 
-                                    "volume": 0.01, 
-                                    "issuer_id": 123, 
-                                    "days_to_complete": 0, 
-                                    "buyout": 10000000000.01, 
-                                    "acceptor_id": 0, 
-                                    "start_location_id": 60014719, 
-                                    "type": "auction", 
-                                    "availability": "public", 
-                                    "end_location_id": 60014719, 
-                                    "reward": 0.01
-                                }
-                            ]
-                        }, 
-                        "schema": {
-                            "items": {
-                                "required": [
-                                    "contract_id", 
-                                    "issuer_id", 
-                                    "issuer_corporation_id", 
-                                    "assignee_id", 
-                                    "acceptor_id", 
-                                    "type", 
-                                    "status", 
-                                    "for_corporation", 
-                                    "availability", 
-                                    "date_issued", 
-                                    "date_expired"
-                                ], 
-                                "title": "get_characters_character_id_contracts_200_ok", 
-                                "type": "object", 
-                                "description": "200 ok object", 
-                                "properties": {
-                                    "start_location_id": {
-                                        "title": "get_characters_character_id_contracts_start_location_id", 
-                                        "type": "integer", 
-                                        "description": "Start location ID (for Couriers contract)", 
-                                        "format": "int64"
-                                    }, 
-                                    "assignee_id": {
-                                        "title": "get_characters_character_id_contracts_assignee_id", 
-                                        "type": "integer", 
-                                        "description": "ID to whom the contract is assigned, can be corporation or character ID", 
-                                        "format": "int32"
-                                    }, 
-                                    "issuer_id": {
-                                        "title": "get_characters_character_id_contracts_issuer_id", 
-                                        "type": "integer", 
-                                        "description": "Character ID for the issuer", 
-                                        "format": "int32"
-                                    }, 
-                                    "days_to_complete": {
-                                        "title": "get_characters_character_id_contracts_days_to_complete", 
-                                        "type": "integer", 
-                                        "description": "Number of days to perform the contract", 
-                                        "format": "int32"
-                                    }, 
-                                    "buyout": {
-                                        "title": "get_characters_character_id_contracts_buyout", 
-                                        "type": "number", 
-                                        "description": "Buyout price (for Auctions only)", 
-                                        "format": "double"
-                                    }, 
-                                    "contract_id": {
-                                        "title": "get_characters_character_id_contracts_contract_id", 
-                                        "type": "integer", 
-                                        "description": "contract_id integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "title": {
-                                        "type": "string", 
-                                        "description": "Title of the contract", 
-                                        "title": "get_characters_character_id_contracts_title"
-                                    }, 
-                                    "availability": {
-                                        "enum": [
-                                            "public", 
-                                            "personal", 
-                                            "corporation", 
-                                            "alliance"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "To whom the contract is available", 
-                                        "title": "get_characters_character_id_contracts_availability"
-                                    }, 
-                                    "type": {
-                                        "enum": [
-                                            "unknown", 
-                                            "item_exchange", 
-                                            "auction", 
-                                            "courier", 
-                                            "loan"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "Type of the contract", 
-                                        "title": "get_characters_character_id_contracts_type"
-                                    }, 
-                                    "for_corporation": {
-                                        "type": "boolean", 
-                                        "description": "true if the contract was issued on behalf of the issuer's corporation", 
-                                        "title": "get_characters_character_id_contracts_for_corporation"
-                                    }, 
-                                    "status": {
-                                        "enum": [
-                                            "outstanding", 
-                                            "in_progress", 
-                                            "finished_issuer", 
-                                            "finished_contractor", 
-                                            "finished", 
-                                            "cancelled", 
-                                            "rejected", 
-                                            "failed", 
-                                            "deleted", 
-                                            "reversed"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "Status of the the contract", 
-                                        "title": "get_characters_character_id_contracts_status"
-                                    }, 
-                                    "collateral": {
-                                        "title": "get_characters_character_id_contracts_collateral", 
-                                        "type": "number", 
-                                        "description": "Collateral price (for Couriers only)", 
-                                        "format": "double"
-                                    }, 
-                                    "date_expired": {
-                                        "title": "get_characters_character_id_contracts_date_expired", 
-                                        "type": "string", 
-                                        "description": "Expiration date of the contract", 
-                                        "format": "date-time"
-                                    }, 
-                                    "price": {
-                                        "title": "get_characters_character_id_contracts_price", 
-                                        "type": "number", 
-                                        "description": "Price of contract (for ItemsExchange and Auctions)", 
-                                        "format": "double"
-                                    }, 
-                                    "date_issued": {
-                                        "title": "get_characters_character_id_contracts_date_issued", 
-                                        "type": "string", 
-                                        "description": "\u0421reation date of the contract", 
-                                        "format": "date-time"
-                                    }, 
-                                    "volume": {
-                                        "title": "get_characters_character_id_contracts_volume", 
-                                        "type": "number", 
-                                        "description": "Volume of items in the contract", 
-                                        "format": "double"
-                                    }, 
-                                    "acceptor_id": {
-                                        "title": "get_characters_character_id_contracts_acceptor_id", 
-                                        "type": "integer", 
-                                        "description": "Who will accept the contract", 
-                                        "format": "int32"
-                                    }, 
-                                    "end_location_id": {
-                                        "title": "get_characters_character_id_contracts_end_location_id", 
-                                        "type": "integer", 
-                                        "description": "End location ID (for Couriers contract)", 
-                                        "format": "int64"
-                                    }, 
-                                    "date_completed": {
-                                        "title": "get_characters_character_id_contracts_date_completed", 
-                                        "type": "string", 
-                                        "description": "Date of completed of contract", 
-                                        "format": "date-time"
-                                    }, 
-                                    "date_accepted": {
-                                        "title": "get_characters_character_id_contracts_date_accepted", 
-                                        "type": "string", 
-                                        "description": "Date of confirmation of contract", 
-                                        "format": "date-time"
-                                    }, 
-                                    "issuer_corporation_id": {
-                                        "title": "get_characters_character_id_contracts_issuer_corporation_id", 
-                                        "type": "integer", 
-                                        "description": "Character's corporation ID for the issuer", 
-                                        "format": "int32"
-                                    }, 
-                                    "reward": {
-                                        "title": "get_characters_character_id_contracts_reward", 
-                                        "type": "number", 
-                                        "description": "Remuneration for contract (for Couriers only)", 
-                                        "format": "double"
-                                    }
-                                }
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 1000, 
-                            "title": "get_characters_character_id_contracts_ok"
-                        }
-                    }, 
-                    "304": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "Not modified"
+                    "204": {
+                        "description": "Label deleted"
                     }, 
                     "403": {
                         "description": "Forbidden", 
@@ -24765,6 +24516,26 @@
                             "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
                         }
                     }, 
+                    "422": {
+                        "description": "Default labels cannot be deleted", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Unprocessable entity message"
+                            }
+                        }, 
+                        "schema": {
+                            "title": "delete_characters_character_id_mail_labels_label_id_unprocessable_entity", 
+                            "type": "object", 
+                            "description": "Unprocessable entity", 
+                            "properties": {
+                                "error": {
+                                    "type": "string", 
+                                    "description": "Unprocessable entity message", 
+                                    "title": "delete_characters_character_id_mail_labels_label_id_422_unprocessable_entity"
+                                }
+                            }
+                        }
+                    }, 
                     "503": {
                         "description": "Service unavailable", 
                         "examples": {
@@ -24796,10 +24567,12 @@
                         "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
                     }, 
                     {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
+                        "description": "An EVE label id", 
+                        "format": "int32", 
+                        "required": true, 
+                        "in": "path", 
+                        "type": "integer", 
+                        "name": "label_id"
                     }, 
                     {
                         "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
@@ -24809,21 +24582,21 @@
                     "application/json"
                 ], 
                 "tags": [
-                    "Contracts"
+                    "Mail"
                 ], 
-                "summary": "Get contracts", 
+                "summary": "Delete a mail label", 
                 "security": [
                     {
                         "evesso": [
-                            "esi-contracts.read_character_contracts.v1"
+                            "esi-mail.organize_mail.v1"
                         ]
                     }
                 ], 
-                "operationId": "get_characters_character_id_contracts", 
+                "operationId": "delete_characters_character_id_mail_labels_label_id", 
                 "consumes": [
                     "application/json"
                 ], 
-                "description": "Returns contracts available to a character, only if the character is issuer, acceptor or assignee. Only returns contracts no older than 30 days, or if the status is \"in_progress\".\n\n---\n\nThis route is cached for up to 300 seconds"
+                "description": "Delete a mail label\n\n---\n"
             }
         }, 
         "/v1/characters/{character_id}/industry/jobs/": {
@@ -30613,11 +30386,260 @@
                 "description": "Returns various settings and fuels of a starbase (POS)\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Director"
             }
         }, 
-        "/v1/characters/{character_id}/mail/labels/{label_id}/": {
-            "delete": {
+        "/v1/characters/{character_id}/contracts/": {
+            "get": {
                 "responses": {
-                    "204": {
-                        "description": "Label deleted"
+                    "200": {
+                        "headers": {
+                            "X-Pages": {
+                                "default": 1, 
+                                "type": "integer", 
+                                "description": "Maximum page number", 
+                                "format": "int32"
+                            }, 
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "A list of contracts", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "status": "outstanding", 
+                                    "assignee_id": 0, 
+                                    "date_issued": "2017-06-06T13:12:32Z", 
+                                    "date_completed": "2017-06-06T13:12:32Z", 
+                                    "contract_id": 1, 
+                                    "date_expired": "2017-06-13T13:12:32Z", 
+                                    "date_accepted": "2017-06-06T13:12:32Z", 
+                                    "price": 1000000.01, 
+                                    "issuer_corporation_id": 456, 
+                                    "for_corporation": true, 
+                                    "volume": 0.01, 
+                                    "issuer_id": 123, 
+                                    "days_to_complete": 0, 
+                                    "buyout": 10000000000.01, 
+                                    "acceptor_id": 0, 
+                                    "start_location_id": 60014719, 
+                                    "type": "auction", 
+                                    "availability": "public", 
+                                    "end_location_id": 60014719, 
+                                    "reward": 0.01
+                                }
+                            ]
+                        }, 
+                        "schema": {
+                            "items": {
+                                "required": [
+                                    "contract_id", 
+                                    "issuer_id", 
+                                    "issuer_corporation_id", 
+                                    "assignee_id", 
+                                    "acceptor_id", 
+                                    "type", 
+                                    "status", 
+                                    "for_corporation", 
+                                    "availability", 
+                                    "date_issued", 
+                                    "date_expired"
+                                ], 
+                                "title": "get_characters_character_id_contracts_200_ok", 
+                                "type": "object", 
+                                "description": "200 ok object", 
+                                "properties": {
+                                    "start_location_id": {
+                                        "title": "get_characters_character_id_contracts_start_location_id", 
+                                        "type": "integer", 
+                                        "description": "Start location ID (for Couriers contract)", 
+                                        "format": "int64"
+                                    }, 
+                                    "assignee_id": {
+                                        "title": "get_characters_character_id_contracts_assignee_id", 
+                                        "type": "integer", 
+                                        "description": "ID to whom the contract is assigned, can be corporation or character ID", 
+                                        "format": "int32"
+                                    }, 
+                                    "issuer_id": {
+                                        "title": "get_characters_character_id_contracts_issuer_id", 
+                                        "type": "integer", 
+                                        "description": "Character ID for the issuer", 
+                                        "format": "int32"
+                                    }, 
+                                    "days_to_complete": {
+                                        "title": "get_characters_character_id_contracts_days_to_complete", 
+                                        "type": "integer", 
+                                        "description": "Number of days to perform the contract", 
+                                        "format": "int32"
+                                    }, 
+                                    "buyout": {
+                                        "title": "get_characters_character_id_contracts_buyout", 
+                                        "type": "number", 
+                                        "description": "Buyout price (for Auctions only)", 
+                                        "format": "double"
+                                    }, 
+                                    "contract_id": {
+                                        "title": "get_characters_character_id_contracts_contract_id", 
+                                        "type": "integer", 
+                                        "description": "contract_id integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "title": {
+                                        "type": "string", 
+                                        "description": "Title of the contract", 
+                                        "title": "get_characters_character_id_contracts_title"
+                                    }, 
+                                    "availability": {
+                                        "enum": [
+                                            "public", 
+                                            "personal", 
+                                            "corporation", 
+                                            "alliance"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "To whom the contract is available", 
+                                        "title": "get_characters_character_id_contracts_availability"
+                                    }, 
+                                    "type": {
+                                        "enum": [
+                                            "unknown", 
+                                            "item_exchange", 
+                                            "auction", 
+                                            "courier", 
+                                            "loan"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "Type of the contract", 
+                                        "title": "get_characters_character_id_contracts_type"
+                                    }, 
+                                    "for_corporation": {
+                                        "type": "boolean", 
+                                        "description": "true if the contract was issued on behalf of the issuer's corporation", 
+                                        "title": "get_characters_character_id_contracts_for_corporation"
+                                    }, 
+                                    "status": {
+                                        "enum": [
+                                            "outstanding", 
+                                            "in_progress", 
+                                            "finished_issuer", 
+                                            "finished_contractor", 
+                                            "finished", 
+                                            "cancelled", 
+                                            "rejected", 
+                                            "failed", 
+                                            "deleted", 
+                                            "reversed"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "Status of the the contract", 
+                                        "title": "get_characters_character_id_contracts_status"
+                                    }, 
+                                    "collateral": {
+                                        "title": "get_characters_character_id_contracts_collateral", 
+                                        "type": "number", 
+                                        "description": "Collateral price (for Couriers only)", 
+                                        "format": "double"
+                                    }, 
+                                    "date_expired": {
+                                        "title": "get_characters_character_id_contracts_date_expired", 
+                                        "type": "string", 
+                                        "description": "Expiration date of the contract", 
+                                        "format": "date-time"
+                                    }, 
+                                    "price": {
+                                        "title": "get_characters_character_id_contracts_price", 
+                                        "type": "number", 
+                                        "description": "Price of contract (for ItemsExchange and Auctions)", 
+                                        "format": "double"
+                                    }, 
+                                    "date_issued": {
+                                        "title": "get_characters_character_id_contracts_date_issued", 
+                                        "type": "string", 
+                                        "description": "\u0421reation date of the contract", 
+                                        "format": "date-time"
+                                    }, 
+                                    "volume": {
+                                        "title": "get_characters_character_id_contracts_volume", 
+                                        "type": "number", 
+                                        "description": "Volume of items in the contract", 
+                                        "format": "double"
+                                    }, 
+                                    "acceptor_id": {
+                                        "title": "get_characters_character_id_contracts_acceptor_id", 
+                                        "type": "integer", 
+                                        "description": "Who will accept the contract", 
+                                        "format": "int32"
+                                    }, 
+                                    "end_location_id": {
+                                        "title": "get_characters_character_id_contracts_end_location_id", 
+                                        "type": "integer", 
+                                        "description": "End location ID (for Couriers contract)", 
+                                        "format": "int64"
+                                    }, 
+                                    "date_completed": {
+                                        "title": "get_characters_character_id_contracts_date_completed", 
+                                        "type": "string", 
+                                        "description": "Date of completed of contract", 
+                                        "format": "date-time"
+                                    }, 
+                                    "date_accepted": {
+                                        "title": "get_characters_character_id_contracts_date_accepted", 
+                                        "type": "string", 
+                                        "description": "Date of confirmation of contract", 
+                                        "format": "date-time"
+                                    }, 
+                                    "issuer_corporation_id": {
+                                        "title": "get_characters_character_id_contracts_issuer_corporation_id", 
+                                        "type": "integer", 
+                                        "description": "Character's corporation ID for the issuer", 
+                                        "format": "int32"
+                                    }, 
+                                    "reward": {
+                                        "title": "get_characters_character_id_contracts_reward", 
+                                        "type": "number", 
+                                        "description": "Remuneration for contract (for Couriers only)", 
+                                        "format": "double"
+                                    }
+                                }
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 1000, 
+                            "title": "get_characters_character_id_contracts_ok"
+                        }
+                    }, 
+                    "304": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "Not modified"
                     }, 
                     "403": {
                         "description": "Forbidden", 
@@ -30674,26 +30696,6 @@
                             "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
                         }
                     }, 
-                    "422": {
-                        "description": "Default labels cannot be deleted", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Unprocessable entity message"
-                            }
-                        }, 
-                        "schema": {
-                            "title": "delete_characters_character_id_mail_labels_label_id_unprocessable_entity", 
-                            "type": "object", 
-                            "description": "Unprocessable entity", 
-                            "properties": {
-                                "error": {
-                                    "type": "string", 
-                                    "description": "Unprocessable entity message", 
-                                    "title": "delete_characters_character_id_mail_labels_label_id_422_unprocessable_entity"
-                                }
-                            }
-                        }
-                    }, 
                     "503": {
                         "description": "Service unavailable", 
                         "examples": {
@@ -30725,12 +30727,10 @@
                         "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
                     }, 
                     {
-                        "description": "An EVE label id", 
-                        "format": "int32", 
-                        "required": true, 
-                        "in": "path", 
-                        "type": "integer", 
-                        "name": "label_id"
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/page"
                     }, 
                     {
                         "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
@@ -30740,21 +30740,21 @@
                     "application/json"
                 ], 
                 "tags": [
-                    "Mail"
+                    "Contracts"
                 ], 
-                "summary": "Delete a mail label", 
+                "summary": "Get contracts", 
                 "security": [
                     {
                         "evesso": [
-                            "esi-mail.organize_mail.v1"
+                            "esi-contracts.read_character_contracts.v1"
                         ]
                     }
                 ], 
-                "operationId": "delete_characters_character_id_mail_labels_label_id", 
+                "operationId": "get_characters_character_id_contracts", 
                 "consumes": [
                     "application/json"
                 ], 
-                "description": "Delete a mail label\n\n---\n"
+                "description": "Returns contracts available to a character, only if the character is issuer, acceptor or assignee. Only returns contracts no older than 30 days, or if the status is \"in_progress\".\n\n---\n\nThis route is cached for up to 300 seconds"
             }
         }, 
         "/v1/characters/{character_id}/location/": {
@@ -38631,470 +38631,6 @@
                 "description": "Get a list of corporation structures. This route's version includes the changes to structures detailed in this blog: https://www.eveonline.com/article/upwell-2.0-structures-changes-coming-on-february-13th\n\n---\n\nThis route is cached for up to 3600 seconds\n\n---\nRequires one of the following EVE corporation role(s): Station_Manager"
             }
         }, 
-        "/v1/characters/{character_id}/fittings/": {
-            "post": {
-                "responses": {
-                    "201": {
-                        "description": "A list of fittings", 
-                        "examples": {
-                            "application/json": {
-                                "fitting_id": 2
-                            }
-                        }, 
-                        "schema": {
-                            "required": [
-                                "fitting_id"
-                            ], 
-                            "title": "post_characters_character_id_fittings_created", 
-                            "type": "object", 
-                            "description": "201 created object", 
-                            "properties": {
-                                "fitting_id": {
-                                    "title": "post_characters_character_id_fittings_fitting_id", 
-                                    "type": "integer", 
-                                    "description": "fitting_id integer", 
-                                    "format": "int32"
-                                }
-                            }
-                        }
-                    }, 
-                    "403": {
-                        "description": "Forbidden", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
-                        }
-                    }, 
-                    "401": {
-                        "description": "Unauthorized", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Unauthorized message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
-                        }
-                    }, 
-                    "400": {
-                        "description": "Bad request", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Bad request message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
-                        }
-                    }, 
-                    "420": {
-                        "description": "Error limited", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Error limited message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
-                        }
-                    }, 
-                    "504": {
-                        "description": "Gateway timeout", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Gateway timeout message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
-                        }
-                    }, 
-                    "503": {
-                        "description": "Service unavailable", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Service unavailable message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
-                        }
-                    }, 
-                    "500": {
-                        "description": "Internal server error", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/character_id"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
-                    }, 
-                    {
-                        "schema": {
-                            "required": [
-                                "name", 
-                                "description", 
-                                "ship_type_id", 
-                                "items"
-                            ], 
-                            "title": "post_characters_character_id_fittings_fitting", 
-                            "type": "object", 
-                            "description": "fitting object", 
-                            "properties": {
-                                "items": {
-                                    "description": "items array", 
-                                    "title": "post_characters_character_id_fittings_items", 
-                                    "minItems": 1, 
-                                    "items": {
-                                        "required": [
-                                            "type_id", 
-                                            "flag", 
-                                            "quantity"
-                                        ], 
-                                        "title": "post_characters_character_id_fittings_item", 
-                                        "type": "object", 
-                                        "description": "item object", 
-                                        "properties": {
-                                            "flag": {
-                                                "title": "post_characters_character_id_fittings_flag", 
-                                                "type": "integer", 
-                                                "description": "flag integer", 
-                                                "format": "int32"
-                                            }, 
-                                            "type_id": {
-                                                "title": "post_characters_character_id_fittings_type_id", 
-                                                "type": "integer", 
-                                                "description": "type_id integer", 
-                                                "format": "int32"
-                                            }, 
-                                            "quantity": {
-                                                "title": "post_characters_character_id_fittings_quantity", 
-                                                "type": "integer", 
-                                                "description": "quantity integer", 
-                                                "format": "int32"
-                                            }
-                                        }
-                                    }, 
-                                    "maxItems": 255, 
-                                    "type": "array"
-                                }, 
-                                "ship_type_id": {
-                                    "title": "post_characters_character_id_fittings_ship_type_id", 
-                                    "type": "integer", 
-                                    "description": "ship_type_id integer", 
-                                    "format": "int32"
-                                }, 
-                                "description": {
-                                    "minLength": 0, 
-                                    "title": "post_characters_character_id_fittings_description", 
-                                    "type": "string", 
-                                    "description": "description string", 
-                                    "maxLength": 500
-                                }, 
-                                "name": {
-                                    "minLength": 1, 
-                                    "title": "post_characters_character_id_fittings_name", 
-                                    "type": "string", 
-                                    "description": "name string", 
-                                    "maxLength": 50
-                                }
-                            }
-                        }, 
-                        "required": true, 
-                        "description": "Details about the new fitting", 
-                        "name": "fitting", 
-                        "in": "body"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
-                    }
-                ], 
-                "produces": [
-                    "application/json"
-                ], 
-                "tags": [
-                    "Fittings"
-                ], 
-                "summary": "Create fitting", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-fittings.write_fittings.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "post_characters_character_id_fittings", 
-                "consumes": [
-                    "application/json"
-                ], 
-                "description": "Save a new fitting for a character\n\n---\n"
-            }, 
-            "get": {
-                "responses": {
-                    "200": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "A list of fittings", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "items": [
-                                        {
-                                            "flag": 12, 
-                                            "quantity": 1, 
-                                            "type_id": 1234
-                                        }
-                                    ], 
-                                    "ship_type_id": 123, 
-                                    "fitting_id": 1, 
-                                    "description": "Awesome Vindi fitting", 
-                                    "name": "Best Vindicator"
-                                }
-                            ]
-                        }, 
-                        "schema": {
-                            "items": {
-                                "required": [
-                                    "fitting_id", 
-                                    "name", 
-                                    "description", 
-                                    "ship_type_id", 
-                                    "items"
-                                ], 
-                                "title": "get_characters_character_id_fittings_200_ok", 
-                                "type": "object", 
-                                "description": "200 ok object", 
-                                "properties": {
-                                    "items": {
-                                        "items": {
-                                            "required": [
-                                                "type_id", 
-                                                "flag", 
-                                                "quantity"
-                                            ], 
-                                            "title": "get_characters_character_id_fittings_item", 
-                                            "type": "object", 
-                                            "description": "item object", 
-                                            "properties": {
-                                                "flag": {
-                                                    "title": "get_characters_character_id_fittings_flag", 
-                                                    "type": "integer", 
-                                                    "description": "flag integer", 
-                                                    "format": "int32"
-                                                }, 
-                                                "type_id": {
-                                                    "title": "get_characters_character_id_fittings_type_id", 
-                                                    "type": "integer", 
-                                                    "description": "type_id integer", 
-                                                    "format": "int32"
-                                                }, 
-                                                "quantity": {
-                                                    "title": "get_characters_character_id_fittings_quantity", 
-                                                    "type": "integer", 
-                                                    "description": "quantity integer", 
-                                                    "format": "int32"
-                                                }
-                                            }
-                                        }, 
-                                        "type": "array", 
-                                        "description": "items array", 
-                                        "maxItems": 255, 
-                                        "title": "get_characters_character_id_fittings_items"
-                                    }, 
-                                    "ship_type_id": {
-                                        "title": "get_characters_character_id_fittings_ship_type_id", 
-                                        "type": "integer", 
-                                        "description": "ship_type_id integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "fitting_id": {
-                                        "title": "get_characters_character_id_fittings_fitting_id", 
-                                        "type": "integer", 
-                                        "description": "fitting_id integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "name": {
-                                        "type": "string", 
-                                        "description": "name string", 
-                                        "title": "get_characters_character_id_fittings_name"
-                                    }, 
-                                    "description": {
-                                        "type": "string", 
-                                        "description": "description string", 
-                                        "title": "get_characters_character_id_fittings_description"
-                                    }
-                                }
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 250, 
-                            "title": "get_characters_character_id_fittings_ok"
-                        }
-                    }, 
-                    "304": {
-                        "headers": {
-                            "Last-Modified": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "ETag": {
-                                "type": "string", 
-                                "description": "RFC7232 compliant entity tag"
-                            }, 
-                            "Expires": {
-                                "type": "string", 
-                                "description": "RFC7231 formatted datetime string"
-                            }, 
-                            "Cache-Control": {
-                                "type": "string", 
-                                "description": "The caching mechanism used"
-                            }
-                        }, 
-                        "description": "Not modified"
-                    }, 
-                    "403": {
-                        "description": "Forbidden", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Forbidden message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
-                        }
-                    }, 
-                    "401": {
-                        "description": "Unauthorized", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Unauthorized message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
-                        }
-                    }, 
-                    "400": {
-                        "description": "Bad request", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Bad request message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
-                        }
-                    }, 
-                    "420": {
-                        "description": "Error limited", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Error limited message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
-                        }
-                    }, 
-                    "504": {
-                        "description": "Gateway timeout", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Gateway timeout message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
-                        }
-                    }, 
-                    "503": {
-                        "description": "Service unavailable", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Service unavailable message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
-                        }
-                    }, 
-                    "500": {
-                        "description": "Internal server error", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/character_id"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
-                    }, 
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
-                    }
-                ], 
-                "produces": [
-                    "application/json"
-                ], 
-                "tags": [
-                    "Fittings"
-                ], 
-                "summary": "Get fittings", 
-                "security": [
-                    {
-                        "evesso": [
-                            "esi-fittings.read_fittings.v1"
-                        ]
-                    }
-                ], 
-                "operationId": "get_characters_character_id_fittings", 
-                "consumes": [
-                    "application/json"
-                ], 
-                "description": "Return fittings of a character\n\n---\n\nThis route is cached for up to 300 seconds"
-            }
-        }, 
         "/v1/route/{origin}/{destination}/": {
             "get": {
                 "responses": {
@@ -43725,7 +43261,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "factions array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_factions"
                                 }, 
                                 "stations": {
@@ -43749,7 +43285,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "stations array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_stations"
                                 }, 
                                 "constellations": {
@@ -43773,7 +43309,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "constellations array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_constellations"
                                 }, 
                                 "regions": {
@@ -43797,7 +43333,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "regions array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_regions"
                                 }, 
                                 "agents": {
@@ -43821,7 +43357,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "agents array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_agents"
                                 }, 
                                 "inventory_types": {
@@ -43845,7 +43381,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "inventory_types array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_inventory_types"
                                 }, 
                                 "characters": {
@@ -43869,7 +43405,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "characters array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_characters"
                                 }, 
                                 "corporations": {
@@ -43893,7 +43429,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "corporations array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_corporations"
                                 }, 
                                 "alliances": {
@@ -43917,7 +43453,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "alliances array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_alliances"
                                 }, 
                                 "systems": {
@@ -43941,7 +43477,7 @@
                                     }, 
                                     "type": "array", 
                                     "description": "systems array", 
-                                    "maxItems": 1000, 
+                                    "maxItems": 500, 
                                     "title": "post_universe_ids_systems"
                                 }
                             }
@@ -44025,7 +43561,7 @@
                                 "description": "name string", 
                                 "maxLength": 100
                             }, 
-                            "maxItems": 1000, 
+                            "maxItems": 500, 
                             "uniqueItems": true, 
                             "type": "array", 
                             "example": [
@@ -45367,6 +44903,190 @@
                     "application/json"
                 ], 
                 "description": "List open market orders placed by a character\n\n---\n\nThis route is cached for up to 1200 seconds"
+            }
+        }, 
+        "/v3/universe/names/": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "List of id/name associations for a set of IDs. All IDs must resolve to a name, or nothing will be returned", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "category": "character", 
+                                    "id": 95465499, 
+                                    "name": "CCP Bartender"
+                                }, 
+                                {
+                                    "category": "solar_system", 
+                                    "id": 30000142, 
+                                    "name": "Jita"
+                                }
+                            ]
+                        }, 
+                        "schema": {
+                            "items": {
+                                "required": [
+                                    "id", 
+                                    "name", 
+                                    "category"
+                                ], 
+                                "title": "post_universe_names_200_ok", 
+                                "type": "object", 
+                                "description": "200 ok object", 
+                                "properties": {
+                                    "category": {
+                                        "enum": [
+                                            "alliance", 
+                                            "character", 
+                                            "constellation", 
+                                            "corporation", 
+                                            "inventory_type", 
+                                            "region", 
+                                            "solar_system", 
+                                            "station", 
+                                            "faction"
+                                        ], 
+                                        "type": "string", 
+                                        "description": "category string", 
+                                        "title": "post_universe_names_category"
+                                    }, 
+                                    "id": {
+                                        "title": "post_universe_names_id", 
+                                        "type": "integer", 
+                                        "description": "id integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "name": {
+                                        "type": "string", 
+                                        "description": "name string", 
+                                        "title": "post_universe_names_name"
+                                    }
+                                }
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 1000, 
+                            "title": "post_universe_names_ok"
+                        }
+                    }, 
+                    "404": {
+                        "description": "Ensure all IDs are valid before resolving", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Not found message"
+                            }
+                        }, 
+                        "schema": {
+                            "title": "post_universe_names_not_found", 
+                            "type": "object", 
+                            "description": "Not found", 
+                            "properties": {
+                                "error": {
+                                    "type": "string", 
+                                    "description": "Not found message", 
+                                    "title": "post_universe_names_404_not_found"
+                                }
+                            }
+                        }
+                    }, 
+                    "400": {
+                        "description": "Bad request", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Bad request message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
+                        }
+                    }, 
+                    "420": {
+                        "description": "Error limited", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Error limited message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
+                        }
+                    }, 
+                    "504": {
+                        "description": "Gateway timeout", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Gateway timeout message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
+                        }
+                    }, 
+                    "503": {
+                        "description": "Service unavailable", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Service unavailable message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
+                        }
+                    }, 
+                    "500": {
+                        "description": "Internal server error", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
+                    }, 
+                    {
+                        "schema": {
+                            "description": "ids array", 
+                            "title": "post_universe_names_ids", 
+                            "minItems": 1, 
+                            "items": {
+                                "title": "post_universe_names_id", 
+                                "type": "integer", 
+                                "description": "id integer", 
+                                "format": "int32"
+                            }, 
+                            "maxItems": 1000, 
+                            "uniqueItems": true, 
+                            "type": "array", 
+                            "example": [
+                                95465499, 
+                                30000142
+                            ]
+                        }, 
+                        "required": true, 
+                        "description": "The ids to resolve", 
+                        "name": "ids", 
+                        "in": "body"
+                    }
+                ], 
+                "produces": [
+                    "application/json"
+                ], 
+                "tags": [
+                    "Universe"
+                ], 
+                "summary": "Get names and categories for a set of IDs", 
+                "operationId": "post_universe_names", 
+                "consumes": [
+                    "application/json"
+                ], 
+                "description": "Resolve a set of IDs to names and categories. Supported ID's for resolving are: Characters, Corporations, Alliances, Stations, Solar Systems, Constellations, Regions, Types, Factions\n\n---\n"
             }
         }, 
         "/v1/fleets/{fleet_id}/squads/{squad_id}/": {
@@ -46997,189 +46717,6 @@
                     "application/json"
                 ], 
                 "description": "Return names for a set of item ids, which you can get from character assets endpoint. Typically used for items that can customize names, like containers or ships.\n\n---\n"
-            }
-        }, 
-        "/v2/universe/names/": {
-            "post": {
-                "responses": {
-                    "200": {
-                        "description": "List of id/name associations for a set of ID's. All ID's must resolve to a name, or nothing will be returned", 
-                        "examples": {
-                            "application/json": [
-                                {
-                                    "category": "character", 
-                                    "id": 95465499, 
-                                    "name": "CCP Bartender"
-                                }, 
-                                {
-                                    "category": "solar_system", 
-                                    "id": 30000142, 
-                                    "name": "Jita"
-                                }
-                            ]
-                        }, 
-                        "schema": {
-                            "items": {
-                                "required": [
-                                    "id", 
-                                    "name", 
-                                    "category"
-                                ], 
-                                "title": "post_universe_names_200_ok", 
-                                "type": "object", 
-                                "description": "200 ok object", 
-                                "properties": {
-                                    "category": {
-                                        "enum": [
-                                            "alliance", 
-                                            "character", 
-                                            "constellation", 
-                                            "corporation", 
-                                            "inventory_type", 
-                                            "region", 
-                                            "solar_system", 
-                                            "station"
-                                        ], 
-                                        "type": "string", 
-                                        "description": "category string", 
-                                        "title": "post_universe_names_category"
-                                    }, 
-                                    "id": {
-                                        "title": "post_universe_names_id", 
-                                        "type": "integer", 
-                                        "description": "id integer", 
-                                        "format": "int32"
-                                    }, 
-                                    "name": {
-                                        "type": "string", 
-                                        "description": "name string", 
-                                        "title": "post_universe_names_name"
-                                    }
-                                }
-                            }, 
-                            "type": "array", 
-                            "description": "200 ok array", 
-                            "maxItems": 1000, 
-                            "title": "post_universe_names_ok"
-                        }
-                    }, 
-                    "404": {
-                        "description": "Ensure all IDs are valid before resolving", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Not found message"
-                            }
-                        }, 
-                        "schema": {
-                            "title": "post_universe_names_not_found", 
-                            "type": "object", 
-                            "description": "Not found", 
-                            "properties": {
-                                "error": {
-                                    "type": "string", 
-                                    "description": "Not found message", 
-                                    "title": "post_universe_names_404_not_found"
-                                }
-                            }
-                        }
-                    }, 
-                    "400": {
-                        "description": "Bad request", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Bad request message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
-                        }
-                    }, 
-                    "420": {
-                        "description": "Error limited", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Error limited message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
-                        }
-                    }, 
-                    "504": {
-                        "description": "Gateway timeout", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Gateway timeout message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
-                        }
-                    }, 
-                    "503": {
-                        "description": "Service unavailable", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Service unavailable message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
-                        }
-                    }, 
-                    "500": {
-                        "description": "Internal server error", 
-                        "examples": {
-                            "application/json": {
-                                "error": "Internal server error message"
-                            }
-                        }, 
-                        "schema": {
-                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
-                        }
-                    }
-                }, 
-                "parameters": [
-                    {
-                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
-                    }, 
-                    {
-                        "schema": {
-                            "description": "ids array", 
-                            "title": "post_universe_names_ids", 
-                            "minItems": 1, 
-                            "items": {
-                                "title": "post_universe_names_id", 
-                                "type": "integer", 
-                                "description": "id integer", 
-                                "format": "int32"
-                            }, 
-                            "maxItems": 1000, 
-                            "uniqueItems": true, 
-                            "type": "array", 
-                            "example": [
-                                95465499, 
-                                30000142
-                            ]
-                        }, 
-                        "required": true, 
-                        "description": "The ids to resolve", 
-                        "name": "ids", 
-                        "in": "body"
-                    }
-                ], 
-                "produces": [
-                    "application/json"
-                ], 
-                "tags": [
-                    "Universe"
-                ], 
-                "summary": "Get names and categories for a set of ID's", 
-                "operationId": "post_universe_names", 
-                "consumes": [
-                    "application/json"
-                ], 
-                "description": "Resolve a set of IDs to names and categories. Supported ID's for resolving are: Characters, Corporations, Alliances, Stations, Solar Systems, Constellations, Regions, Types\n\n---\n"
             }
         }, 
         "/v1/characters/{character_id}/loyalty/points/": {
@@ -49655,6 +49192,558 @@
                     "application/json"
                 ], 
                 "description": "Shows sovereignty data for structures.\n\n---\n\nThis route is cached for up to 120 seconds"
+            }
+        }, 
+        "/v2/characters/{character_id}/fittings/": {
+            "post": {
+                "responses": {
+                    "201": {
+                        "description": "A list of fittings", 
+                        "examples": {
+                            "application/json": {
+                                "fitting_id": 2
+                            }
+                        }, 
+                        "schema": {
+                            "required": [
+                                "fitting_id"
+                            ], 
+                            "title": "post_characters_character_id_fittings_created", 
+                            "type": "object", 
+                            "description": "201 created object", 
+                            "properties": {
+                                "fitting_id": {
+                                    "title": "post_characters_character_id_fittings_fitting_id", 
+                                    "type": "integer", 
+                                    "description": "fitting_id integer", 
+                                    "format": "int32"
+                                }
+                            }
+                        }
+                    }, 
+                    "403": {
+                        "description": "Forbidden", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
+                        }
+                    }, 
+                    "401": {
+                        "description": "Unauthorized", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Unauthorized message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
+                        }
+                    }, 
+                    "400": {
+                        "description": "Bad request", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Bad request message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
+                        }
+                    }, 
+                    "420": {
+                        "description": "Error limited", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Error limited message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
+                        }
+                    }, 
+                    "504": {
+                        "description": "Gateway timeout", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Gateway timeout message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
+                        }
+                    }, 
+                    "503": {
+                        "description": "Service unavailable", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Service unavailable message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
+                        }
+                    }, 
+                    "500": {
+                        "description": "Internal server error", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/character_id"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
+                    }, 
+                    {
+                        "schema": {
+                            "required": [
+                                "name", 
+                                "description", 
+                                "ship_type_id", 
+                                "items"
+                            ], 
+                            "title": "post_characters_character_id_fittings_fitting", 
+                            "type": "object", 
+                            "description": "fitting object", 
+                            "properties": {
+                                "items": {
+                                    "description": "items array", 
+                                    "title": "post_characters_character_id_fittings_items", 
+                                    "minItems": 1, 
+                                    "items": {
+                                        "required": [
+                                            "type_id", 
+                                            "flag", 
+                                            "quantity"
+                                        ], 
+                                        "title": "post_characters_character_id_fittings_item", 
+                                        "type": "object", 
+                                        "description": "item object", 
+                                        "properties": {
+                                            "flag": {
+                                                "enum": [
+                                                    "Cargo", 
+                                                    "DroneBay", 
+                                                    "FighterBay", 
+                                                    "HiSlot0", 
+                                                    "HiSlot1", 
+                                                    "HiSlot2", 
+                                                    "HiSlot3", 
+                                                    "HiSlot4", 
+                                                    "HiSlot5", 
+                                                    "HiSlot6", 
+                                                    "HiSlot7", 
+                                                    "Invalid", 
+                                                    "LoSlot0", 
+                                                    "LoSlot1", 
+                                                    "LoSlot2", 
+                                                    "LoSlot3", 
+                                                    "LoSlot4", 
+                                                    "LoSlot5", 
+                                                    "LoSlot6", 
+                                                    "LoSlot7", 
+                                                    "MedSlot0", 
+                                                    "MedSlot1", 
+                                                    "MedSlot2", 
+                                                    "MedSlot3", 
+                                                    "MedSlot4", 
+                                                    "MedSlot5", 
+                                                    "MedSlot6", 
+                                                    "MedSlot7", 
+                                                    "RigSlot0", 
+                                                    "RigSlot1", 
+                                                    "RigSlot2", 
+                                                    "ServiceSlot0", 
+                                                    "ServiceSlot1", 
+                                                    "ServiceSlot2", 
+                                                    "ServiceSlot3", 
+                                                    "ServiceSlot4", 
+                                                    "ServiceSlot5", 
+                                                    "ServiceSlot6", 
+                                                    "ServiceSlot7", 
+                                                    "SubSystemSlot0", 
+                                                    "SubSystemSlot1", 
+                                                    "SubSystemSlot2", 
+                                                    "SubSystemSlot3"
+                                                ], 
+                                                "type": "string", 
+                                                "description": "Fitting location for the item. Entries placed in 'Invalid' will be discarded. If this leaves the fitting with nothing, it will cause an error.", 
+                                                "title": "post_characters_character_id_fittings_flag"
+                                            }, 
+                                            "type_id": {
+                                                "title": "post_characters_character_id_fittings_type_id", 
+                                                "type": "integer", 
+                                                "description": "type_id integer", 
+                                                "format": "int32"
+                                            }, 
+                                            "quantity": {
+                                                "title": "post_characters_character_id_fittings_quantity", 
+                                                "type": "integer", 
+                                                "description": "quantity integer", 
+                                                "format": "int32"
+                                            }
+                                        }
+                                    }, 
+                                    "maxItems": 255, 
+                                    "type": "array"
+                                }, 
+                                "ship_type_id": {
+                                    "title": "post_characters_character_id_fittings_ship_type_id", 
+                                    "type": "integer", 
+                                    "description": "ship_type_id integer", 
+                                    "format": "int32"
+                                }, 
+                                "description": {
+                                    "minLength": 0, 
+                                    "title": "post_characters_character_id_fittings_description", 
+                                    "type": "string", 
+                                    "description": "description string", 
+                                    "maxLength": 500
+                                }, 
+                                "name": {
+                                    "minLength": 1, 
+                                    "title": "post_characters_character_id_fittings_name", 
+                                    "type": "string", 
+                                    "description": "name string", 
+                                    "maxLength": 50
+                                }
+                            }
+                        }, 
+                        "required": true, 
+                        "description": "Details about the new fitting", 
+                        "name": "fitting", 
+                        "in": "body"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
+                    }
+                ], 
+                "produces": [
+                    "application/json"
+                ], 
+                "tags": [
+                    "Fittings"
+                ], 
+                "summary": "Create fitting", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-fittings.write_fittings.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "post_characters_character_id_fittings", 
+                "consumes": [
+                    "application/json"
+                ], 
+                "description": "Save a new fitting for a character\n\n---\n"
+            }, 
+            "get": {
+                "responses": {
+                    "200": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "A list of fittings", 
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "items": [
+                                        {
+                                            "flag": "Cargo", 
+                                            "quantity": 1, 
+                                            "type_id": 1234
+                                        }
+                                    ], 
+                                    "ship_type_id": 123, 
+                                    "fitting_id": 1, 
+                                    "description": "Awesome Vindi fitting", 
+                                    "name": "Best Vindicator"
+                                }
+                            ]
+                        }, 
+                        "schema": {
+                            "items": {
+                                "required": [
+                                    "fitting_id", 
+                                    "name", 
+                                    "description", 
+                                    "ship_type_id", 
+                                    "items"
+                                ], 
+                                "title": "get_characters_character_id_fittings_200_ok", 
+                                "type": "object", 
+                                "description": "200 ok object", 
+                                "properties": {
+                                    "items": {
+                                        "items": {
+                                            "required": [
+                                                "type_id", 
+                                                "flag", 
+                                                "quantity"
+                                            ], 
+                                            "title": "get_characters_character_id_fittings_item", 
+                                            "type": "object", 
+                                            "description": "item object", 
+                                            "properties": {
+                                                "flag": {
+                                                    "enum": [
+                                                        "Cargo", 
+                                                        "DroneBay", 
+                                                        "FighterBay", 
+                                                        "HiSlot0", 
+                                                        "HiSlot1", 
+                                                        "HiSlot2", 
+                                                        "HiSlot3", 
+                                                        "HiSlot4", 
+                                                        "HiSlot5", 
+                                                        "HiSlot6", 
+                                                        "HiSlot7", 
+                                                        "Invalid", 
+                                                        "LoSlot0", 
+                                                        "LoSlot1", 
+                                                        "LoSlot2", 
+                                                        "LoSlot3", 
+                                                        "LoSlot4", 
+                                                        "LoSlot5", 
+                                                        "LoSlot6", 
+                                                        "LoSlot7", 
+                                                        "MedSlot0", 
+                                                        "MedSlot1", 
+                                                        "MedSlot2", 
+                                                        "MedSlot3", 
+                                                        "MedSlot4", 
+                                                        "MedSlot5", 
+                                                        "MedSlot6", 
+                                                        "MedSlot7", 
+                                                        "RigSlot0", 
+                                                        "RigSlot1", 
+                                                        "RigSlot2", 
+                                                        "ServiceSlot0", 
+                                                        "ServiceSlot1", 
+                                                        "ServiceSlot2", 
+                                                        "ServiceSlot3", 
+                                                        "ServiceSlot4", 
+                                                        "ServiceSlot5", 
+                                                        "ServiceSlot6", 
+                                                        "ServiceSlot7", 
+                                                        "SubSystemSlot0", 
+                                                        "SubSystemSlot1", 
+                                                        "SubSystemSlot2", 
+                                                        "SubSystemSlot3"
+                                                    ], 
+                                                    "type": "string", 
+                                                    "description": "flag string", 
+                                                    "title": "get_characters_character_id_fittings_flag"
+                                                }, 
+                                                "type_id": {
+                                                    "title": "get_characters_character_id_fittings_type_id", 
+                                                    "type": "integer", 
+                                                    "description": "type_id integer", 
+                                                    "format": "int32"
+                                                }, 
+                                                "quantity": {
+                                                    "title": "get_characters_character_id_fittings_quantity", 
+                                                    "type": "integer", 
+                                                    "description": "quantity integer", 
+                                                    "format": "int32"
+                                                }
+                                            }
+                                        }, 
+                                        "type": "array", 
+                                        "description": "items array", 
+                                        "maxItems": 255, 
+                                        "title": "get_characters_character_id_fittings_items"
+                                    }, 
+                                    "ship_type_id": {
+                                        "title": "get_characters_character_id_fittings_ship_type_id", 
+                                        "type": "integer", 
+                                        "description": "ship_type_id integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "fitting_id": {
+                                        "title": "get_characters_character_id_fittings_fitting_id", 
+                                        "type": "integer", 
+                                        "description": "fitting_id integer", 
+                                        "format": "int32"
+                                    }, 
+                                    "name": {
+                                        "type": "string", 
+                                        "description": "name string", 
+                                        "title": "get_characters_character_id_fittings_name"
+                                    }, 
+                                    "description": {
+                                        "type": "string", 
+                                        "description": "description string", 
+                                        "title": "get_characters_character_id_fittings_description"
+                                    }
+                                }
+                            }, 
+                            "type": "array", 
+                            "description": "200 ok array", 
+                            "maxItems": 250, 
+                            "title": "get_characters_character_id_fittings_ok"
+                        }
+                    }, 
+                    "304": {
+                        "headers": {
+                            "Last-Modified": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "ETag": {
+                                "type": "string", 
+                                "description": "RFC7232 compliant entity tag"
+                            }, 
+                            "Expires": {
+                                "type": "string", 
+                                "description": "RFC7231 formatted datetime string"
+                            }, 
+                            "Cache-Control": {
+                                "type": "string", 
+                                "description": "The caching mechanism used"
+                            }
+                        }, 
+                        "description": "Not modified"
+                    }, 
+                    "403": {
+                        "description": "Forbidden", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Forbidden message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/forbidden"
+                        }
+                    }, 
+                    "401": {
+                        "description": "Unauthorized", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Unauthorized message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/unauthorized"
+                        }
+                    }, 
+                    "400": {
+                        "description": "Bad request", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Bad request message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/bad_request"
+                        }
+                    }, 
+                    "420": {
+                        "description": "Error limited", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Error limited message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/error_limited"
+                        }
+                    }, 
+                    "504": {
+                        "description": "Gateway timeout", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Gateway timeout message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/gateway_timeout"
+                        }
+                    }, 
+                    "503": {
+                        "description": "Service unavailable", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Service unavailable message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/service_unavailable"
+                        }
+                    }, 
+                    "500": {
+                        "description": "Internal server error", 
+                        "examples": {
+                            "application/json": {
+                                "error": "Internal server error message"
+                            }
+                        }, 
+                        "schema": {
+                            "$ref": "https://esi.evetech.net/_latest/swagger.json#/definitions/internal_server_error"
+                        }
+                    }
+                }, 
+                "parameters": [
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/character_id"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/datasource"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/If-None-Match"
+                    }, 
+                    {
+                        "$ref": "https://esi.evetech.net/_latest/swagger.json#/parameters/token"
+                    }
+                ], 
+                "produces": [
+                    "application/json"
+                ], 
+                "tags": [
+                    "Fittings"
+                ], 
+                "summary": "Get fittings", 
+                "security": [
+                    {
+                        "evesso": [
+                            "esi-fittings.read_fittings.v1"
+                        ]
+                    }
+                ], 
+                "operationId": "get_characters_character_id_fittings", 
+                "consumes": [
+                    "application/json"
+                ], 
+                "description": "Return fittings of a character\n\n---\n\nThis route is cached for up to 300 seconds"
             }
         }, 
         "/v1/fleets/{fleet_id}/wings/": {
