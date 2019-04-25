@@ -20,7 +20,8 @@ parser.add_argument('--suppress-upcoming-detonations', dest='upcoming_detonation
 parser.add_argument('--suppress-unscheduled-detonations', dest='unscheduled_detonations', action='store_false')
 parser.add_argument('--suppress-ansiblex-ozone', dest='ansiblex_ozone', action='store_false')
 parser.add_argument('--suppress-fuel-warning', dest='fuel_warning', action='store_false')
-parser.add_argument('--suppress-service-status', dest='service_status', action='store_false')
+parser.add_argument('--suppress-service-state', dest='service_state', action='store_false')
+parser.add_argument('--suppress-structure-state', dest='structure_state', action='store_false')
 
 args = parser.parse_args()
 
@@ -37,21 +38,24 @@ try:
             msg = 'Found an inaccesible citadel ({}) in {}'.format(structure.structure_id, structure.system_id)
             messages.append(msg)
             continue
-        if structure.needs_detonation and args.unscheduled_detonations:
+        if args.unscheduled_detonations and structure.needs_detonation:
             message.append('Needs to have an extraction scheduled')
-        if structure.detonates_soon and args.upcoming_detonations:
+        if args.upcoming_detonations and structure.detonates_soon:
             message.append('Ready to detonate {}'.format(structure.detonation))
-        if structure.needs_ozone and args.ansiblex_ozone:
+        if args.ansiblex_ozone and structure.needs_ozone:
             message.append('Low on Liquid Ozone: {}'.format(structure.jump_fuel))
-        if structure.needs_fuel and args.fuel_warning:
+        if args.fuel_warning and structure.needs_fuel:
             message.append('Runs out of fuel on {}'.format(structure.fuel_expires))
-            if args.service_status:
+            if args.service_state:
                 if structure.online_services:
                     message.append('Online Services: {}'.format(', '.join(structure.online_services)))
                 if structure.offline_services:
                     message.append('Offline Services: {}'.format(', '.join(structure.offline_services)))
-        elif structure.offline_services and args.service_status:
+        if args.service_state and structure.offline_services:
             message.append('Offline services: {}'.format(', '.join(structure.offline_services)))
+        if args.structure_state and (structure.vulnerable or structure.reinforced):
+            state = structure.state.replace('_', ' ').title()
+            message.append('{} until {}'.format(state, structure.state_timer_end))
         if message:
             messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
 	messages += check_pos(corp_name, assets)
