@@ -9,18 +9,20 @@ from assets import Fitting, Asset
 class Structure(object):
     def __init__(self, structure_id, type_id=None, type_name=None,
                  system_id=None, services=None, fuel_expires=None,
-                 accessible=None, name=None, detonation=None,
-                 fuel=[], fitting=Fitting()):
+                 accessible=None, name=None, state=None, state_timer_end=None,
+                 detonation=None, fuel=[], fitting=Fitting()):
         super(Structure, self).__init__()
         self.structure_id = structure_id
         self.type_id = type_id
         self.type_name = type_name
         self.system_id = system_id
         self.fuel = fuel
-        self.fuel_expires = fuel_expires
+        self.fuel_expires = getattr(fuel_expires, 'v', None)
         self.accessible = accessible
         self.name = name
-        self.detonation = detonation
+        self.state = state
+        self.state_timer_end = getattr(state_timer_end, 'v', None)
+        self.detonation = getattr(detonation, 'v', None)
         self.fitting = fitting
         self._fuel_rate = 0
         # Grab structure name
@@ -155,7 +157,7 @@ class Structure(object):
     @property
     def detonates_soon(self):
         now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-        if self.detonation and (self.detonation.v - now < CONFIG['DETONATION_WARNING']):
+        if self.detonation and (self.detonation - now < CONFIG['DETONATION_WARNING']):
             return True
         return False
 
@@ -168,13 +170,25 @@ class Structure(object):
     @property
     def needs_fuel(self):
         now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-        if self.fuel_expires and (self.fuel_expires.v - now < CONFIG['TOO_SOON']):
+        if self.fuel_expires and (self.fuel_expires - now < CONFIG['TOO_SOON']):
             return True
         return False
 
     @property
     def jump_fuel(self):
         return sum([lo.quantity for lo in self.fuel if lo.name == 'Liquid Ozone'])
+
+    @property
+    def reinforced(self):
+        if self.state in ['armor_reinforce', 'hull_reinforce']:
+            return True
+        return False
+
+    @property
+    def vulnerable(self):
+        if self.state in ['deploy_vulnerable', 'armor_vulnerable', 'hull_vulnerable']:
+            return True
+        return False
 
     @classmethod
     def from_corporation(cls, corporation_name, assets=None):
@@ -191,12 +205,11 @@ class Structure(object):
         detonations = detonations_response.data
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
-        structure_keys = ['structure_id', 'system_id',
-                          'services', 'fuel_expires']
+        structure_keys = ['structure_id', 'system_id', 'type_id'
+                          'services', 'fuel_expires', 'state', 'state_timer_end']
         for s in structures:
             sid = s['structure_id']
             kwargs = {k: v for k, v in s.items() if k in structure_keys}
-            kwargs['type_id'] = s['type_id']
             kwargs['type_name'] = ids_to_names([s['type_id']])[s['type_id']]
             kwargs['detonation'] = detonations.get(sid)
             structure_contents = [a for a in assets if a.location_id == sid]
