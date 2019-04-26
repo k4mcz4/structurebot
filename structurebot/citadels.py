@@ -205,7 +205,7 @@ class Structure(object):
         detonations = detonations_response.data
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
-        structure_keys = ['structure_id', 'system_id', 'type_id'
+        structure_keys = ['structure_id', 'system_id', 'type_id',
                           'services', 'fuel_expires', 'state', 'state_timer_end']
         for s in structures:
             sid = s['structure_id']
