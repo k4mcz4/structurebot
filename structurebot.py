@@ -58,7 +58,7 @@ try:
             message.append('{} until {}'.format(state, structure.state_timer_end))
         if message:
             messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
-	messages += check_pos(corp_name, assets)
+    messages += check_pos(corp_name, assets)
 except Exception, e:
     if CONFIG['DEBUG']:
         raise

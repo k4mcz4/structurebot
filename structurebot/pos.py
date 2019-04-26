@@ -196,9 +196,11 @@ def check_pos(corp_name, corp_assets=None):
         list: list of alert strings
 
     """
+    messages = []
     corp_id = name_to_id(CONFIG['CORPORATION_NAME'], 'corporation')
     pos_list = Pos.from_corp_name(corp_name, corp_assets)
-    messages = []
+    if not pos_list:
+        return messages
     alliance_id_request = esi.op['get_corporations_corporation_id'](corporation_id=corp_id)
     alliance_id = esi_client.request(alliance_id_request).data.get('alliance_id', None)
     sovs = sov_systems(alliance_id)
