@@ -18,11 +18,17 @@
     "SSO_REFRESH_TOKEN": {
       "required": true
     },
-    "TOO_SOON": {
-      "required": true
-    },
     "SLACK_CHANNEL": {
       "required": true
+    },
+    "TOO_SOON": {
+      "required": false
+    },
+    "DETONATION_WARNING": {
+      "required": false
+    },
+    "JUMPGATE_FUEL_WARN": {
+      "required": false
     }
   },
   "formation": {
