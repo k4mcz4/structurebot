@@ -1,10 +1,13 @@
 import json
+import logging
 from collections import Counter
 from methodtools import lru_cache
 
 from config import CONFIG
 from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
 
+
+logger = logging.getLogger(__name__)
 
 def is_system_id(location_id):
     if location_id >= 30000000 and location_id <= 32000000:

@@ -1,6 +1,7 @@
 import requests
 from requests.exceptions import HTTPError
 import time
+import logging
 from urlparse import urlparse
 from operator import attrgetter
 from esipy import EsiApp, EsiClient, EsiSecurity
@@ -10,6 +11,7 @@ from pyswagger.primitives.codec import PlainCodec
 
 from config import *
 
+logger = logging.getLogger(__name__)
 
 def config_esi_cache(cache_url):
     """Configure ESI cache backend

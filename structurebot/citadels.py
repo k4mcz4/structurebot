@@ -1,10 +1,13 @@
 import datetime
 import pytz
+import logging
 
 from config import CONFIG
 from util import esi, esi_client, name_to_id, ids_to_names
 from assets import Fitting, Asset
 
+
+logger = logging.getLogger(__name__)
 
 class Structure(object):
     def __init__(self, structure_id, type_id=None, type_name=None,

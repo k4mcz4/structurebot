@@ -18,6 +18,8 @@ if __name__ == '__main__':
     if CONFIG['DEBUG'] or args.debug:
         level = logging.INFO
     logging.basicConfig(level=level)
+    pyswagger_logger = logging.getLogger('pyswagger')
+    pyswagger_logger.setLevel(logging.ERROR)
     structures = Structure.from_corporation(CONFIG['CORPORATION_NAME'])
     total_fuel = 0
     if args.csv:
