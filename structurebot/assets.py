@@ -1,5 +1,6 @@
 import json
 from collections import Counter
+from methodtools import lru_cache
 
 from config import CONFIG
 from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
@@ -17,6 +18,7 @@ def is_station_id(location_id):
     else:
         return False
 
+
 class Category(object):
     """docstring for Category"""
     def __init__(self, category_id, name, published, groups):
@@ -27,6 +29,7 @@ class Category(object):
         self.category_id = category_id
         self.groups = groups
 
+    @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
         if not isinstance(id, int):
@@ -59,6 +62,7 @@ class Group(object):
         self.types = types
         self.category = category or Category.from_id(category_id)
 
+    @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
         if not isinstance(id, int):
@@ -110,12 +114,9 @@ class BaseType(object):
 
 class Type(BaseType):
     """EVE SDE Type with bulk constructors"""
-    def __init__(self, quantity=1, *args, **kwargs):
-        super(Type, self).__init__(*args, **kwargs)
-        self.quantity = quantity
-
+    @lru_cache(maxsize=5000)
     @classmethod
-    def from_id(cls, id, quantity=1):
+    def from_id(cls, id):
         """Return Type from id
 
         Args:
@@ -133,7 +134,7 @@ class Type(BaseType):
         type_request = esi.op['get_universe_types_type_id'](type_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
-            return cls(quantity=quantity, **type_response.data)
+            return cls(**type_response.data)
         else:
             raise HTTPError(type_response.data['error'])
 
@@ -152,6 +153,7 @@ class Type(BaseType):
             types.append(cls.from_id(id))
         return types
 
+    @lru_cache(maxsize=1000)
     @classmethod
     def from_name(cls, name):
         """Return a Type from a type name
@@ -230,7 +232,6 @@ class Asset(BaseType):
             for asset in assets_api:
                 asset_type = Type.from_id(asset['type_id'])
                 type_dict = asset_type.__dict__
-                del type_dict['quantity']
                 asset.update(type_dict)
                 assets.append(cls(**asset))
             pages = assets_response.header['X-Pages'][0]
