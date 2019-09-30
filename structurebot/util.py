@@ -3,7 +3,7 @@ from requests.exceptions import HTTPError
 import time
 from urlparse import urlparse
 from operator import attrgetter
-from esipy import App, EsiClient, EsiSecurity
+from esipy import EsiApp, EsiClient, EsiSecurity
 from esipy.cache import DictCache
 from pyswagger.primitives import MimeCodec
 from pyswagger.primitives.codec import PlainCodec
@@ -58,14 +58,8 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
     ...           CONFIG['SSO_REFRESH_TOKEN'], cache) # doctest: +ELLIPSIS
     (<pyswagger.core.App object ...>, <esipy.client.EsiClient object ...>)
     """
-    esi_path = os.path.abspath(__file__)
-    esi_dir_path = os.path.dirname(esi_path)
-
-    mime_codec = MimeCodec()
-    mime_codec.register('text/html', PlainCodec())
-
-    esi = App.load(esi_dir_path + '/esi.json', mime_codec=mime_codec)
-    esi.prepare(strict=True)
+    esi_meta = EsiApp(cache=cache)
+    esi = esi_meta.get_latest_swagger
 
     esi_security = EsiSecurity(
         redirect_uri='http://localhost',
