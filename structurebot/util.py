@@ -172,17 +172,6 @@ def ids_to_names(ids):
     return id_name
 
 
-def annotate_element(row, dict):
-    """Sets attributes on an Element from a dict
-
-    Args:
-        row (TYPE): Description
-        dict (TYPE): Description
-    """
-    for key, value in dict.iteritems():
-        row[key] = str(value)
-
-
 def notify_slack(messages):
     params = {
         'text': '\n\n'.join(messages)

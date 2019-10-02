@@ -1,6 +1,6 @@
 
 from config import CONFIG
-from util import esi, esi_client, annotate_element, name_to_id, HTTPError
+from util import esi, esi_client, name_to_id, HTTPError
 from assets import Asset, Type, is_system_id
 from pos_resources import pos_fuel
 import sys
