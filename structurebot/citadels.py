@@ -197,7 +197,7 @@ class Structure(object):
     def from_corporation(cls, corporation_name, assets=None):
         structure_list = []
         corporation_id = name_to_id(corporation_name, 'corporation')
-        assets = assets or Asset.from_id(corporation_id, 'corporations')
+        assets = assets or Asset.from_entity_id(corporation_id, 'corporations')
         endpoint = 'get_corporations_corporation_id_structures'
         structures_request = esi.op[endpoint](corporation_id=corporation_id)
         structures_response = esi_client.request(structures_request)

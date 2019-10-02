@@ -29,7 +29,7 @@ messages = []
 try:
     corp_name = CONFIG['CORPORATION_NAME']
     CONFIG['CORP_ID'] = name_to_id(corp_name, 'corporation')
-    assets = Asset.from_name(corp_name)
+    assets = Asset.from_entity_name(corp_name)
     structures = Structure.from_corporation(corp_name, assets)
     messages = []
     for structure in structures:

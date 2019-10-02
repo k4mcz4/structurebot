@@ -211,7 +211,21 @@ class Asset(BaseType):
         self.xyz = xyz
 
     @classmethod
-    def from_id(cls, id, id_type):
+    def from_id(cls, id, **kwargs):
+        asset = super(Asset, cls).from_id(id)
+        for key, value in kwargs.items():
+            setattr(asset, key, value)
+        return asset
+
+    @classmethod
+    def from_name(cls, name, **kwargs):
+        asset = super(Asset, cls).from_name(name)
+        for key, value in kwargs.items():
+            setattr(asset, key, value)
+        return asset
+
+    @classmethod
+    def from_entity_id(cls, id, id_type):
         """Returns Assets owned by id of id_type
 
         Args:
@@ -251,7 +265,7 @@ class Asset(BaseType):
         return assets
 
     @classmethod
-    def from_name(cls, name):
+    def from_entity_name(cls, name):
         """Return Assets owned by owner name
 
         Args:
@@ -270,7 +284,7 @@ class Asset(BaseType):
         else:
             return None
         id = id_results[id_type][name]
-        return cls.from_id(id, id_type)
+        return cls.from_entity_id(id, id_type)
 
 
 def is_system_id(location_id):

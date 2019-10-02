@@ -52,7 +52,7 @@ class Pos(Asset):
         self.attack_security_status_threshold = attack_security_status_threshold
         self.attack_if_other_security_status_dropping = attack_if_other_security_status_dropping
         self.attack_if_at_war = attack_if_at_war
-        self.fuels = [Type.from_id(t.type_id, quantity=t.quantity)
+        self.fuels = [Asset.from_id(t.type_id, quantity=t.quantity)
                       for t in fuels]
         self.mods = mods
 
@@ -67,7 +67,7 @@ class Pos(Asset):
             'state': state,
             'unanchor_at': unanchor_at,
             'reinforced_until': reinforced_until,
-            'onlined_since': onlined_since, 
+            'onlined_since': onlined_since,
             'mods': mods
         }
         op = 'get_corporations_corporation_id_starbases_starbase_id'
@@ -88,7 +88,7 @@ class Pos(Asset):
     def from_corp_name(corp_name, corp_assets=None):
         pos_mod_dict = {}
         pos_list = []
-        corp_assets = corp_assets or Asset.from_name(corp_name)
+        corp_assets = corp_assets or Asset.from_entity_name(corp_name)
         assets = [a for a in corp_assets if Pos.is_pos_mod(a)]
         pos_mods = [m for m in assets if m.group.name != 'Control Tower']
         mod_locations = item_locations([m.item_id for m in pos_mods])
