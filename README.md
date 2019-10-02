@@ -58,6 +58,6 @@ The minimum number of hours worth of stront you'd like your POS to have
 
 How many days in advance to notify about scheduled detonations
 
-* JUMPGATE_FUEL_WARN
+* JUMPGATE_FUEL_WARNING
 
 The minimum amount of liquid ozone in Ansiblex before a notification
