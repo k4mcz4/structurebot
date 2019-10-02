@@ -9,11 +9,12 @@ from structurebot.citadels import Structure
 from structurebot.assets import Asset
 from structurebot.pos import check_pos
 
-
 level = logging.WARNING
-if CONFIG['DEBUG']:
+if CONFIG['DEBUG'] or args.debug:
     level = logging.INFO
 logging.basicConfig(level=level)
+pyswagger_logger = logging.getLogger('pyswagger')
+pyswagger_logger.setLevel(logging.ERROR)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--suppress-upcoming-detonations', dest='upcoming_detonations', action='store_false')
