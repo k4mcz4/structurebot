@@ -111,13 +111,6 @@ class BaseType(object):
         self.dogma_attributes = dogma_attributes
         self.dogma_effects = dogma_effects
 
-    def __str__(self):
-        return '{} - ({})'.format(self.name, self.type_id)
-
-
-class Type(BaseType):
-    """EVE SDE Type with bulk constructors"""
-    @lru_cache(maxsize=5000)
     @classmethod
     def from_id(cls, id):
         """Return Type from id
@@ -156,7 +149,6 @@ class Type(BaseType):
             types.append(cls.from_id(id))
         return types
 
-    @lru_cache(maxsize=1000)
     @classmethod
     def from_name(cls, name):
         """Return a Type from a type name
@@ -186,12 +178,28 @@ class Type(BaseType):
         ids = names_to_ids(names)['inventory_types'].values()
         return cls.from_ids(ids)
 
+    def __str__(self):
+        return '{} - ({})'.format(self.name, self.type_id)
+
+
+class Type(BaseType):
+    """EVE SDE Type with bulk constructors"""
+    @lru_cache(maxsize=5000)
+    @classmethod
+    def from_id(cls, id):
+        return super(Type, cls).from_id(id)
+
+    @lru_cache(maxsize=1000)
+    @classmethod
+    def from_name(cls, name):
+        return super(Type, cls).from_name(name)
+
 
 class Asset(BaseType):
     """EVE Asset Item"""
 
-    def __init__(self, location_id, location_type, quantity, item_id,
-                 is_singleton, location_flag, is_blueprint_copy=None,
+    def __init__(self, location_id=0, location_type='', quantity=1, item_id=0,
+                 is_singleton=True, location_flag='', is_blueprint_copy=None,
                  xyz=None, *args, **kwargs):
         super(Asset, self).__init__(*args, **kwargs)
         self.location_id = location_id
