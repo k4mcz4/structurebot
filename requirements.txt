@@ -1,8 +1,8 @@
--i https://pypi.org/simple
+-i https://pypi.org/simple/
 certifi==2019.9.11
 chardet==3.0.4
 diskcache==4.0.0
-ecdsa==0.13.2
+ecdsa==0.13.3
 esipy==1.0.0
 functools32==3.2.3.post2
 future==0.17.1
@@ -14,7 +14,7 @@ pyaml==19.4.1
 pyasn1==0.4.7
 pyswagger==0.8.39
 python-jose==3.0.1
-pytz==2019.2
+pytz==2019.3
 pyyaml==5.1.2
 redis==3.3.8
 requests==2.22.0
