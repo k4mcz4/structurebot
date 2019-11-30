@@ -4,7 +4,7 @@ import logging
 
 from config import CONFIG
 from util import esi, esi_client, name_to_id, ids_to_names
-from assets import Fitting, Asset
+from assets import Fitting, Asset, Type
 
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,7 @@ class Structure(object):
         super(Structure, self).__init__()
         self.structure_id = structure_id
         self.type_id = type_id
+        self.type = Type.from_id(type_id)
         self.type_name = type_name
         self.system_id = system_id
         self.fuel = fuel
@@ -57,92 +58,28 @@ class Structure(object):
         if not self.fitting:
             return self._fuel_rate
         fuel_bonus = {
-            # Raitaru
-            35825: {
+            # Engineering Complex
+            1404: {
                 # Structure Engineering Service Module
                 1415: 0.75
             },
-            # Azbel
-            35826: {
-                # Structure Engineering Service Module
-                1415: 0.75
-            },
-            # Sotiyo
-            35827: {
-                # Structure Engineering Service Module
-                1415: 0.75
-            },
-            # Athanor
-            35835: {
+            # Refinery
+            1406: {
                 # Structure Resource Processing Service Module
                 1322: 0.80
             },
-            # Tatara
-            35836: {
-                # Structure Resource Processing Service Module
-                1322: 0.75
-            },
-            # Astrahus
-            35832: {
+            # Citadel
+            1657: {
                 # Structure Citadel Service Module
                 1321: 0.75
             },
-            # Fortizar
-            35833: {
-                # Structure Citadel Service Module
-                1321: 0.75
-            },
-            # 'Moreau' Fortizar
-            47512: {
-                # Structure Citadel Service Module
-                1321: 0.65,
-                # Structure Engineering Service Module
-                1415: 0.65,
-                # Structure Resource Processing Service Module
-                1322: 0.65
-            },
-            # 'Draccous' Fortizar
-            47513: {
-                # Structure Citadel Service Module
-                1321: 0.75,
-                # Structure Engineering Service Module
-                1415: 0.75
-            },
-            # 'Horizon' Fortizar
-            47514: {
-                # Structure Citadel Service Module
-                1321: 0.75,
-                # Structure Engineering Service Module
-                1415: 0.75
-            },
-            # 'Marginis' Fortizar
-            47515: {
-                # Structure Citadel Service Module
-                1321: 0.50,
-                # Structure Engineering Service Module
-                1415: 0.50,
-                # Structure Resource Processing Service Module
-                1322: 0.50
-            },
-            # 'Prometheus' Fortizar
-            47516: {
-                # Structure Citadel Service Module
-                1321: 0.75,
-                # Structure Resource Processing Service Module
-                1322: 0.75
-            },
-            # Keepstar
-            35834: {
-                # Structure Citadel Service Module
-                1321: 0.75
-            }
         }
-        service_fuel_usage = {}
         for service in self.fitting.ServiceSlot:
-            hourly_fuel = [a.value for a in service.dogma_attributes if a.attribute_id == 2109][0]
+            hourly_fuel = [a.value for a in service.dogma_attributes
+                           if a.attribute_id == 2109][0]
             try:
-                if service.group_id in fuel_bonus[self.type_id]:
-                    modifier = fuel_bonus[self.type_id][service.group_id]
+                if service.group_id in fuel_bonus[self.type.group_id]:
+                    modifier = fuel_bonus[self.type.group_id][service.group_id]
                 else:
                     modifier = 1.0
             except KeyError:
