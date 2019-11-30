@@ -27,8 +27,8 @@ class TestStructureDogma(unittest.TestCase):
         research_type = assets.Type.from_name('Standup Research Lab I')
         raitaru_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
                                                       research_type])
-        cls.raitaru = citadels.Structure(1, raitaru_type.type_id,
-                                         raitaru_type.name,
+        cls.raitaru = citadels.Structure(1, type_id=raitaru_type.type_id,
+                                         type_name=raitaru_type.name,
                                          fitting=raitaru_fitting)
 
     def test_fuel(self):
