@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 "nose2" = "*"
+flake8 = "*"
+pytest = "*"
 
 [packages]
 redis = "*"
