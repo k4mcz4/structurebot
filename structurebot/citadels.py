@@ -9,13 +9,15 @@ from assets import Fitting, Asset, Type
 
 logger = logging.getLogger(__name__)
 
+
 class Structure(object):
-    def __init__(self, structure_id, type_id=None, type_name=None,
+    def __init__(self, structure_id, corporation_id=None, type_id=None, type_name=None,
                  system_id=None, services=None, fuel_expires=None,
                  accessible=None, name=None, state=None, state_timer_end=None,
                  detonation=None, fuel=[], fitting=Fitting()):
         super(Structure, self).__init__()
         self.structure_id = structure_id
+        self.corporation_id = corporation_id
         self.type_id = type_id
         self.type = Type.from_id(type_id)
         self.type_name = type_name
@@ -145,7 +147,7 @@ class Structure(object):
         detonations = detonations_response.data
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
-        structure_keys = ['structure_id', 'system_id', 'type_id',
+        structure_keys = ['structure_id', 'corporation_id', 'system_id', 'type_id',
                           'services', 'fuel_expires', 'state', 'state_timer_end']
         for s in structures:
             sid = s['structure_id']
