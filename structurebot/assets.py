@@ -1,9 +1,13 @@
 import json
+import logging
 from collections import Counter
+from methodtools import lru_cache
 
 from config import CONFIG
 from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
 
+
+logger = logging.getLogger(__name__)
 
 def is_system_id(location_id):
     if location_id >= 30000000 and location_id <= 32000000:
@@ -17,6 +21,7 @@ def is_station_id(location_id):
     else:
         return False
 
+
 class Category(object):
     """docstring for Category"""
     def __init__(self, category_id, name, published, groups):
@@ -27,6 +32,7 @@ class Category(object):
         self.category_id = category_id
         self.groups = groups
 
+    @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
         if not isinstance(id, int):
@@ -59,6 +65,7 @@ class Group(object):
         self.types = types
         self.category = category or Category.from_id(category_id)
 
+    @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
         if not isinstance(id, int):
@@ -104,18 +111,8 @@ class BaseType(object):
         self.dogma_attributes = dogma_attributes
         self.dogma_effects = dogma_effects
 
-    def __str__(self):
-        return '{} - ({})'.format(self.name, self.type_id)
-
-
-class Type(BaseType):
-    """EVE SDE Type with bulk constructors"""
-    def __init__(self, quantity=1, *args, **kwargs):
-        super(Type, self).__init__(*args, **kwargs)
-        self.quantity = quantity
-
     @classmethod
-    def from_id(cls, id, quantity=1):
+    def from_id(cls, id):
         """Return Type from id
 
         Args:
@@ -133,7 +130,7 @@ class Type(BaseType):
         type_request = esi.op['get_universe_types_type_id'](type_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
-            return cls(quantity=quantity, **type_response.data)
+            return cls(**type_response.data)
         else:
             raise HTTPError(type_response.data['error'])
 
@@ -181,12 +178,28 @@ class Type(BaseType):
         ids = names_to_ids(names)['inventory_types'].values()
         return cls.from_ids(ids)
 
+    def __str__(self):
+        return '{} - ({})'.format(self.name, self.type_id)
+
+
+class Type(BaseType):
+    """EVE SDE Type with bulk constructors"""
+    @lru_cache(maxsize=5000)
+    @classmethod
+    def from_id(cls, id):
+        return super(Type, cls).from_id(id)
+
+    @lru_cache(maxsize=1000)
+    @classmethod
+    def from_name(cls, name):
+        return super(Type, cls).from_name(name)
+
 
 class Asset(BaseType):
     """EVE Asset Item"""
 
-    def __init__(self, location_id, location_type, quantity, item_id,
-                 is_singleton, location_flag, is_blueprint_copy=None,
+    def __init__(self, location_id=0, location_type='', quantity=1, item_id=0,
+                 is_singleton=True, location_flag='', is_blueprint_copy=None,
                  xyz=None, *args, **kwargs):
         super(Asset, self).__init__(*args, **kwargs)
         self.location_id = location_id
@@ -198,7 +211,21 @@ class Asset(BaseType):
         self.xyz = xyz
 
     @classmethod
-    def from_id(cls, id, id_type):
+    def from_id(cls, id, **kwargs):
+        asset = super(Asset, cls).from_id(id)
+        for key, value in kwargs.items():
+            setattr(asset, key, value)
+        return asset
+
+    @classmethod
+    def from_name(cls, name, **kwargs):
+        asset = super(Asset, cls).from_name(name)
+        for key, value in kwargs.items():
+            setattr(asset, key, value)
+        return asset
+
+    @classmethod
+    def from_entity_id(cls, id, id_type):
         """Returns Assets owned by id of id_type
 
         Args:
@@ -230,7 +257,6 @@ class Asset(BaseType):
             for asset in assets_api:
                 asset_type = Type.from_id(asset['type_id'])
                 type_dict = asset_type.__dict__
-                del type_dict['quantity']
                 asset.update(type_dict)
                 assets.append(cls(**asset))
             pages = assets_response.header['X-Pages'][0]
@@ -239,7 +265,7 @@ class Asset(BaseType):
         return assets
 
     @classmethod
-    def from_name(cls, name):
+    def from_entity_name(cls, name):
         """Return Assets owned by owner name
 
         Args:
@@ -258,7 +284,7 @@ class Asset(BaseType):
         else:
             return None
         id = id_results[id_type][name]
-        return cls.from_id(id, id_type)
+        return cls.from_entity_id(id, id_type)
 
 
 def is_system_id(location_id):

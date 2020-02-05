@@ -1,3 +1,7 @@
+Develop: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=develop)](https://travis-ci.org/eve-n0rman/structurebot)
+Master: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=master)](https://travis-ci.org/eve-n0rman/structurebot)
+
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 Click the button above to deploy to a new Heroku app.  You'll need to configured the 'scheduler' add-on after setup to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
@@ -18,11 +22,11 @@ The following config items need to be defined in the environment
 The app ID and key you get from an application you define [here](https://developers.eveonline.com/applications) with the following scopes: 
 
     esi-calendar.read_calendar_events.v1
-    esi-universe.read_structures.v
+    esi-universe.read_structures.v1
     esi-corporations.read_structures.v1
-	esi-industry.read_corporation_mining.v1
-	esi-corporations.read_starbases.v1
-	esi-assets.read_corporation_assets.v1
+    esi-assets.read_corporation_assets.v1
+    esi-corporations.read_starbases.v1
+    esi-industry.read_corporation_mining.v1
 
 * SSO_REFRESH_TOKEN
 
@@ -55,3 +59,7 @@ The minimum number of hours worth of stront you'd like your POS to have
 * DETONATION_WARNING
 
 How many days in advance to notify about scheduled detonations
+
+* JUMPGATE_FUEL_WARNING
+
+The minimum amount of liquid ozone in Ansiblex before a notification

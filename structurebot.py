@@ -9,12 +9,6 @@ from structurebot.citadels import Structure
 from structurebot.assets import Asset
 from structurebot.pos import check_pos
 
-
-level = logging.WARNING
-if CONFIG['DEBUG']:
-    level = logging.INFO
-logging.basicConfig(level=level)
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--suppress-upcoming-detonations', dest='upcoming_detonations', action='store_false')
 parser.add_argument('--suppress-unscheduled-detonations', dest='unscheduled_detonations', action='store_false')
@@ -22,14 +16,22 @@ parser.add_argument('--suppress-ansiblex-ozone', dest='ansiblex_ozone', action='
 parser.add_argument('--suppress-fuel-warning', dest='fuel_warning', action='store_false')
 parser.add_argument('--suppress-service-state', dest='service_state', action='store_false')
 parser.add_argument('--suppress-structure-state', dest='structure_state', action='store_false')
+parser.add_argument('-d', '--debug', action='store_true')
 
 args = parser.parse_args()
+
+level = logging.WARNING
+if CONFIG['DEBUG'] or args.debug:
+    level = logging.INFO
+logging.basicConfig(level=level)
+pyswagger_logger = logging.getLogger('pyswagger')
+pyswagger_logger.setLevel(logging.ERROR)
 
 messages = []
 try:
     corp_name = CONFIG['CORPORATION_NAME']
     CONFIG['CORP_ID'] = name_to_id(corp_name, 'corporation')
-    assets = Asset.from_name(corp_name)
+    assets = Asset.from_entity_name(corp_name)
     structures = Structure.from_corporation(corp_name, assets)
     messages = []
     for structure in structures:

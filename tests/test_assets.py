@@ -14,15 +14,14 @@ class TestAssets(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         name = CONFIG['CORPORATION_NAME']
-        cls.assets = list(Asset.from_name(name))
+        cls.assets = list(Asset.from_entity_name(name))
         cls.fittings = []
-        test_mod = Type.from_name('Standup Target Painter I')
+        test_mod = Asset.from_name('Standup Target Painter I')
         for n in range(1, 3):
             fitting = Fitting(MedSlot=[test_mod for x in range(0, n)])
             cls.fittings.append(fitting)
         for n in range(1, 3):
-            test_fighter = Type.from_name('Standup Einherji I')
-            test_fighter.quantity = n
+            test_fighter = Asset.from_name('Standup Einherji I', quantity=n)
             fitting = Fitting(MedSlot=[test_mod],
                               FighterBay=[test_fighter])
             cls.fittings.append(fitting)

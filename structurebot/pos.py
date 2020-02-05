@@ -1,10 +1,11 @@
 
 from config import CONFIG
-from util import esi, esi_client, annotate_element, name_to_id, HTTPError
+from util import esi, esi_client, name_to_id, HTTPError
 from assets import Asset, Type, is_system_id
 from pos_resources import pos_fuel
 import sys
 import math
+import datetime
 from decimal import Decimal
 
 
@@ -52,7 +53,7 @@ class Pos(Asset):
         self.attack_security_status_threshold = attack_security_status_threshold
         self.attack_if_other_security_status_dropping = attack_if_other_security_status_dropping
         self.attack_if_at_war = attack_if_at_war
-        self.fuels = [Type.from_id(t.type_id, quantity=t.quantity)
+        self.fuels = [Asset.from_id(t.type_id, quantity=t.quantity)
                       for t in fuels]
         self.mods = mods
 
@@ -67,7 +68,7 @@ class Pos(Asset):
             'state': state,
             'unanchor_at': unanchor_at,
             'reinforced_until': reinforced_until,
-            'onlined_since': onlined_since, 
+            'onlined_since': onlined_since,
             'mods': mods
         }
         op = 'get_corporations_corporation_id_starbases_starbase_id'
@@ -88,7 +89,7 @@ class Pos(Asset):
     def from_corp_name(corp_name, corp_assets=None):
         pos_mod_dict = {}
         pos_list = []
-        corp_assets = corp_assets or Asset.from_name(corp_name)
+        corp_assets = corp_assets or Asset.from_entity_name(corp_name)
         assets = [a for a in corp_assets if Pos.is_pos_mod(a)]
         pos_mods = [m for m in assets if m.group.name != 'Control Tower']
         mod_locations = item_locations([m.item_id for m in pos_mods])
@@ -181,7 +182,7 @@ def sov_systems(sov_holder_id):
         map_sov = esi_client.request(map_sov_request).data
         for system in map_sov:
             try:
-                if system['alliance_id'] == sov_holder_id:
+                if system.get('alliance_id', 0) == sov_holder_id:
                     sov_systems.append(system['system_id'])
             except KeyError:
                 continue
@@ -226,7 +227,7 @@ def check_pos(corp_name, corp_assets=None):
                 has_fuel = True
                 if pos.state == 'offline':
                     continue
-                how_soon = int(fuel.quantity / (rate*24))
+                how_soon = datetime.timedelta(fuel.quantity / (rate*24))
                 if how_soon < CONFIG['TOO_SOON']:
                     days = 'day' if how_soon == 1 else 'days'
                     message = '{} has {} {} of fuel'.format(pos.moon_name, how_soon, days)
@@ -242,6 +243,6 @@ def check_pos(corp_name, corp_assets=None):
                 state_predicates = {
                     'reinforced': 'until'
                 }
-                message += ' {} {}'.format(state_predicates.get(state, 'since'), statetime)
+                message += ' {} {}'.format(state_predicates.get(pos.state, 'since'), pos.reinforced_until)
             messages.append(message)
     return messages

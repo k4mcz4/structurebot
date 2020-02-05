@@ -1,15 +1,17 @@
 import requests
 from requests.exceptions import HTTPError
 import time
+import logging
 from urlparse import urlparse
 from operator import attrgetter
-from esipy import App, EsiClient, EsiSecurity
+from esipy import EsiApp, EsiClient, EsiSecurity
 from esipy.cache import DictCache
 from pyswagger.primitives import MimeCodec
 from pyswagger.primitives.codec import PlainCodec
 
 from config import *
 
+logger = logging.getLogger(__name__)
 
 def config_esi_cache(cache_url):
     """Configure ESI cache backend
@@ -58,14 +60,8 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
     ...           CONFIG['SSO_REFRESH_TOKEN'], cache) # doctest: +ELLIPSIS
     (<pyswagger.core.App object ...>, <esipy.client.EsiClient object ...>)
     """
-    esi_path = os.path.abspath(__file__)
-    esi_dir_path = os.path.dirname(esi_path)
-
-    mime_codec = MimeCodec()
-    mime_codec.register('text/html', PlainCodec())
-
-    esi = App.load(esi_dir_path + '/esi.json', mime_codec=mime_codec)
-    esi.prepare(strict=True)
+    esi_meta = EsiApp(cache=cache)
+    esi = esi_meta.get_latest_swagger
 
     esi_security = EsiSecurity(
         redirect_uri='http://localhost',
@@ -174,17 +170,6 @@ def ids_to_names(ids):
         elif response.status == 404:
             raise HTTPError(response.data['error'])
     return id_name
-
-
-def annotate_element(row, dict):
-    """Sets attributes on an Element from a dict
-
-    Args:
-        row (TYPE): Description
-        dict (TYPE): Description
-    """
-    for key, value in dict.iteritems():
-        row[key] = str(value)
 
 
 def notify_slack(messages):

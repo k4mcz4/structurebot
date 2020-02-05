@@ -9,3 +9,5 @@ sqlite-latest.sqlite
 *.profile
 .coverage
 /.venv
+.pytest_cache/
+.vscode/
