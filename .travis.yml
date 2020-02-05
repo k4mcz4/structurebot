@@ -6,3 +6,8 @@ install:
   - pipenv install --dev
 script:
   - nose2
+branches:
+  only:
+    - master
+    - develop
+    - /^release/.*/
