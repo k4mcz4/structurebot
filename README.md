@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=develop)](https://travis-ci.org/eve-n0rman/structurebot)
+Develop: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=develop)](https://travis-ci.org/eve-n0rman/structurebot)
+Master: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=master)](https://travis-ci.org/eve-n0rman/structurebot)
+
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
