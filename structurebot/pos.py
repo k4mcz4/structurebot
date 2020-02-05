@@ -5,6 +5,7 @@ from assets import Asset, Type, is_system_id
 from pos_resources import pos_fuel
 import sys
 import math
+import datetime
 from decimal import Decimal
 
 
@@ -181,7 +182,7 @@ def sov_systems(sov_holder_id):
         map_sov = esi_client.request(map_sov_request).data
         for system in map_sov:
             try:
-                if system['alliance_id'] == sov_holder_id:
+                if system.get('alliance_id', 0) == sov_holder_id:
                     sov_systems.append(system['system_id'])
             except KeyError:
                 continue
@@ -226,7 +227,7 @@ def check_pos(corp_name, corp_assets=None):
                 has_fuel = True
                 if pos.state == 'offline':
                     continue
-                how_soon = int(fuel.quantity / (rate*24))
+                how_soon = datetime.timedelta(fuel.quantity / (rate*24))
                 if how_soon < CONFIG['TOO_SOON']:
                     days = 'day' if how_soon == 1 else 'days'
                     message = '{} has {} {} of fuel'.format(pos.moon_name, how_soon, days)
@@ -242,6 +243,6 @@ def check_pos(corp_name, corp_assets=None):
                 state_predicates = {
                     'reinforced': 'until'
                 }
-                message += ' {} {}'.format(state_predicates.get(state, 'since'), statetime)
+                message += ' {} {}'.format(state_predicates.get(pos.state, 'since'), pos.reinforced_until)
             messages.append(message)
     return messages
