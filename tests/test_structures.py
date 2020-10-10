@@ -25,11 +25,16 @@ class TestStructureDogma(unittest.TestCase):
         raitaru_type = assets.Type.from_name('Raitaru')
         manufacturing_type = assets.Type.from_name('Standup Manufacturing Plant I')
         research_type = assets.Type.from_name('Standup Research Lab I')
+        quantum_core = assets.Type.from_name('Raitaru Upwell Quantum Core')
         raitaru_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
-                                                      research_type])
+                                                      research_type],
+                                        QuantumCoreRoom=[quantum_core])
         cls.raitaru = citadels.Structure(1, type_id=raitaru_type.type_id,
                                          type_name=raitaru_type.name,
                                          fitting=raitaru_fitting)
 
     def test_fuel(self):
         self.assertEqual(self.raitaru.fuel_rate, 18)
+
+    def test_core(self):
+        self.assertTrue(self.raitaru.has_core)
