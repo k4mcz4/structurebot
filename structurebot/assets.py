@@ -298,11 +298,12 @@ class Fitting(object):
     """docstring for Fitting"""
 
     slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot',
-             'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot']
+             'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot',
+             'QuantumCoreRoom']
 
     def __init__(self, Cargo=[], DroneBay=[], FighterBay=[], FighterTube=[],
                  HiSlot=[], LoSlot=[], MedSlot=[], RigSlot=[], ServiceSlot=[],
-                 SubSystemSlot=[]):
+                 SubSystemSlot=[], QuantumCoreRoom=[]):
         super(Fitting, self).__init__()
         self.Cargo = Cargo
         self.DroneBay = DroneBay
@@ -314,6 +315,7 @@ class Fitting(object):
         self.RigSlot = RigSlot
         self.ServiceSlot = ServiceSlot
         self.SubSystemSlot = SubSystemSlot
+        self.QuantumCoreRoom = QuantumCoreRoom
 
     @classmethod
     def from_assets(cls, assets):

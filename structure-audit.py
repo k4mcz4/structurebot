@@ -33,13 +33,12 @@ if __name__ == '__main__':
             'state',
             'fuel_expires',
             'fuel_rate',
-            'jump_fuel'
+            'jump_fuel',
+            'has_core'
         ]
         writer = csv.writer(sys.stdout)
         writer.writerow(columns)
     for structure in sorted(structures, key=lambda x: x.name):
-        if 'Rented by' in structure.name:
-            continue
         if args.csv:
             writer.writerow([unicode(getattr(structure, c)).encode('utf-8')
                              for c in columns])
