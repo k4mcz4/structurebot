@@ -16,6 +16,7 @@ parser.add_argument('--suppress-ansiblex-ozone', dest='ansiblex_ozone', action='
 parser.add_argument('--suppress-fuel-warning', dest='fuel_warning', action='store_false')
 parser.add_argument('--suppress-service-state', dest='service_state', action='store_false')
 parser.add_argument('--suppress-structure-state', dest='structure_state', action='store_false')
+parser.add_argument('--suppress-core-state', dest='core_state', action='store_false')
 parser.add_argument('-d', '--debug', action='store_true')
 
 args = parser.parse_args()
@@ -58,6 +59,8 @@ try:
         if args.structure_state and (structure.vulnerable or structure.reinforced):
             state = structure.state.replace('_', ' ').title()
             message.append('{} until {}'.format(state, structure.state_timer_end))
+        if args.core_state and not structure.has_core:
+            message.append('No core installed')
         if message:
             messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
     messages += check_pos(corp_name, assets)
