@@ -132,6 +132,12 @@ class Structure(object):
             return True
         return False
 
+    @property
+    def has_core(self):
+        if self.fitting.QuantumCoreRoom:
+            return True
+        return False
+
     @classmethod
     def from_corporation(cls, corporation_name, assets=None):
         structure_list = []
