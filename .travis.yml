@@ -11,3 +11,5 @@ branches:
     - master
     - develop
     - /^release/.*/
+after_success:
+  - coveralls

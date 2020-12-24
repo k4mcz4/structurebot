@@ -7,6 +7,7 @@ verify_ssl = true
 "nose2" = "*"
 flake8 = "*"
 pytest = "*"
+coveralls = "*"
 
 [packages]
 redis = "*"
