@@ -1,12 +1,8 @@
 run.sh
 *.pyc
-controlTowerResources.sql
-invGroups.csv
-invTypes.csv
-sqlite-latest.sqlite
-/env.sh
 *.env
 *.profile
+*.csv
 .coverage
 /.venv
 .pytest_cache/
