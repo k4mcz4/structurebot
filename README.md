@@ -1,6 +1,8 @@
 Develop: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=develop)](https://travis-ci.org/eve-n0rman/structurebot)
-Master: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=master)](https://travis-ci.org/eve-n0rman/structurebot)
+[![Coverage Status](https://coveralls.io/repos/github/eve-n0rman/structurebot/badge.svg?branch=develop)](https://coveralls.io/github/eve-n0rman/structurebot?branch=develop)
 
+Master: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=master)](https://travis-ci.org/eve-n0rman/structurebot)
+[![Coverage Status](https://coveralls.io/repos/github/eve-n0rman/structurebot/badge.svg?branch=master)](https://coveralls.io/github/eve-n0rman/structurebot?branch=master)
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
