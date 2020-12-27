@@ -5,7 +5,7 @@ install:
   - pip install pipenv
   - pipenv install --dev
 script:
-  - nose2
+  - nose2 --with-coverage
 branches:
   only:
     - master
