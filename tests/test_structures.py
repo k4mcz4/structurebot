@@ -28,13 +28,24 @@ class TestStructureDogma(unittest.TestCase):
         quantum_core = assets.Type.from_name('Raitaru Upwell Quantum Core')
         raitaru_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
                                                       research_type],
-                                        QuantumCoreRoom=[quantum_core])
+                                         QuantumCoreRoom=[quantum_core])
         cls.raitaru = citadels.Structure(1, type_id=raitaru_type.type_id,
                                          type_name=raitaru_type.name,
                                          fitting=raitaru_fitting)
+        cls.unfit_raitaru = citadels.Structure(2, type_id=raitaru_type.type_id,
+                                               type_name=raitaru_type.name)
+
+    def test_fitting(self):
+        self.assertTrue(self.raitaru.fitting)
+        self.assertFalse(self.unfit_raitaru.fitting)
 
     def test_fuel(self):
         self.assertEqual(self.raitaru.fuel_rate, 18)
+        # Do twice to test caching
+        self.assertEqual(self.raitaru.fuel_rate, 18)
+        # Test unfit structure
+        self.assertEqual(self.unfit_raitaru.fuel_rate, 0)
+
 
     def test_core(self):
         self.assertTrue(self.raitaru.has_core)

@@ -356,6 +356,14 @@ class Fitting(object):
                     equality += count
         return equality
 
+    def __bool__(self):
+        for slot in self.slots:
+            if getattr(self, slot):
+                return True
+        return False
+
+    __nonzero__ = __bool__
+
     def __str__(self):
         slot_strings = []
         for slot in Fitting.slots:
