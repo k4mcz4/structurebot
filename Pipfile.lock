@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0c05c7f0c1549f929658457ff0f367b63bf7720aa44f6f94d2fee6d5b7faf217"
+            "sha256": "209e0f9c5552c8991a395c66a362831d4d9670a726cd12dc85e23e1358bb66f2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -49,11 +49,10 @@
         },
         "esipy": {
             "hashes": [
-                "sha256:671b0314961943075627ebc3e1556b2aece352b7f91ff2dd4a77a06db7b6d3fd",
-                "sha256:cdf250183824803c99e887a88a1611703731ed54f0880ea20f9e191af8a79fa8"
+                "sha256:6b3d0639ff88e686ef9bea6c5c598211d9cf6ee7e0e7db354e321a6ab4531550"
             ],
             "index": "pypi",
-            "version": "==1.2.2"
+            "version": "==1.0.0"
         },
         "functools32": {
             "hashes": [
@@ -62,6 +61,14 @@
             ],
             "index": "pypi",
             "version": "==3.2.3.post2"
+        },
+        "futures": {
+            "hashes": [
+                "sha256:49b3f5b064b6e3afc3316421a3f25f66c137ae88f068abbf72830170033c5e16",
+                "sha256:7e033af76a5e35f58e56da7a91e687706faf4e7bdfb2cbc3f2cca6b9bcda9794"
+            ],
+            "markers": "python_version >= '2.6' and python_version < '3'",
+            "version": "==3.3.0"
         },
         "idna": {
             "hashes": [
@@ -126,10 +133,10 @@
         },
         "pytz": {
             "hashes": [
-                "sha256:3e6b7dd2d1e0a59084bcee14a17af60c5c562cdc16d828e8eba2e683d3a7e268",
-                "sha256:5c55e189b682d420be27c6995ba6edce0c0a77dd67bfbe2ae6607134d5851ffd"
+                "sha256:16962c5fb8db4a8f63a26646d8886e9d769b6c511543557bc84e9569fb9a9cb4",
+                "sha256:180befebb1927b16f6b57101720075a984c019ac16b1b7575673bea42c6c3da5"
             ],
-            "version": "==2020.4"
+            "version": "==2020.5"
         },
         "pyyaml": {
             "hashes": [

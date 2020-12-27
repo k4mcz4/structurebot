@@ -12,7 +12,7 @@ coveralls = "*"
 [packages]
 redis = "*"
 diskcache = "*"
-esipy = "*"
+esipy = "==1.0.0"
 pyyaml = ">=4.2b1"
 urllib3 = "==1.24.2"
 functools32 = "*"
