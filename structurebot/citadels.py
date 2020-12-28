@@ -14,7 +14,8 @@ class Structure(object):
     def __init__(self, structure_id, corporation_id=None, type_id=None, type_name=None,
                  system_id=None, services=None, fuel_expires=None,
                  accessible=None, name=None, state=None, state_timer_end=None,
-                 detonation=None, fuel=[], fitting=Fitting()):
+                 detonation=None, unanchors_at=None, profile_id=None,
+                 fuel=[], fitting=Fitting()):
         super(Structure, self).__init__()
         self.structure_id = structure_id
         self.corporation_id = corporation_id
@@ -29,6 +30,8 @@ class Structure(object):
         self.state = state
         self.state_timer_end = getattr(state_timer_end, 'v', None)
         self.detonation = getattr(detonation, 'v', None)
+        self.unanchors_at = getattr(unanchors_at, 'v', None)
+        self.profile_id = profile_id
         self.fitting = fitting
         self._fuel_rate = 0
         # Grab structure name
@@ -113,6 +116,8 @@ class Structure(object):
     def needs_fuel(self):
         now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
         if self.fuel_expires and (self.fuel_expires - now < CONFIG['TOO_SOON']):
+            if self.unanchoring and self.unanchors_at < self.fuel_expires:
+                return False
             return True
         return False
 
@@ -138,6 +143,12 @@ class Structure(object):
             return True
         return False
 
+    @property
+    def unanchoring(self):
+        if self.unanchors_at:
+            return True
+        return False
+
     @classmethod
     def from_corporation(cls, corporation_name, assets=None):
         structure_list = []
@@ -154,7 +165,8 @@ class Structure(object):
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
         structure_keys = ['structure_id', 'corporation_id', 'system_id', 'type_id',
-                          'services', 'fuel_expires', 'state', 'state_timer_end']
+                          'services', 'fuel_expires', 'state', 'state_timer_end',
+                          'unanchors_at', 'profile_id']
         for s in structures:
             sid = s['structure_id']
             kwargs = {k: v for k, v in s.items() if k in structure_keys}
