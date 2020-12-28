@@ -35,6 +35,8 @@ class TestStructureDogma(unittest.TestCase):
         raitaru_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
                                                       research_type],
                                          QuantumCoreRoom=[quantum_core])
+        uncored_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
+                                                      research_type])
         cls.raitaru = citadels.Structure(1, type_id=raitaru_type.type_id,
                                          type_name=raitaru_type.name,
                                          fitting=raitaru_fitting,
@@ -45,7 +47,7 @@ class TestStructureDogma(unittest.TestCase):
         unanchors_at.apply_with(None, now + dt.timedelta(days=2), None)
         cls.unanchoring_raitaru = citadels.Structure(1, type_id=raitaru_type.type_id,
                                                      type_name=raitaru_type.name,
-                                                     fitting=raitaru_fitting,
+                                                     fitting=uncored_fitting,
                                                      fuel_expires=fuel_expires,
                                                      unanchors_at=unanchors_at)
 
@@ -70,3 +72,4 @@ class TestStructureDogma(unittest.TestCase):
 
     def test_core(self):
         self.assertTrue(self.raitaru.has_core)
+        self.assertFalse(self.unanchoring_raitaru.has_core)
