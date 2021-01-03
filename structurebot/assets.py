@@ -9,17 +9,45 @@ from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
 
 logger = logging.getLogger(__name__)
 
+
 def is_system_id(location_id):
-    if location_id >= 30000000 and location_id <= 32000000:
+    """Determines if an ID is in the CCP defined system ID range
+    https://github.com/esi/eve-glue/blob/master/eve_glue/location_type.py
+
+    Args:
+        location_id (integer): ESI provided ID
+
+    Returns:
+        boolean: is or is not a system id
+
+    >>> is_system_id(30000000)
+    True
+    >>> is_system_id(60000000)
+    False
+    """
+    if location_id >= 30000000 and location_id <= 39999999:
         return True
-    else:
-        return False
+    return False
+
 
 def is_station_id(location_id):
+    """Determines if an ID is in the CCP defined station ID range
+    https://github.com/esi/eve-glue/blob/master/eve_glue/location_type.py
+
+    Args:
+        location_id (integer): ESI provided ID
+
+    Returns:
+        boolean: is or is not a station id
+
+    >>> is_station_id(60000000)
+    True
+    >>> is_station_id(30000000)
+    False
+    """
     if location_id >= 60000000 and location_id <= 64000000:
         return True
-    else:
-        return False
+    return False
 
 
 class Category(object):
@@ -285,13 +313,6 @@ class Asset(BaseType):
             return None
         id = id_results[id_type][name]
         return cls.from_entity_id(id, id_type)
-
-
-def is_system_id(location_id):
-    if location_id >= 30000000 and location_id <= 32000000:
-        return True
-    else:
-        return False
 
 
 class Fitting(object):
