@@ -35,7 +35,7 @@ if __name__ == '__main__':
             'fuel_rate',
             'needs_fuel',
             'jump_fuel',
-            'has_core',
+            'needs_core',
             'unanchoring',
             'profile_id'
         ]

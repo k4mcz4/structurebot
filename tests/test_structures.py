@@ -26,6 +26,7 @@ class TestStructureDogma(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         raitaru_type = assets.Type.from_name('Raitaru')
+        ansiblex_type = assets.Type.from_name('Ansiblex Jump Gate')
         manufacturing_type = assets.Type.from_name('Standup Manufacturing Plant I')
         research_type = assets.Type.from_name('Standup Research Lab I')
         quantum_core = assets.Type.from_name('Raitaru Upwell Quantum Core')
@@ -50,6 +51,13 @@ class TestStructureDogma(unittest.TestCase):
                                                      fitting=uncored_fitting,
                                                      fuel_expires=fuel_expires,
                                                      unanchors_at=unanchors_at)
+        raitaru_no_core_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
+                                                              research_type])
+        cls.no_core_raitaru = citadels.Structure(2, type_id=raitaru_type.type_id,
+                                                 type_name=raitaru_type.name,
+                                                 fitting=raitaru_no_core_fitting)
+        cls.ansiblex = citadels.Structure(3, type_id=ansiblex_type.type_id,
+                                          type_name=ansiblex_type.name)
 
     def test_fitting(self):
         self.assertTrue(self.raitaru.fitting)
@@ -71,5 +79,6 @@ class TestStructureDogma(unittest.TestCase):
         self.assertFalse(self.raitaru.unanchoring)
 
     def test_core(self):
-        self.assertTrue(self.raitaru.has_core)
-        self.assertFalse(self.unanchoring_raitaru.has_core)
+        self.assertFalse(self.raitaru.needs_core)
+        self.assertTrue(self.no_core_raitaru.needs_core)
+        self.assertFalse(self.ansiblex.needs_core)

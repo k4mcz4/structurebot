@@ -144,6 +144,12 @@ class Structure(object):
         return False
 
     @property
+    def needs_core(self):
+        if self.type.group.name.startswith('Upwell') or self.has_core:
+            return False
+        return True
+
+    @property
     def unanchoring(self):
         if self.unanchors_at:
             return True
