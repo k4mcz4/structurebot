@@ -59,7 +59,7 @@ try:
         if args.structure_state and (structure.vulnerable or structure.reinforced):
             state = structure.state.replace('_', ' ').title()
             message.append('{} until {}'.format(state, structure.state_timer_end))
-        if args.core_state and not structure.has_core:
+        if args.core_state and structure.needs_core:
             message.append('No core installed')
         if message:
             messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
