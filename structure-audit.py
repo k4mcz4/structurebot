@@ -34,7 +34,7 @@ if __name__ == '__main__':
             'fuel_expires',
             'fuel_rate',
             'jump_fuel',
-            'has_core'
+            'needs_core'
         ]
         writer = csv.writer(sys.stdout)
         writer.writerow(columns)

@@ -138,6 +138,12 @@ class Structure(object):
             return True
         return False
 
+    @property
+    def needs_core(self):
+        if self.type.group.name.startswith('Upwell') or self.has_core:
+            return False
+        return True
+
     @classmethod
     def from_corporation(cls, corporation_name, assets=None):
         structure_list = []
