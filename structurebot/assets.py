@@ -3,7 +3,6 @@ import logging
 from collections import Counter
 from methodtools import lru_cache
 
-from config import CONFIG
 from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
 
 
@@ -51,8 +50,17 @@ def is_station_id(location_id):
 
 
 class Category(object):
-    """docstring for Category"""
+    """EVE SDE item category
+    https://esi.evetech.net/ui/#/Universe/get_universe_categories_category_id
+
+    Args:
+        category_id (integer): ESI provided category ID
+        name (string): ESI provided category name
+        published (boolean): published item
+        groups (list): ESI provided list of member group IDs
+    """
     def __init__(self, category_id, name, published, groups):
+        """Create new Category"""
         super(Category, self).__init__()
         self.category_id = category_id
         self.name = name
@@ -63,6 +71,18 @@ class Category(object):
     @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
+        """Creates a new Category from a ESI provided category ID
+
+        Args:
+            id (integer): ESI provided category ID
+
+        Raises:
+            ValueError: id not an integer
+            HTTPError: ESI error
+
+        Returns:
+            Category: new category from id
+        """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
         op = 'get_universe_categories_category_id'
@@ -75,6 +95,14 @@ class Category(object):
 
     @classmethod
     def from_ids(cls, ids):
+        """Returns a list of Category's given a list of ESI category IDs
+
+        Args:
+            id (integer): ESI provided category ID
+
+        Returns:
+            list: list of Category's
+        """
         types = []
         for id in ids:
             types.append(cls.from_id(id))
@@ -82,9 +110,18 @@ class Category(object):
 
 
 class Group(object):
-    """docstring for Group"""
+    """EVE SDE item group
+    https://esi.evetech.net/ui/#/Universe/get_universe_groups_group_id
+
+    Args:
+        group_id (integer): ESI provided group ID
+        name (string): ESI provided group name
+        published (boolean): published item
+        category (integer): ESI provided parent category
+    """
     def __init__(self, group_id, name, published, category_id, types,
                  category=None):
+        """Create new Group"""
         super(Group, self).__init__()
         self.group_id = group_id
         self.name = name
@@ -96,6 +133,18 @@ class Group(object):
     @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
+        """Creates a new Group from a ESI provided group ID
+
+        Args:
+            id (integer): ESI provided group ID
+
+        Raises:
+            ValueError: id not an integer
+            HTTPError: ESI error
+
+        Returns:
+            Group: new Group from id
+        """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
         type_request = esi.op['get_universe_groups_group_id'](group_id=id)
@@ -107,6 +156,14 @@ class Group(object):
 
     @classmethod
     def from_ids(cls, ids):
+        """Returns a list of Group's given a list of ESI group IDs
+
+        Args:
+            id (integer): ESI provided group ID
+
+        Returns:
+            list: list of Group's
+        """
         types = []
         for id in ids:
             types.append(cls.from_id(id))
@@ -360,7 +417,7 @@ class Fitting(object):
 
     def __cmp__(self, other):
         if not isinstance(other, Fitting):
-            raise NotImplemented
+            raise NotImplementedError
         equality = 0
         for slot in Fitting.slots:
             item_counts = {i.type_id: i.quantity-1 for i in getattr(self, slot)}
