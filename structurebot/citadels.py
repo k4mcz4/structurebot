@@ -21,7 +21,7 @@ class Structure(object):
         self.corporation_id = corporation_id
         self.type_id = type_id
         self.type = Type.from_id(type_id)
-        self.type_name = type_name
+        self.type_name = type_name or self.type.name
         self.system_id = system_id
         self.fuel = fuel
         self.fuel_expires = getattr(fuel_expires, 'v', None)

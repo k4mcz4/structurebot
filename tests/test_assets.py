@@ -1,8 +1,10 @@
 import unittest
 import doctest
+import pytest
 import structurebot.assets
-from structurebot.assets import Fitting, Asset, Type
+from structurebot.assets import Fitting, Asset, Type, Category, Group, BaseType
 from structurebot.config import CONFIG
+from structurebot.util import HTTPError
 
 
 def load_tests(loader, tests, ignore):
@@ -26,6 +28,33 @@ class TestAssets(unittest.TestCase):
                               FighterBay=[test_fighter])
             cls.fittings.append(fitting)
 
+    def test_category(self):
+        cats = Category.from_ids([1, 2])
+        for cat in cats:
+            self.assertIsInstance(cat, Category)
+        with pytest.raises(ValueError):
+            Category.from_id('string')
+        with pytest.raises(HTTPError):
+            Category.from_id(9999)
+
+    def test_group(self):
+        groups = Group.from_ids([1,2])
+        for group in groups:
+            self.assertIsInstance(group, Group)
+        with pytest.raises(ValueError):
+            Group.from_id('string')
+        with pytest.raises(HTTPError):
+            Group.from_id(9999)
+
+    def test_basetype(self):
+        basetypes = BaseType.from_ids([0,2])
+        for basetype in basetypes:
+            self.assertIsInstance(basetype, BaseType)
+        with pytest.raises(ValueError):
+            BaseType.from_id('string')
+        with pytest.raises(HTTPError):
+            BaseType.from_id(99999)
+
     def test_group_category(self):
         control_tower = Type.from_name('Amarr Control Tower')
         self.assertEqual(control_tower.group.name, 'Control Tower')
@@ -33,6 +62,11 @@ class TestAssets(unittest.TestCase):
 
     def test_assets(self):
         self.assertGreater(len(self.assets), 1)
+
+    def test_fitting_str(self):
+        self.assertEqual(str(self.fittings[-1]),
+                         'FighterBay: Standup Einherji I (2)\n'
+                         'MedSlot: Standup Target Painter I')
 
     def test_fitting_equality(self):
         self.assertEquals(self.fittings[0], self.fittings[0])
@@ -48,3 +82,7 @@ class TestAssets(unittest.TestCase):
 
     def test_fitting_greater_quantity(self):
         self.assertGreater(self.fittings[3], self.fittings[2])
+
+    def test_fitting_bad_compare(self):
+        with pytest.raises(NotImplementedError):
+            self.fittings[0] == 'not a fitting'
