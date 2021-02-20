@@ -188,9 +188,6 @@ class Structure(object):
         return structure_list
 
     def __str__(self):
-        return six.text_type(self).encode('utf-8')
-
-    def __unicode__(self):
-        return u'{} ({}) - {}'.format(self.name, self.structure_id,
-                                     self.type_name)
+        return '{} ({}) - {}'.format(self.name, self.structure_id,
+                                    self.type_name)
 
