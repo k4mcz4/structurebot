@@ -417,7 +417,18 @@ class Fitting(object):
             name += ' ({})'.format(asset.quantity)
         return name
 
-    def __cmp__(self, other):
+    def _compare(self, other):
+        """Generates a Counter of items in self minus items in other
+
+        Args:
+            other (Fitting): Fitting to compare
+
+        Raises:
+            NotImplementedError: If other is not a Fitting
+
+        Returns:
+            integer: 0 if they're the same, -1 if self is less than than other, positive if self is greater than other
+        """        
         if not isinstance(other, Fitting):
             raise NotImplementedError
         equality = 0
@@ -435,6 +446,31 @@ class Fitting(object):
                 if count > 0:
                     equality += count
         return equality
+
+    def __eq__(self, other):
+        if self._compare(other) == 0:
+            return True
+        return False
+
+    def __lt__(self, other):
+        if self._compare(other) < 0:
+            return True
+        return False
+
+    def __gt__(self, other):
+        if self._compare(other) > 0:
+            return True
+        return False
+
+    def __le__(self, other):
+        if self._compare(other) <= 0:
+            return True
+        return False
+
+    def __ge__(self, other):
+        if self._compare(other) >= 0:
+            return True
+        return False
 
     def __bool__(self):
         for slot in self.slots:
