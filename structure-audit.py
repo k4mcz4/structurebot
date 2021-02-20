@@ -46,7 +46,7 @@ if __name__ == '__main__':
         writer.writerow(columns)
     for structure in sorted(structures, key=lambda x: x.name):
         if args.csv:
-            writer.writerow([six.text_type(getattr(structure, c)).encode('utf-8')
+            writer.writerow([getattr(structure, c)
                              for c in columns])
         else:
             print(structure)
