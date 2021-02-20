@@ -71,19 +71,34 @@ class TestAssets(unittest.TestCase):
                          'MedSlot: Standup Target Painter I')
 
     def test_fitting_equality(self):
-        self.assertEquals(self.fittings[0], self.fittings[0])
+        self.assertEqual(self.fittings[0], self.fittings[0])
+        self.assertNotEqual(self.fittings[0], self.fittings[1])
+        self.assertGreaterEqual(self.fittings[0], self.fittings[0])
+        self.assertLessEqual(self.fittings[0], self.fittings[0])
 
     def test_fitting_less(self):
         self.assertLess(self.fittings[0], self.fittings[1])
+        self.assertLessEqual(self.fittings[0], self.fittings[1])
+        self.assertFalse(self.fittings[0] > self.fittings[1])
+        self.assertFalse(self.fittings[0] >= self.fittings[1])
 
     def test_fitting_greater(self):
         self.assertGreater(self.fittings[1], self.fittings[0])
+        self.assertGreaterEqual(self.fittings[1], self.fittings[0])
+        self.assertFalse(self.fittings[1] < self.fittings[0])
+        self.assertFalse(self.fittings[1] <= self.fittings[0])
 
     def test_fitting_less_quantity(self):
         self.assertLess(self.fittings[2], self.fittings[3])
+        self.assertLessEqual(self.fittings[2], self.fittings[3])
+        self.assertFalse(self.fittings[2] > self.fittings[3])
+        self.assertFalse(self.fittings[2] >= self.fittings[3])
 
     def test_fitting_greater_quantity(self):
         self.assertGreater(self.fittings[3], self.fittings[2])
+        self.assertGreaterEqual(self.fittings[3], self.fittings[2])
+        self.assertFalse(self.fittings[3] < self.fittings[2])
+        self.assertFalse(self.fittings[3] <= self.fittings[2])
 
     def test_fitting_bad_compare(self):
         with pytest.raises(NotImplementedError):
