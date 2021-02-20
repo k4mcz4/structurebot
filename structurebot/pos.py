@@ -1,19 +1,22 @@
 
-from config import CONFIG
-from util import esi, esi_client, name_to_id, HTTPError
-from assets import Asset, Type, is_system_id
-from pos_resources import pos_fuel
+from __future__ import absolute_import
+from .config import CONFIG
+from .util import esi, esi_client, name_to_id, HTTPError
+from .assets import Asset, Type, is_system_id
+from .pos_resources import pos_fuel
 import sys
 import math
 import datetime
 from decimal import Decimal
+import six
+from six.moves import range
 
 
 def nearest(source, destinations):
     (sx, sy, sz) = (source['x'], source['y'], source['z'])
-    nearest = sys.maxint
+    nearest = sys.maxsize
     nearest_idx = None
-    for (idx, destination) in destinations.iteritems():
+    for (idx, destination) in six.iteritems(destinations):
         (dx, dy, dz) = (destination['x'], destination['y'], destination['z'])
         distance = math.sqrt(math.pow(sx-dx, 2) +
                              math.pow(sy-dy, 2) +
@@ -105,7 +108,7 @@ class Pos(Asset):
         if not poses_response.status == 200:
             raise HTTPError(poses_response.data['error'])
         poses = {s.starbase_id: s for s in poses_response.data}
-        for pos_id, pos in poses.iteritems():
+        for pos_id, pos in six.iteritems(poses):
             pos.update(pos_assets[pos.starbase_id].__dict__)
             pos['xyz'] = pos_locations[pos.starbase_id]
             pos_object = Pos.from_id(corp_id=corp_id, mods=pos_mod_dict.get(pos_id, []), **pos)

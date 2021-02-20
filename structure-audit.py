@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+from __future__ import print_function
 import logging
 import argparse
 
 from structurebot.citadels import Structure
 from structurebot.config import CONFIG
+import six
 
 
 if __name__ == '__main__':
@@ -43,13 +46,13 @@ if __name__ == '__main__':
         writer.writerow(columns)
     for structure in sorted(structures, key=lambda x: x.name):
         if args.csv:
-            writer.writerow([unicode(getattr(structure, c)).encode('utf-8')
+            writer.writerow([getattr(structure, c)
                              for c in columns])
         else:
-            print structure
-            print 'Fuel/Cycle: {}'.format(structure.fuel_rate)
-            print structure.fitting
-            print '-----'
+            print(structure)
+            print('Fuel/Cycle: {}'.format(structure.fuel_rate))
+            print(structure.fitting)
+            print('-----')
             total_fuel += structure.fuel_rate
     if not args.csv:
-        print 'Total fuel/cycle: {}'.format(total_fuel)
+        print('Total fuel/cycle: {}'.format(total_fuel))
