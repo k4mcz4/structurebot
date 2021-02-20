@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
 import logging
 import argparse
 
@@ -64,7 +65,7 @@ try:
         if message:
             messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
     messages += check_pos(corp_name, assets)
-except Exception, e:
+except Exception as e:
     if CONFIG['DEBUG']:
         raise
     else:

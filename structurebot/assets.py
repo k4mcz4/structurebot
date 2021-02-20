@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 import json
 import logging
 from collections import Counter
 from methodtools import lru_cache
 
-from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
+from .util import esi, esi_client, name_to_id, names_to_ids, HTTPError
+import six
 
 
 logger = logging.getLogger(__name__)
@@ -260,7 +262,7 @@ class BaseType(object):
         >>> [str(i) for i in Type.from_names(['125mm Gatling AutoCannon II'])]
         ['125mm Gatling AutoCannon II - (2873)']
         """
-        ids = names_to_ids(names)['inventory_types'].values()
+        ids = list(names_to_ids(names)['inventory_types'].values())
         return cls.from_ids(ids)
 
     def __str__(self):
@@ -427,7 +429,7 @@ class Fitting(object):
             other_items = Counter([i.type_id for i in getattr(other, slot)])
             other_items.update(other_item_counts)
             items.subtract(other_items)
-            for item, count in items.iteritems():
+            for item, count in six.iteritems(items):
                 if count < 0:
                     return -1
                 if count > 0:

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import unittest
 import doctest
 import pytest
@@ -5,6 +6,7 @@ import structurebot.assets
 from structurebot.assets import Fitting, Asset, Type, Category, Group, BaseType
 from structurebot.config import CONFIG
 from structurebot.util import HTTPError
+from six.moves import range
 
 
 def load_tests(loader, tests, ignore):

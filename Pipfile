@@ -9,6 +9,7 @@ pytest = "*"
 coveralls = "*"
 pytest-cov = "*"
 tox = "*"
+modernize = "*"
 
 [packages]
 redis = "*"

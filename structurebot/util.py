@@ -1,15 +1,19 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import requests
 from requests.exceptions import HTTPError
 import time
 import logging
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from operator import attrgetter
 from esipy import EsiApp, EsiClient, EsiSecurity
 from esipy.cache import DictCache
 from pyswagger.primitives import MimeCodec
 from pyswagger.primitives.codec import PlainCodec
 
-from config import *
+from .config import *
+import six
+from six.moves import range
 
 logger = logging.getLogger(__name__)
 
@@ -133,11 +137,11 @@ def names_to_ids(names):
     """
     name_id = {}
     chunk_size = 999
-    for chunk in [names[i:i + chunk_size] for i in xrange(0, len(names), chunk_size)]:
+    for chunk in [names[i:i + chunk_size] for i in range(0, len(names), chunk_size)]:
         post_universe_ids = esi.op['post_universe_ids'](names=chunk)
         response = esi_client.request(post_universe_ids)
         if response.status == 200:
-            for category, category_names in response.data.iteritems():
+            for category, category_names in six.iteritems(response.data):
                 name_id[category] = {i.name: i.id for i in category_names}
         else:
             raise HTTPError(response.data['error'])
@@ -162,7 +166,7 @@ def ids_to_names(ids):
     """
     id_name = {}
     chunk_size = 999
-    for chunk in [ids[i:i + chunk_size] for i in xrange(0, len(ids), chunk_size)]:
+    for chunk in [ids[i:i + chunk_size] for i in range(0, len(ids), chunk_size)]:
         post_universe_names = esi.op['post_universe_names'](ids=chunk)
         response = esi_client.request(post_universe_names)
         if response.status == 200:
@@ -180,4 +184,4 @@ def notify_slack(messages):
         params['channel'] = CONFIG['SLACK_CHANNEL']
     results = requests.post(CONFIG['OUTBOUND_WEBHOOK'], json=params)
     results.raise_for_status()
-    print params
+    print(params)

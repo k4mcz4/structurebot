@@ -1,10 +1,12 @@
+from __future__ import absolute_import
 import datetime
 import pytz
 import logging
 
-from config import CONFIG
-from util import esi, esi_client, name_to_id, ids_to_names
-from assets import Fitting, Asset, Type
+from .config import CONFIG
+from .util import esi, esi_client, name_to_id, ids_to_names
+from .assets import Fitting, Asset, Type
+import six
 
 
 logger = logging.getLogger(__name__)
@@ -186,7 +188,7 @@ class Structure(object):
         return structure_list
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return six.text_type(self).encode('utf-8')
 
     def __unicode__(self):
         return u'{} ({}) - {}'.format(self.name, self.structure_id,
