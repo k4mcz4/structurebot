@@ -131,7 +131,7 @@ def names_to_ids(names):
         dict: dict of name to id mappings
 
     >>> names_to_ids(['n0rman', 'Aunsou'])
-    {u'systems': {u'Aunsou': 30003801}, u'characters': {u'n0rman': 1073945516}}
+    {'characters': {'n0rman': 1073945516}, 'systems': {'Aunsou': 30003801}}
     >>> names_to_ids(['this is not a real name n0rman'])
     {}
     """
@@ -158,11 +158,11 @@ def ids_to_names(ids):
         dict: dict of id to name mappings
 
     >>> ids_to_names([1073945516, 30003801])
-    {30003801: u'Aunsou', 1073945516: u'n0rman'}
+    {1073945516: 'n0rman', 30003801: 'Aunsou'}
     >>> ids_to_names([1])
     Traceback (most recent call last):
     ...
-    HTTPError: Ensure all IDs are valid before resolving.
+    requests.exceptions.HTTPError: Ensure all IDs are valid before resolving.
     """
     id_name = {}
     chunk_size = 999
