@@ -92,6 +92,8 @@ class Pos(Asset):
     def from_corp_name(corp_name, corp_assets=None):
         pos_mod_dict = {}
         pos_list = []
+        if CONFIG['IGNORE_POS']:
+            return pos_list
         corp_assets = corp_assets or Asset.from_entity_name(corp_name)
         assets = [a for a in corp_assets if Pos.is_pos_mod(a)]
         pos_mods = [m for m in assets if m.group.name != 'Control Tower']
