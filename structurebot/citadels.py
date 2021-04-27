@@ -6,6 +6,7 @@ import logging
 from .config import CONFIG
 from .util import esi, esi_client, name_to_id, ids_to_names
 from .assets import Fitting, Asset, Type
+from .universe import System
 import six
 
 
@@ -25,6 +26,11 @@ class Structure(object):
         self.type = Type.from_id(type_id)
         self.type_name = type_name or self.type.name
         self.system_id = system_id
+        if self.system_id:
+            self.system = System.from_id(self.system_id)
+            self.system_name = self.system.name
+            self.constellation_name = self.system.constellation.name
+            self.region_name = self.system.constellation.region.name
         self.fuel = fuel
         self.fuel_expires = getattr(fuel_expires, 'v', None)
         self.accessible = accessible
@@ -57,6 +63,10 @@ class Structure(object):
                     self.online_services.append(service.get('name'))
                 if service['state'] == 'offline':
                     self.offline_services.append(service.get('name'))
+
+    @property
+    def packaged_volume(self):
+        return self.type.packaged_volume + self.fitting.packaged_volume
 
     @property
     def fuel_rate(self):
