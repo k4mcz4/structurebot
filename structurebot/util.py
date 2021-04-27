@@ -158,7 +158,7 @@ def ids_to_names(ids):
         dict: dict of id to name mappings
 
     >>> ids_to_names([1073945516, 30003801])
-    {1073945516: 'n0rman', 30003801: 'Aunsou'}
+    {30003801: 'Aunsou', 1073945516: 'n0rman'}
     >>> ids_to_names([1])
     Traceback (most recent call last):
     ...
@@ -173,7 +173,7 @@ def ids_to_names(ids):
             id_name.update({i.id: i.name for i in response.data})
         elif response.status == 404:
             raise HTTPError(response.data['error'])
-    return id_name
+    return dict(sorted(id_name.items()))
 
 
 def notify_slack(messages):
