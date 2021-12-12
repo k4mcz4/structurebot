@@ -65,3 +65,26 @@ How many days in advance to notify about scheduled detonations
 * JUMPGATE_FUEL_WARNING
 
 The minimum amount of liquid ozone in Ansiblex before a notification
+
+## Dev Env
+
+```sh
+# Install Python3.7 if necessary
+$ sudo add-apt-repository ppa:deadsnakes/ppa
+$ sudo apt-get update
+$ sudo apt-get install python3.7 python3.7-venv
+
+# Init
+$ python3.7 -m venv .venv
+$ source .venv/bin/activate
+$ pip install pipenv
+$ pipenv install --dev
+$ deactivate
+
+# Run
+$ source .venv/bin/activate
+$ source ./.env
+$ pytest
+$ python structurebot.py -d
+$ deactivate
+```
