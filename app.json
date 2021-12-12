@@ -18,6 +18,9 @@
     "SSO_REFRESH_TOKEN": {
       "required": true
     },
+    "USER_AGENT": {
+      "required": false
+    },
     "SLACK_CHANNEL": {
       "required": true
     },

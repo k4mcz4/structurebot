@@ -48,20 +48,21 @@ def config_esi_cache(cache_url):
     return cache
 
 
-def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
+def setup_esi(app_id, app_secret, refresh_token, user_agent, cache=DictCache()):
     """Set up the ESI client
 
     Args:
         app_id (string): SSO Application ID from CCP
         app_secret (string): SSO Application Secret from CCP
         refresh_token (string): SSO refresh token
+        user_agent (string): The HTTP user agent
         cache (False, optional): esipy.cache instance
 
     Returns:
         tuple: esi app definition, esi client
 
     >>> setup_esi(CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'],
-    ...           CONFIG['SSO_REFRESH_TOKEN'], cache) # doctest: +ELLIPSIS
+    ...           CONFIG['SSO_REFRESH_TOKEN'], CONFIG['USER_AGENT'], cache) # doctest: +ELLIPSIS
     (<pyswagger.core.App object ...>, <esipy.client.EsiClient object ...>)
     """
     esi_meta = EsiApp(cache=cache)
@@ -71,7 +72,7 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
         redirect_uri='http://localhost',
         client_id=app_id,
         secret_key=app_secret,
-        headers={'User-Agent': 'https://github.com/eve-n0rman/structurebot'}
+        headers={'User-Agent': user_agent}
     )
 
     esi_security.update_token({
@@ -82,7 +83,7 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
 
     esi_client = EsiClient(
         retry_requests=True,
-        headers={'User-Agent': 'https://github.com/eve-n0rman/structurebot'},
+        headers={'User-Agent': user_agent},
         raw_body_only=False,
         security=esi_security,
         cache=cache
@@ -92,7 +93,7 @@ def setup_esi(app_id, app_secret, refresh_token, cache=DictCache()):
 
 cache = config_esi_cache(CONFIG['ESI_CACHE'])
 esi, esi_client, esi_security = setup_esi(CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'],
-                                          CONFIG['SSO_REFRESH_TOKEN'], cache)
+                                      CONFIG['SSO_REFRESH_TOKEN'], CONFIG['USER_AGENT'], cache)
 
 
 def name_to_id(name, name_type):

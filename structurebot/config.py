@@ -6,6 +6,7 @@ CONFIG = {
     'SSO_APP_ID': os.getenv('SSO_APP_ID'),
     'SSO_APP_KEY': os.getenv('SSO_APP_KEY'),
     'SSO_REFRESH_TOKEN': os.getenv('SSO_REFRESH_TOKEN'),
+    'USER_AGENT': os.getenv('USER_AGENT', 'https://github.com/eve-n0rman/structurebot'),
     'ESI_CACHE': os.getenv('ESI_CACHE'),
     'OUTBOUND_WEBHOOK': os.getenv('OUTBOUND_WEBHOOK'),
     'TOO_SOON': datetime.timedelta(days=int(os.getenv('TOO_SOON', 3))),
