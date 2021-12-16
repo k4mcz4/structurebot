@@ -34,6 +34,11 @@ The app ID and key you get from an application you define [here](https://develop
 
 Currently, you need to manually track down a refresh token.  You can do this by walking through the [SSO login process](http://eveonline-third-party-documentation.readthedocs.io/en/latest/sso/authentication.html) with whatever tools you're comfortable with.  I find [Postman](https://www.getpostman.com/) works well for this.
 
+* REDIS_TLS_URL, REDIS_URL
+
+Necessary for refresh token rotation. If provided, the refresh token is stored in Redis. REDIS_TLS_URL is
+checked first, then REDIS_URL.
+
 **Slack Configuration**
 
 * OUTBOUND_WEBHOOK

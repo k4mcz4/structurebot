@@ -18,6 +18,12 @@
     "SSO_REFRESH_TOKEN": {
       "required": true
     },
+    "REDIS_TLS_URL": {
+      "required": false
+    },
+    "REDIS_URL": {
+      "required": false
+    },
     "USER_AGENT": {
       "required": false
     },

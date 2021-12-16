@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
+import redis
 import requests
 from requests.exceptions import HTTPError
 import time
@@ -8,6 +9,7 @@ from six.moves.urllib.parse import urlparse
 from operator import attrgetter
 from esipy import EsiApp, EsiClient, EsiSecurity
 from esipy.cache import DictCache
+from esipy.events import Signal
 from pyswagger.primitives import MimeCodec
 from pyswagger.primitives.codec import PlainCodec
 
@@ -48,6 +50,56 @@ def config_esi_cache(cache_url):
     return cache
 
 
+def get_redis_client():
+    client = None
+    if CONFIG['REDIS_TLS_URL']:
+        client = redis.Redis.from_url(CONFIG['REDIS_TLS_URL'], ssl_cert_reqs=None)
+    elif CONFIG['REDIS_URL']:
+        client = redis.Redis.from_url(CONFIG['REDIS_URL'])
+    return client
+
+
+def get_refresh_token(refresh_token: str) -> str:
+    """Return the current refresh token.
+
+    Args:
+        refresh_token: The initial token from the configuration.
+
+    Returns:
+        The updated token from the store or the initial token.
+    """
+
+    redis_client = get_redis_client()
+    if redis_client is None:
+        return refresh_token
+
+    updated_token = redis_client.get('updated_token')
+    initial_token = redis_client.get('initial_token')
+
+    if updated_token and initial_token == refresh_token:
+        return_token = updated_token
+    else:
+        return_token = refresh_token
+
+    if initial_token != refresh_token:
+        redis_client.set('initial_token', refresh_token)
+
+    return return_token
+
+
+# noinspection PyUnusedLocal
+def update_refresh_token(token_identifier, access_token, expires_in, token_type, refresh_token):
+    """Store the updated refresh token"""
+
+    redis_client = get_redis_client()
+    if redis_client is None:
+        return
+
+    updated_token = redis_client.get('updated_token')
+    if updated_token != refresh_token:
+        redis_client.set('updated_token', refresh_token)
+
+
 def setup_esi(app_id, app_secret, refresh_token, user_agent, cache=DictCache()):
     """Set up the ESI client
 
@@ -68,17 +120,21 @@ def setup_esi(app_id, app_secret, refresh_token, user_agent, cache=DictCache()):
     esi_meta = EsiApp(cache=cache)
     esi = esi_meta.get_latest_swagger
 
+    signal = Signal()
+    signal.add_receiver(update_refresh_token)
+
     esi_security = EsiSecurity(
         redirect_uri='http://localhost',
         client_id=app_id,
         secret_key=app_secret,
+        signal_token_updated=signal,
         headers={'User-Agent': user_agent}
     )
 
     esi_security.update_token({
         'access_token': '',
         'expires_in': -1,
-        'refresh_token': refresh_token
+        'refresh_token': get_refresh_token(refresh_token)
     })
 
     esi_client = EsiClient(
