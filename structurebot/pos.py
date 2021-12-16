@@ -1,7 +1,7 @@
 
 from __future__ import absolute_import
 from .config import CONFIG
-from .util import esi, esi_client, name_to_id, HTTPError
+from .util import esi_pub, esi_auth, esi_datasource, esi_client, name_to_id, HTTPError
 from .assets import Asset, Type, is_system_id
 from .pos_resources import pos_fuel
 import sys
@@ -75,7 +75,7 @@ class Pos(Asset):
             'mods': mods
         }
         op = 'get_corporations_corporation_id_starbases_starbase_id'
-        pos_request = esi.op[op](corporation_id=corp_id,
+        pos_request = esi_auth.op[op](corporation_id=corp_id, datasource=esi_datasource,
                                  starbase_id=starbase_id, system_id=system_id)
         pos_response = esi_client.request(pos_request)
         if pos_response.status == 200:
@@ -105,7 +105,8 @@ class Pos(Asset):
             mods = pos_mod_dict.setdefault(nearest(mod.xyz, pos_locations), [])
             mods.append(mod)
         corp_id = name_to_id(corp_name, 'corporation')
-        poses_request = esi.op['get_corporations_corporation_id_starbases'](corporation_id=corp_id)
+        poses_request = esi_auth.op['get_corporations_corporation_id_starbases'](corporation_id=corp_id,
+                                                                                 datasource=esi_datasource)
         poses_response = esi_client.request(poses_request)
         if not poses_response.status == 200:
             raise HTTPError(poses_response.data['error'])
@@ -132,7 +133,7 @@ class Pos(Asset):
             return self._system_name
         except AttributeError:
             self._system_name = None
-            location_name_request = esi.op['get_universe_systems_system_id'](system_id=self.system_id)
+            location_name_request = esi_pub.op['get_universe_systems_system_id'](system_id=self.system_id)
             location_name_response = esi_client.request(location_name_request)
             if location_name_response.status == 200:
                 self._system_name = location_name_response.data.get('name')
@@ -143,7 +144,7 @@ class Pos(Asset):
         try:
             return self._moon_name
         except AttributeError:
-            moon_name_request = esi.op['get_universe_moons_moon_id'](moon_id=self.moon_id)
+            moon_name_request = esi_pub.op['get_universe_moons_moon_id'](moon_id=self.moon_id)
             moon_name_response = esi_client.request(moon_name_request)
             if moon_name_response.status == 200:
                 self._moon_name = moon_name_response.data.get('name')
@@ -163,7 +164,7 @@ def item_locations(ids):
     chunks = 1000
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
         op = 'post_corporations_corporation_id_assets_locations'
-        locations_request = esi.op[op](item_ids=items,
+        locations_request = esi_auth.op[op](item_ids=items, datasource=esi_datasource,
                                        corporation_id=CONFIG['CORP_ID'])
         locations = esi_client.request(locations_request).data
         for location in locations:
@@ -183,7 +184,7 @@ def sov_systems(sov_holder_id):
     """
     sov_systems = []
     if sov_holder_id:
-        map_sov_request = esi.op['get_sovereignty_map']()
+        map_sov_request = esi_pub.op['get_sovereignty_map']()
         map_sov = esi_client.request(map_sov_request).data
         for system in map_sov:
             try:
@@ -207,7 +208,7 @@ def check_pos(corp_name, corp_assets=None):
     pos_list = Pos.from_corp_name(corp_name, corp_assets)
     if not pos_list:
         return messages
-    alliance_id_request = esi.op['get_corporations_corporation_id'](corporation_id=corp_id)
+    alliance_id_request = esi_pub.op['get_corporations_corporation_id'](corporation_id=corp_id)
     alliance_id = esi_client.request(alliance_id_request).data.get('alliance_id', None)
     sovs = sov_systems(alliance_id)
     for pos in pos_list:

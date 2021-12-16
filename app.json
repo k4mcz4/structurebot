@@ -10,18 +10,27 @@
       "required": true
     },
     "SSO_APP_ID": {
-      "required": true
+      "required": false
     },
     "SSO_APP_KEY": {
-      "required": true
+      "required": false
     },
     "SSO_REFRESH_TOKEN": {
-      "required": true
+      "required": false
     },
     "REDIS_TLS_URL": {
       "required": false
     },
     "REDIS_URL": {
+      "required": false
+    },
+    "NEUCORE_HOST": {
+      "required": false
+    },
+    "NEUCORE_APP_TOKEN": {
+      "required": false
+    },
+    "NEUCORE_DATASOURCE": {
       "required": false
     },
     "USER_AGENT": {

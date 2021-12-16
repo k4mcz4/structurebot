@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from .util import esi, esi_client, name_to_id, HTTPError
+from .util import esi_pub, esi_client, name_to_id, HTTPError
 
 
 class EsiLocation(object):
@@ -22,7 +22,7 @@ class EsiLocation(object):
         id_arg = {cls.id_arg: id}
         if not isinstance(id, int):
             raise ValueError('ID must be an integer')
-        type_request = esi.op[id_op](**id_arg)
+        type_request = esi_pub.op[id_op](**id_arg)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)

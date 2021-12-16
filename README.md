@@ -18,6 +18,9 @@ structurebot will check your EVE Online POS and Citadels for fuel, mining silos,
 The following config items need to be defined in the environment
 
 **EVE SSO Config**
+
+Set these if you do not use a Neucore app (see next section).
+
 * SSO_APP_ID
 * SSO_APP_KEY
 
@@ -30,6 +33,8 @@ The app ID and key you get from an application you define [here](https://develop
     esi-corporations.read_starbases.v1
     esi-industry.read_corporation_mining.v1
 
+The character needs the following roles: Station_Manager, Director, Accountant
+
 * SSO_REFRESH_TOKEN
 
 Currently, you need to manually track down a refresh token.  You can do this by walking through the [SSO login process](http://eveonline-third-party-documentation.readthedocs.io/en/latest/sso/authentication.html) with whatever tools you're comfortable with.  I find [Postman](https://www.getpostman.com/) works well for this.
@@ -38,6 +43,29 @@ Currently, you need to manually track down a refresh token.  You can do this by 
 
 Necessary for refresh token rotation. If provided, the refresh token is stored in Redis. REDIS_TLS_URL is
 checked first, then REDIS_URL.
+
+**Neucore Config**
+
+This is an alternative to EVE SSO from above. If you set both environment variables (SSO_* and NEUCORE_*), Neucore
+will be used.
+
+1. Configure Neucore with an EVE Login with the scopes and roles from above.
+2. Add a Neucore app with the `app-esi` role and access to the EVE login from step 1.
+
+Then add the following environment variables:
+
+* NEUCORE_HOST
+
+The Neucore domain, e.g. `account.bravecollective.com`.
+
+* NEUCORE_APP_TOKEN
+
+The base64 encoded "Id:Secret" of the app.
+ 
+* NEUCORE_DATASOURCE
+
+The datasource parameter for Neucore ESI requests, e.g. `96061222:structures` (character ID:Login name), see also 
+https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV1.
 
 **Slack Configuration**
 

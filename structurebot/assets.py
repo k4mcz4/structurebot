@@ -4,7 +4,7 @@ import logging
 from collections import Counter
 from methodtools import lru_cache
 
-from .util import esi, esi_client, name_to_id, names_to_ids, HTTPError
+from .util import esi_pub, esi_auth, esi_datasource, esi_client, name_to_id, names_to_ids, HTTPError
 import six
 
 
@@ -88,7 +88,7 @@ class Category(object):
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
         op = 'get_universe_categories_category_id'
-        type_request = esi.op[op](category_id=id)
+        type_request = esi_pub.op[op](category_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
@@ -149,7 +149,7 @@ class Group(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_request = esi.op['get_universe_groups_group_id'](group_id=id)
+        type_request = esi_pub.op['get_universe_groups_group_id'](group_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
@@ -216,7 +216,7 @@ class BaseType(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_request = esi.op['get_universe_types_type_id'](type_id=id)
+        type_request = esi_pub.op['get_universe_types_type_id'](type_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
@@ -326,7 +326,7 @@ class Asset(BaseType):
         """
         assets = []
         assets_request = None
-        params = {'page': 1}
+        params = {'page': 1, 'datasource': esi_datasource}
         if id_type == 'characters':
             params['character_id'] = id
             op = 'get_characters_character_id_assets'
@@ -335,7 +335,7 @@ class Asset(BaseType):
             op = 'get_corporations_corporation_id_assets'
         pages_left = params['page']
         while(pages_left):
-            assets_request = esi.op[op](**params)
+            assets_request = esi_auth.op[op](**params)
             try:
                 assets_response = esi_client.request(assets_request,
                                                      raw_body_only=True)

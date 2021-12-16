@@ -4,7 +4,7 @@ import pytz
 import logging
 
 from .config import CONFIG
-from .util import esi, esi_client, name_to_id, ids_to_names, HTTPError
+from .util import esi_auth, esi_datasource, esi_client, name_to_id, ids_to_names, HTTPError
 from .assets import Fitting, Asset, Type
 from .universe import System
 import six
@@ -44,7 +44,7 @@ class Structure(object):
         self._fuel_rate = 0
         # Grab structure name
         endpoint = 'get_universe_structures_structure_id'
-        structure_request = esi.op[endpoint](structure_id=structure_id)
+        structure_request = esi_auth.op[endpoint](structure_id=structure_id, datasource=esi_datasource)
         structure_response = esi_client.request(structure_request)
         if structure_response.status == 200:
             structure_info = structure_response.data
@@ -173,11 +173,11 @@ class Structure(object):
         corporation_id = name_to_id(corporation_name, 'corporation')
         assets = assets or Asset.from_entity_id(corporation_id, 'corporations')
         endpoint = 'get_corporations_corporation_id_structures'
-        structures_request = esi.op[endpoint](corporation_id=corporation_id)
+        structures_request = esi_auth.op[endpoint](corporation_id=corporation_id, datasource=esi_datasource)
         structures_response = esi_client.request(structures_request)
         structures = structures_response.data
         endpoint = 'get_corporation_corporation_id_mining_extractions'
-        detonations_request = esi.op[endpoint](corporation_id=corporation_id)
+        detonations_request = esi_auth.op[endpoint](corporation_id=corporation_id, datasource=esi_datasource)
         detonations_response = esi_client.request(detonations_request)
         if detonations_response.status != 200:
             raise HTTPError(detonations_response.raw)
