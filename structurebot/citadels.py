@@ -4,7 +4,7 @@ import pytz
 import logging
 
 from .config import CONFIG
-from .util import esi, esi_client, name_to_id, ids_to_names
+from .util import esi, esi_client, name_to_id, ids_to_names, HTTPError
 from .assets import Fitting, Asset, Type
 from .universe import System
 import six
@@ -179,6 +179,8 @@ class Structure(object):
         endpoint = 'get_corporation_corporation_id_mining_extractions'
         detonations_request = esi.op[endpoint](corporation_id=corporation_id)
         detonations_response = esi_client.request(detonations_request)
+        if detonations_response.status != 200:
+            raise HTTPError(detonations_response.raw)
         detonations = detonations_response.data
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}

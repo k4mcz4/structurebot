@@ -343,6 +343,8 @@ class Asset(BaseType):
             except ValueError:
                 # no assets
                 break
+            if assets_response.status != 200:
+                raise HTTPError(assets_response.raw)
             for asset in assets_api:
                 asset_type = Type.from_id(asset['type_id'])
                 type_dict = asset_type.__dict__
