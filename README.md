@@ -118,6 +118,7 @@ $ deactivate
 $ source .venv/bin/activate
 $ source ./.env
 $ pytest
-$ python structurebot.py -d
+$ python structurebot.py [-d]
+$ python structure-audit.py [-d] [--csv]
 $ deactivate
 ```
