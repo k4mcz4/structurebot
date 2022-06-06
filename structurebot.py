@@ -30,12 +30,23 @@ pyswagger_logger = logging.getLogger('pyswagger')
 pyswagger_logger.setLevel(logging.ERROR)
 
 messages = []
+errors = []
+corp_name = CONFIG['CORPORATION_NAME']
 try:
-    corp_name = CONFIG['CORPORATION_NAME']
     CONFIG['CORP_ID'] = name_to_id(corp_name, 'corporation')
-    assets = Asset.from_entity_name(corp_name)
+
+    assetsError = False
+    assets = None
+    try:
+        assets = Asset.from_entity_name(corp_name)
+    except Exception as e:
+        assetsError = True
+        errors.append(str(e))
+        errors.append(":frogsiren:   *********************************************************   :frogsiren:")
+        errors.append("    Failed to read assets, Ozone and Core checks will be skipped.    ")
+        errors.append(":frogsiren:   *********************************************************   :frogsiren:")
+
     structures = Structure.from_corporation(corp_name, assets)
-    messages = []
     for structure in structures:
         message = []
         if not structure.accessible:
@@ -46,7 +57,7 @@ try:
             message.append('Needs to have an extraction scheduled')
         if args.upcoming_detonations and structure.detonates_soon:
             message.append('Ready to detonate {}'.format(structure.detonation))
-        if args.ansiblex_ozone and structure.needs_ozone:
+        if args.ansiblex_ozone and structure.needs_ozone and not assetsError:
             message.append('Low on Liquid Ozone: {}'.format(structure.jump_fuel))
         if args.fuel_warning and structure.needs_fuel:
             message.append('Runs out of fuel on {}'.format(structure.fuel_expires))
@@ -60,7 +71,7 @@ try:
         if args.structure_state and (structure.vulnerable or structure.reinforced):
             state = structure.state.replace('_', ' ').title()
             message.append('{} until {}'.format(state, structure.state_timer_end))
-        if args.core_state and structure.needs_core:
+        if args.core_state and structure.needs_core and not assetsError:
             message.append('No core installed')
         if message:
             messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
@@ -70,8 +81,9 @@ except Exception as e:
         raise
     else:
         messages = [str(e)]
+
 if messages:
-	messages.insert(0, ' Upcoming {} Structure Maintenence Tasks'.format(corp_name))
-	notify_slack(sorted(messages))
-
-
+    messages = sorted(messages)
+    messages.insert(0, 'Upcoming {} Structure Maintenance Tasks'.format(corp_name))
+    messages = errors + messages
+    notify_slack(messages)

@@ -7,7 +7,7 @@ from .config import CONFIG
 from .util import esi_auth, esi_datasource, esi_client, name_to_id, ids_to_names, HTTPError
 from .assets import Fitting, Asset, Type
 from .universe import System
-import six
+# import six
 
 
 logger = logging.getLogger(__name__)
@@ -171,7 +171,12 @@ class Structure(object):
     def from_corporation(cls, corporation_name, assets=None):
         structure_list = []
         corporation_id = name_to_id(corporation_name, 'corporation')
-        assets = assets or Asset.from_entity_id(corporation_id, 'corporations')
+
+        try:
+            assets = assets or Asset.from_entity_id(corporation_id, 'corporations')
+        except Exception as e:
+            print('Error reading assets: ' + str(e))
+
         endpoint = 'get_corporations_corporation_id_structures'
         structures_request = esi_auth.op[endpoint](corporation_id=corporation_id, datasource=esi_datasource)
         structures_response = esi_client.request(structures_request)
@@ -192,14 +197,16 @@ class Structure(object):
             kwargs = {k: v for k, v in s.items() if k in structure_keys}
             kwargs['type_name'] = ids_to_names([s['type_id']])[s['type_id']]
             kwargs['detonation'] = detonations.get(sid)
-            structure_contents = [a for a in assets if a.location_id == sid]
+
+            structure_contents = None
+            if assets:
+                structure_contents = [a for a in assets if a.location_id == sid]
             if structure_contents:
                 kwargs['fitting'] = Fitting.from_assets(structure_contents)
                 kwargs['fuel'] = [a for a in structure_contents if a.location_flag == 'StructureFuel']
+
             structure_list.append(cls(**kwargs))
         return structure_list
 
     def __str__(self):
-        return '{} ({}) - {}'.format(self.name, self.structure_id,
-                                    self.type_name)
-
+        return '{} ({}) - {}'.format(self.name, self.structure_id, self.type_name)
