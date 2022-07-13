@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 import unittest
-import doctest
+# import doctest
 import datetime as dt
 import pytz
 from pyswagger.primitives import Datetime
 from structurebot import citadels
 from structurebot import assets
 from structurebot.config import CONFIG
-from structurebot.util import name_to_id
+# from structurebot.util import name_to_id
 
 
 class TestStructures(unittest.TestCase):
@@ -82,7 +82,6 @@ class TestStructureDogma(unittest.TestCase):
                                                      fitting=athanor_fitting,
                                                      services=[drill_service])
         
-
     def test_fitting(self):
         self.assertTrue(self.raitaru.fitting)
         self.assertFalse(self.unfit_raitaru.fitting)
@@ -122,5 +121,5 @@ class TestStructureDogma(unittest.TestCase):
 
     def test_accessible(self):
         bravestar = citadels.Structure(1037376041851, type_id=35833)
-        self.assertEqual(str(bravestar), 'Q-5211 - Shia Surprise (1037376041851) - Fortizar')
+        self.assertEqual(str(bravestar), 'Q-5211 - Broadcast4Reps (1037376041851) - Fortizar')
         self.assertTrue(bravestar.accessible)

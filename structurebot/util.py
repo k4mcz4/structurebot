@@ -4,21 +4,22 @@ import json
 import redis
 import requests
 from requests.exceptions import HTTPError
-import time
+# import time
 import logging
 from six.moves.urllib.parse import urlparse
-from operator import attrgetter
+# from operator import attrgetter
 from esipy import App, EsiApp, EsiClient, EsiSecurity
 from esipy.cache import DictCache
 from esipy.events import Signal
-from pyswagger.primitives import MimeCodec
-from pyswagger.primitives.codec import PlainCodec
+# from pyswagger.primitives import MimeCodec
+# from pyswagger.primitives.codec import PlainCodec
 
 from .config import *
 import six
 from six.moves import range
 
 logger = logging.getLogger(__name__)
+
 
 def config_esi_cache(cache_url):
     """Configure ESI cache backend
@@ -100,6 +101,7 @@ def update_refresh_token(token_identifier, access_token, expires_in, token_type,
     if updated_token != refresh_token:
         redis_client.set('updated_token', refresh_token)
 
+
 def setup_esi(app_id, app_secret, refresh_token, neucore_host, neucore_app_token, neucore_datasource,
               user_agent, cache=DictCache()):
     """Set up the ESI client
@@ -175,6 +177,7 @@ def setup_esi(app_id, app_secret, refresh_token, neucore_host, neucore_app_token
 
     return esi_public, esi_authenticated, datasource, esi_client
 
+
 cache = config_esi_cache(CONFIG['ESI_CACHE'])
 esi_pub, esi_auth, esi_datasource, esi_client = setup_esi(CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'],
                                                           CONFIG['SSO_REFRESH_TOKEN'], CONFIG['NEUCORE_HOST'],
@@ -198,12 +201,24 @@ def name_to_id(name, name_type):
     1073945516
     >>> name_to_id('Nonexistent', 'solar_system')
     """
-    get_search = esi_pub.op['get_search'](categories=[name_type],
-                                      search=name,
-                                      strict=True)
-    response = esi_client.request(get_search)
     try:
-        return getattr(response.data, name_type)[0]
+        name_id = names_to_ids([name])
+    except HTTPError:
+        return None
+
+    if name_type == 'corporation':
+        category = 'corporations'
+    elif name_type == 'inventory_type':
+        category = 'inventory_types'
+    elif name_type == 'solar_system':
+        category = 'systems'
+    elif name_type == 'character':
+        category = 'characters'
+    else:
+        return None
+
+    try:
+        return name_id[category][name]
     except KeyError:
         return None
 
