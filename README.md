@@ -6,12 +6,15 @@ Master: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branc
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-Click the button above to deploy to a new Heroku app.  You'll need to configured the 'scheduler' add-on after setup to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
+Click the button above to deploy to a new Heroku app.  You'll need to configure the 'scheduler' add-on after setup 
+to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
 
 # structurebot
+
 ## EVE Online Structure Checker
 
-structurebot will check your EVE Online POS and Citadels for fuel, mining silos, offline services, reinforcement, etc and push a notification to Slack.
+structurebot will check your EVE Online POS and Citadels for fuel, mining silos, offline services, reinforcement, 
+etc and push a notification to Slack.
 
 ## Configuration
 
@@ -24,7 +27,8 @@ Set these if you do not use a Neucore app (see next section).
 * SSO_APP_ID
 * SSO_APP_KEY
 
-The app ID and key you get from an application you define [here](https://developers.eveonline.com/applications) with the following scopes: 
+The app ID and key you get from an application you define [here](https://developers.eveonline.com/applications) 
+with the following scopes: 
 
     esi-calendar.read_calendar_events.v1
     esi-universe.read_structures.v1
@@ -37,7 +41,9 @@ The character needs the following roles: Station_Manager, Director, Accountant
 
 * SSO_REFRESH_TOKEN
 
-Currently, you need to manually track down a refresh token.  You can do this by walking through the [SSO login process](http://eveonline-third-party-documentation.readthedocs.io/en/latest/sso/authentication.html) with whatever tools you're comfortable with.  I find [Postman](https://www.getpostman.com/) works well for this.
+Currently, you need to manually track down a refresh token. You can do this by walking through the 
+[SSO login process](https://docs.esi.evetech.net/docs/sso/web_based_sso_flow.html) with whatever tools you're 
+comfortable with. I find [Postman](https://www.getpostman.com/) works well for this.
 
 * REDIS_TLS_URL, REDIS_URL
 
@@ -71,7 +77,8 @@ https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV1.
 
 * OUTBOUND_WEBHOOK
 
-Your Slack administrator will need to create a [webhook](https://api.slack.com/incoming-webhooks) for you to use to send messages to slack
+Your Slack administrator will need to create a [webhook](https://api.slack.com/incoming-webhooks) for you to use 
+to send messages to slack
 
 * SLACK_CHANNEL
 
