@@ -4,10 +4,12 @@ from __future__ import absolute_import
 from __future__ import print_function
 import logging
 import argparse
+import csv
+import sys
 
 from structurebot.citadels import Structure
 from structurebot.config import CONFIG
-import six
+# import six
 
 
 if __name__ == '__main__':
@@ -26,9 +28,9 @@ if __name__ == '__main__':
     pyswagger_logger.setLevel(logging.ERROR)
     structures = Structure.from_corporation(CONFIG['CORPORATION_NAME'])
     total_fuel = 0
+    writer = csv.writer(sys.stdout)
+    columns = []
     if args.csv:
-        import csv
-        import sys
         columns = [
             'structure_id',
             'type_name',
@@ -47,12 +49,10 @@ if __name__ == '__main__':
             'constellation_name',
             'region_name'
         ]
-        writer = csv.writer(sys.stdout)
         writer.writerow(columns)
     for structure in sorted(structures, key=lambda x: x.name):
         if args.csv:
-            writer.writerow([getattr(structure, c)
-                             for c in columns])
+            writer.writerow([getattr(structure, c) for c in columns])
         else:
             print(structure)
             print('Fuel/Cycle: {}'.format(structure.fuel_rate))

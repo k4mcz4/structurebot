@@ -2,12 +2,13 @@
 from __future__ import absolute_import
 from .config import CONFIG
 from .util import esi_pub, esi_auth, esi_datasource, esi_client, name_to_id, HTTPError
-from .assets import Asset, Type, is_system_id
+# from .assets import Asset, Type, is_system_id
+from .assets import Asset, is_system_id
 from .pos_resources import pos_fuel
 import sys
 import math
 import datetime
-from decimal import Decimal
+# from decimal import Decimal
 import six
 from six.moves import range
 

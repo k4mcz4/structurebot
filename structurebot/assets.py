@@ -26,7 +26,7 @@ def is_system_id(location_id):
     >>> is_system_id(60000000)
     False
     """
-    if location_id >= 30000000 and location_id <= 39999999:
+    if 30000000 <= location_id <= 39999999:
         return True
     return False
 
@@ -46,7 +46,7 @@ def is_station_id(location_id):
     >>> is_station_id(30000000)
     False
     """
-    if location_id >= 60000000 and location_id <= 64000000:
+    if 60000000 <= location_id <= 64000000:
         return True
     return False
 
@@ -100,7 +100,7 @@ class Category(object):
         """Returns a list of Category's given a list of ESI category IDs
 
         Args:
-            id (integer): ESI provided category ID
+            ids (list of ints): ESI provided category ID
 
         Returns:
             list: list of Category's
@@ -161,7 +161,7 @@ class Group(object):
         """Returns a list of Group's given a list of ESI group IDs
 
         Args:
-            id (integer): ESI provided group ID
+            ids (list of ints): ESI provided group ID
 
         Returns:
             list: list of Group's
@@ -325,7 +325,7 @@ class Asset(BaseType):
             list: Assets owned by id
         """
         assets = []
-        assets_request = None
+        # assets_request = None
         params = {'page': 1, 'datasource': esi_datasource}
         if id_type == 'characters':
             params['character_id'] = id
@@ -333,12 +333,13 @@ class Asset(BaseType):
         elif id_type == 'corporations':
             params['corporation_id'] = id
             op = 'get_corporations_corporation_id_assets'
+        else:
+            return assets
         pages_left = params['page']
         while(pages_left):
             assets_request = esi_auth.op[op](**params)
             try:
-                assets_response = esi_client.request(assets_request,
-                                                     raw_body_only=True)
+                assets_response = esi_client.request(assets_request, raw_body_only=True)
                 assets_api = json.loads(assets_response.raw)
             except ValueError:
                 # no assets
