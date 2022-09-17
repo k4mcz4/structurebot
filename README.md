@@ -1,14 +1,3 @@
-Develop: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=develop)](https://travis-ci.org/eve-n0rman/structurebot)
-[![Coverage Status](https://coveralls.io/repos/github/eve-n0rman/structurebot/badge.svg?branch=develop)](https://coveralls.io/github/eve-n0rman/structurebot?branch=develop)
-
-Master: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=master)](https://travis-ci.org/eve-n0rman/structurebot)
-[![Coverage Status](https://coveralls.io/repos/github/eve-n0rman/structurebot/badge.svg?branch=master)](https://coveralls.io/github/eve-n0rman/structurebot?branch=master)
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-Click the button above to deploy to a new Heroku app.  You'll need to configure the 'scheduler' add-on after setup 
-to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
-
 # structurebot
 
 ## EVE Online Structure Checker
@@ -102,27 +91,38 @@ The minimum number of hours worth of stront you'd like your POS to have
 
 How many days in advance to notify about scheduled detonations
 
-* JUMPGATE_FUEL_WARNING
+* JUMPGATE_FUEL_WARN
 
 The minimum amount of liquid ozone in Ansiblex before a notification
 
-## Dev Env
+## Run
+
+Runs with Python 3.8 and 3.9
+
+### Deploy on Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+Click the button above to deploy to a new Heroku app.  You'll need to configure the 'scheduler' add-on after setup
+to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
+
+### Dev Env
 
 ```sh
-# Install Python3.9 if necessary
+# Install Python versions if necessary
 $ sudo add-apt-repository ppa:deadsnakes/ppa
 $ sudo apt-get update
-$ sudo apt-get install python3.9 python3.9-venv
+$ sudo apt-get install python3.8 python3.8-venv python3.9 python3.9-venv
 
-# Init
-$ python3.9 -m venv .venv
-$ source .venv/bin/activate
+# Init, for 3.8
+$ python3.8 -m venv .venv8
+$ source .venv8/bin/activate
 $ pip install pipenv
 $ pipenv install --dev
 $ deactivate
 
 # Run
-$ source .venv/bin/activate
+$ source .venv8/bin/activate
 $ source ./.env
 $ pytest
 $ python structurebot.py [-d]

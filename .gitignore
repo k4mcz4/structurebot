@@ -5,6 +5,8 @@ run.sh
 *.csv
 .coverage
 /.venv
+/.venv8
+/.venv9
 .pytest_cache/
 .vscode/
 coverage.xml
