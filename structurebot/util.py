@@ -74,7 +74,7 @@ def setup_esi(neucore_host, neucore_app_token, neucore_datasource, user_agent, c
     core_swagger_file = os.path.dirname(os.path.abspath(__file__)) + '/latest_swagger_core.json'
     swagger = requests.get('https://esi.evetech.net/latest/swagger.json')
     swagger_data = swagger.json()
-    swagger_data['basePath'] = '/api/app/v1/esi/latest'
+    swagger_data['basePath'] = '/api/app/v2/esi/latest'
     swagger_data['host'] = neucore_host
     del swagger_data['parameters']['datasource']['enum']
     with open(core_swagger_file, 'w') as f:
