@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import json
-import redis
 import requests
 from requests.exceptions import HTTPError
 # import time
@@ -10,7 +9,6 @@ from six.moves.urllib.parse import urlparse
 # from operator import attrgetter
 from esipy import App, EsiApp, EsiClient, EsiSecurity
 from esipy.cache import DictCache
-from esipy.events import Signal
 # from pyswagger.primitives import MimeCodec
 # from pyswagger.primitives.codec import PlainCodec
 
@@ -52,64 +50,10 @@ def config_esi_cache(cache_url):
     return cache
 
 
-def get_redis_client():
-    client = None
-    if CONFIG['REDIS_TLS_URL']:
-        client = redis.Redis.from_url(CONFIG['REDIS_TLS_URL'], ssl_cert_reqs=None)
-    elif CONFIG['REDIS_URL']:
-        client = redis.Redis.from_url(CONFIG['REDIS_URL'])
-    return client
-
-
-def get_refresh_token(refresh_token: str) -> str:
-    """Return the current refresh token.
-
-    Args:
-        refresh_token: The initial token from the configuration.
-
-    Returns:
-        The updated token from the store or the initial token.
-    """
-
-    redis_client = get_redis_client()
-    if redis_client is None:
-        return refresh_token
-
-    updated_token = redis_client.get('updated_token')
-    initial_token = redis_client.get('initial_token')
-
-    if updated_token and initial_token == refresh_token:
-        return_token = updated_token
-    else:
-        return_token = refresh_token
-
-    if initial_token != refresh_token:
-        redis_client.set('initial_token', refresh_token)
-
-    return return_token
-
-
-# noinspection PyUnusedLocal
-def update_refresh_token(token_identifier, access_token, expires_in, token_type, refresh_token):
-    """Store the updated refresh token"""
-
-    redis_client = get_redis_client()
-    if redis_client is None:
-        return
-
-    updated_token = redis_client.get('updated_token')
-    if updated_token != refresh_token:
-        redis_client.set('updated_token', refresh_token)
-
-
-def setup_esi(app_id, app_secret, refresh_token, neucore_host, neucore_app_token, neucore_datasource,
-              user_agent, cache=DictCache()):
+def setup_esi(neucore_host, neucore_app_token, neucore_datasource, user_agent, cache=DictCache()):
     """Set up the ESI client
 
     Args:
-        app_id (string): SSO Application ID from CCP
-        app_secret (string): SSO Application Secret from CCP
-        refresh_token (string): SSO refresh token
         neucore_host (string): Neucore host
         neucore_app_token (string): Neucore app auth token
         neucore_datasource (string): Data source parameter for Neucore ESI requests
@@ -119,55 +63,41 @@ def setup_esi(app_id, app_secret, refresh_token, neucore_host, neucore_app_token
     Returns:
         tuple: esi app definition, esi client
 
-    >>> setup_esi(CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'], CONFIG['SSO_REFRESH_TOKEN'], CONFIG['NEUCORE_HOST'],
-    ...           CONFIG['NEUCORE_APP_TOKEN'], CONFIG['NEUCORE_DATASOURCE'], CONFIG['USER_AGENT'], cache) # doctest: +ELLIPSIS
+    >>> setup_esi(CONFIG['NEUCORE_HOST'], CONFIG['NEUCORE_APP_TOKEN'], CONFIG['NEUCORE_DATASOURCE'],
+    ...           CONFIG['USER_AGENT'], cache) # doctest: +ELLIPSIS
     (<pyswagger.core.App object ...>, <pyswagger.core.App object ...>, '...', <esipy.client.EsiClient object ...>)
     """
 
     esi_meta = EsiApp(cache=cache)
     esi_public = esi_meta.get_latest_swagger
-    signal = Signal()
 
-    if neucore_app_token:
-        # Get, adjust and write OpenAPI definition file for the Neucore ESI proxy
-        core_swagger_file = os.path.dirname(os.path.abspath(__file__)) + '/latest_swagger_core.json'
-        swagger = requests.get('https://esi.evetech.net/latest/swagger.json')
-        swagger_data = swagger.json()
-        swagger_data['basePath'] = '/api/app/v1/esi/latest'
-        swagger_data['host'] = neucore_host
-        del swagger_data['parameters']['datasource']['enum']
-        with open(core_swagger_file, 'w') as f:
-            json.dump(swagger_data, f)
-        esi_authenticated = App.create(core_swagger_file)
-        datasource = neucore_datasource
-    else:
-        esi_authenticated = esi_public
-        datasource = 'tranquility'
-        signal.add_receiver(update_refresh_token)
+    # Get, adjust and write OpenAPI definition file for the Neucore ESI proxy
+    core_swagger_file = os.path.dirname(os.path.abspath(__file__)) + '/latest_swagger_core.json'
+    swagger = requests.get('https://esi.evetech.net/latest/swagger.json')
+    swagger_data = swagger.json()
+    swagger_data['basePath'] = '/api/app/v1/esi/latest'
+    swagger_data['host'] = neucore_host
+    del swagger_data['parameters']['datasource']['enum']
+    with open(core_swagger_file, 'w') as f:
+        json.dump(swagger_data, f)
+    esi_authenticated = App.create(core_swagger_file)
+    datasource = neucore_datasource
 
     esi_security = EsiSecurity(
         redirect_uri='http://localhost',
-        client_id=app_id,
-        secret_key=app_secret,
-        signal_token_updated=signal,
+        client_id="",
+        secret_key="",
         headers={'User-Agent': user_agent}
     )
 
-    if neucore_app_token:
-        # Add Neucore token that expires far in the future
-        esi_security.update_token({
-            'access_token': neucore_app_token,
-            'expires_in': 9000,  # 150 minutes
-            'refresh_token': ''
-        })
-    else:
-        esi_security.update_token({
-            'access_token': '',
-            'expires_in': -1,
-            'refresh_token': get_refresh_token(refresh_token)
-        })
+    # Add Neucore token that expires far in the future
+    esi_security.update_token({
+        'access_token': neucore_app_token,
+        'expires_in': 9000,  # 150 minutes
+        'refresh_token': ''
+    })
 
-    esi_client = EsiClient(
+    client = EsiClient(
         retry_requests=True,
         headers={'User-Agent': user_agent},
         raw_body_only=False,
@@ -175,14 +105,12 @@ def setup_esi(app_id, app_secret, refresh_token, neucore_host, neucore_app_token
         cache=cache
     )
 
-    return esi_public, esi_authenticated, datasource, esi_client
+    return esi_public, esi_authenticated, datasource, client
 
 
 cache = config_esi_cache(CONFIG['ESI_CACHE'])
-esi_pub, esi_auth, esi_datasource, esi_client = setup_esi(CONFIG['SSO_APP_ID'], CONFIG['SSO_APP_KEY'],
-                                                          CONFIG['SSO_REFRESH_TOKEN'], CONFIG['NEUCORE_HOST'],
-                                                          CONFIG['NEUCORE_APP_TOKEN'], CONFIG['NEUCORE_DATASOURCE'],
-                                                          CONFIG['USER_AGENT'], cache)
+esi_pub, esi_auth, esi_datasource, esi_client = setup_esi(CONFIG['NEUCORE_HOST'], CONFIG['NEUCORE_APP_TOKEN'],
+                                                          CONFIG['NEUCORE_DATASOURCE'], CONFIG['USER_AGENT'], cache)
 
 
 def name_to_id(name, name_type):

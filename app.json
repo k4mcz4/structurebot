@@ -9,21 +9,6 @@
     "OUTBOUND_WEBHOOK": {
       "required": true
     },
-    "SSO_APP_ID": {
-      "required": false
-    },
-    "SSO_APP_KEY": {
-      "required": false
-    },
-    "SSO_REFRESH_TOKEN": {
-      "required": false
-    },
-    "REDIS_TLS_URL": {
-      "required": false
-    },
-    "REDIS_URL": {
-      "required": false
-    },
     "NEUCORE_HOST": {
       "required": false
     },

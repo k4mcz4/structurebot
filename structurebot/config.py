@@ -3,11 +3,6 @@ import os
 import datetime
 
 CONFIG = {
-    'SSO_APP_ID': os.getenv('SSO_APP_ID', ''),
-    'SSO_APP_KEY': os.getenv('SSO_APP_KEY', ''),
-    'SSO_REFRESH_TOKEN': os.getenv('SSO_REFRESH_TOKEN', ''),
-    'REDIS_TLS_URL': os.getenv('REDIS_TLS_URL', ''),
-    'REDIS_URL': os.getenv('REDIS_URL', ''),
     'NEUCORE_HOST': os.getenv('NEUCORE_HOST', ''),
     'NEUCORE_APP_TOKEN': os.getenv('NEUCORE_APP_TOKEN', ''),
     'NEUCORE_DATASOURCE': os.getenv('NEUCORE_DATASOURCE', ''),
