@@ -7,7 +7,6 @@ from .config import CONFIG
 from .util import esi_auth, esi_datasource, esi_client, name_to_id, ids_to_names, HTTPError
 from .assets import Fitting, Asset, Type
 from .universe import System
-# import six
 
 
 logger = logging.getLogger(__name__)

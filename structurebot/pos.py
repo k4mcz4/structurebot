@@ -10,7 +10,6 @@ import math
 import datetime
 # from decimal import Decimal
 import six
-from six.moves import range
 
 
 def nearest(source, destinations):

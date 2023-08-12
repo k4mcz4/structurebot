@@ -9,7 +9,6 @@ import sys
 
 from structurebot.citadels import Structure
 from structurebot.config import CONFIG
-# import six
 
 
 if __name__ == '__main__':

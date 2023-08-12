@@ -5,7 +5,7 @@ import requests
 from requests.exceptions import HTTPError
 # import time
 import logging
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 # from operator import attrgetter
 from esipy import App, EsiApp, EsiClient, EsiSecurity
 from esipy.cache import DictCache
@@ -14,7 +14,6 @@ from esipy.cache import DictCache
 
 from .config import *
 import six
-from six.moves import range
 
 logger = logging.getLogger(__name__)
 
