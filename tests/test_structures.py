@@ -120,6 +120,6 @@ class TestStructureDogma(unittest.TestCase):
         self.assertFalse(goonstar.accessible)
 
     def test_accessible(self):
-        bravestar = citadels.Structure(1037376041851, type_id=35833)
-        self.assertEqual(str(bravestar), 'Q-5211 - Broadcast4Reps (1037376041851) - Fortizar')
+        bravestar = citadels.Structure(1039149782071, type_id=35834)
+        self.assertEqual(str(bravestar), 'F-NMX6 - Mothership Bellicose (1039149782071) - Keepstar')
         self.assertTrue(bravestar.accessible)
