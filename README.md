@@ -63,13 +63,6 @@ to send messages to slack.
 
 Runs with Python 3.8 and 3.9
 
-### Deploy on Heroku
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-Click the button above to deploy to a new Heroku app.  You'll need to configure the 'scheduler' add-on after setup
-to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
-
 ### Dev Env
 
 ```sh
