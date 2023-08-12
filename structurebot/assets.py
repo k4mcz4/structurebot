@@ -1,30 +1,68 @@
+from __future__ import absolute_import
 import json
 import logging
 from collections import Counter
 from methodtools import lru_cache
 
-from config import CONFIG
-from util import esi, esi_client, name_to_id, names_to_ids, HTTPError
+from .util import esi_pub, esi_auth, esi_datasource, esi_client, name_to_id, names_to_ids, HTTPError
+import six
 
 
 logger = logging.getLogger(__name__)
 
+
 def is_system_id(location_id):
-    if location_id >= 30000000 and location_id <= 32000000:
+    """Determines if an ID is in the CCP defined system ID range
+    https://github.com/esi/eve-glue/blob/master/eve_glue/location_type.py
+
+    Args:
+        location_id (integer): ESI provided ID
+
+    Returns:
+        boolean: is or is not a system id
+
+    >>> is_system_id(30000000)
+    True
+    >>> is_system_id(60000000)
+    False
+    """
+    if 30000000 <= location_id <= 39999999:
         return True
-    else:
-        return False
+    return False
+
 
 def is_station_id(location_id):
-    if location_id >= 60000000 and location_id <= 64000000:
+    """Determines if an ID is in the CCP defined station ID range
+    https://github.com/esi/eve-glue/blob/master/eve_glue/location_type.py
+
+    Args:
+        location_id (integer): ESI provided ID
+
+    Returns:
+        boolean: is or is not a station id
+
+    >>> is_station_id(60000000)
+    True
+    >>> is_station_id(30000000)
+    False
+    """
+    if 60000000 <= location_id <= 64000000:
         return True
-    else:
-        return False
+    return False
 
 
 class Category(object):
-    """docstring for Category"""
+    """EVE SDE item category
+    https://esi.evetech.net/ui/#/Universe/get_universe_categories_category_id
+
+    Args:
+        category_id (integer): ESI provided category ID
+        name (string): ESI provided category name
+        published (boolean): published item
+        groups (list): ESI provided list of member group IDs
+    """
     def __init__(self, category_id, name, published, groups):
+        """Create new Category"""
         super(Category, self).__init__()
         self.category_id = category_id
         self.name = name
@@ -35,10 +73,22 @@ class Category(object):
     @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
+        """Creates a new Category from a ESI provided category ID
+
+        Args:
+            id (integer): ESI provided category ID
+
+        Raises:
+            ValueError: id not an integer
+            HTTPError: ESI error
+
+        Returns:
+            Category: new category from id
+        """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
         op = 'get_universe_categories_category_id'
-        type_request = esi.op[op](category_id=id)
+        type_request = esi_pub.op[op](category_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
@@ -47,6 +97,14 @@ class Category(object):
 
     @classmethod
     def from_ids(cls, ids):
+        """Returns a list of Category's given a list of ESI category IDs
+
+        Args:
+            ids (list of ints): ESI provided category ID
+
+        Returns:
+            list: list of Category's
+        """
         types = []
         for id in ids:
             types.append(cls.from_id(id))
@@ -54,9 +112,18 @@ class Category(object):
 
 
 class Group(object):
-    """docstring for Group"""
+    """EVE SDE item group
+    https://esi.evetech.net/ui/#/Universe/get_universe_groups_group_id
+
+    Args:
+        group_id (integer): ESI provided group ID
+        name (string): ESI provided group name
+        published (boolean): published item
+        category (integer): ESI provided parent category
+    """
     def __init__(self, group_id, name, published, category_id, types,
                  category=None):
+        """Create new Group"""
         super(Group, self).__init__()
         self.group_id = group_id
         self.name = name
@@ -68,9 +135,21 @@ class Group(object):
     @lru_cache(maxsize=1000)
     @classmethod
     def from_id(cls, id):
+        """Creates a new Group from a ESI provided group ID
+
+        Args:
+            id (integer): ESI provided group ID
+
+        Raises:
+            ValueError: id not an integer
+            HTTPError: ESI error
+
+        Returns:
+            Group: new Group from id
+        """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_request = esi.op['get_universe_groups_group_id'](group_id=id)
+        type_request = esi_pub.op['get_universe_groups_group_id'](group_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
@@ -79,6 +158,14 @@ class Group(object):
 
     @classmethod
     def from_ids(cls, ids):
+        """Returns a list of Group's given a list of ESI group IDs
+
+        Args:
+            ids (list of ints): ESI provided group ID
+
+        Returns:
+            list: list of Group's
+        """
         types = []
         for id in ids:
             types.append(cls.from_id(id))
@@ -91,7 +178,7 @@ class BaseType(object):
                  group=None, market_group_id=None, radius=None, volume=None,
                  packaged_volume=None, icon_id=None, capacity=None,
                  portion_size=None, mass=None, graphic_id=None,
-                 dogma_attributes=[], dogma_effects=[]):
+                 dogma_attributes=[], dogma_effects=[], **kwargs):
         super(BaseType, self).__init__()
         self.type_id = type_id
         self.name = name
@@ -109,7 +196,9 @@ class BaseType(object):
         self.mass = mass
         self.graphic_id = graphic_id
         self.dogma_attributes = dogma_attributes
+        self.attributes = {a['attribute_id']: a['value'] for a in dogma_attributes}
         self.dogma_effects = dogma_effects
+        self.effects = {e['effect_id']: e['is_default'] for e in dogma_effects}
 
     @classmethod
     def from_id(cls, id):
@@ -127,7 +216,7 @@ class BaseType(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_request = esi.op['get_universe_types_type_id'](type_id=id)
+        type_request = esi_pub.op['get_universe_types_type_id'](type_id=id)
         type_response = esi_client.request(type_request)
         if type_response.status == 200:
             return cls(**type_response.data)
@@ -175,7 +264,7 @@ class BaseType(object):
         >>> [str(i) for i in Type.from_names(['125mm Gatling AutoCannon II'])]
         ['125mm Gatling AutoCannon II - (2873)']
         """
-        ids = names_to_ids(names)['inventory_types'].values()
+        ids = list(names_to_ids(names)['inventory_types'].values())
         return cls.from_ids(ids)
 
     def __str__(self):
@@ -236,24 +325,27 @@ class Asset(BaseType):
             list: Assets owned by id
         """
         assets = []
-        assets_request = None
-        params = {'page': 1}
+        # assets_request = None
+        params = {'page': 1, 'datasource': esi_datasource}
         if id_type == 'characters':
             params['character_id'] = id
             op = 'get_characters_character_id_assets'
         elif id_type == 'corporations':
             params['corporation_id'] = id
             op = 'get_corporations_corporation_id_assets'
+        else:
+            return assets
         pages_left = params['page']
         while(pages_left):
-            assets_request = esi.op[op](**params)
+            assets_request = esi_auth.op[op](**params)
             try:
-                assets_response = esi_client.request(assets_request,
-                                                     raw_body_only=True)
+                assets_response = esi_client.request(assets_request, raw_body_only=True)
                 assets_api = json.loads(assets_response.raw)
             except ValueError:
                 # no assets
                 break
+            if assets_response.status != 200:
+                raise HTTPError(assets_response.raw)
             for asset in assets_api:
                 asset_type = Type.from_id(asset['type_id'])
                 type_dict = asset_type.__dict__
@@ -287,23 +379,16 @@ class Asset(BaseType):
         return cls.from_entity_id(id, id_type)
 
 
-def is_system_id(location_id):
-    if location_id >= 30000000 and location_id <= 32000000:
-        return True
-    else:
-        return False
-
-
 class Fitting(object):
     """docstring for Fitting"""
 
     slots = ['Cargo', 'DroneBay', 'FighterBay', 'FighterTube', 'HiSlot',
              'LoSlot', 'MedSlot', 'RigSlot', 'ServiceSlot', 'SubSystemSlot',
-             'QuantumCoreRoom']
+             'StructureFuel', 'QuantumCoreRoom']
 
     def __init__(self, Cargo=[], DroneBay=[], FighterBay=[], FighterTube=[],
                  HiSlot=[], LoSlot=[], MedSlot=[], RigSlot=[], ServiceSlot=[],
-                 SubSystemSlot=[], QuantumCoreRoom=[]):
+                 SubSystemSlot=[], StructureFuel=[], QuantumCoreRoom=[]):
         super(Fitting, self).__init__()
         self.Cargo = Cargo
         self.DroneBay = DroneBay
@@ -315,6 +400,7 @@ class Fitting(object):
         self.RigSlot = RigSlot
         self.ServiceSlot = ServiceSlot
         self.SubSystemSlot = SubSystemSlot
+        self.StructureFuel = StructureFuel
         self.QuantumCoreRoom = QuantumCoreRoom
 
     @classmethod
@@ -326,6 +412,9 @@ class Fitting(object):
                 continue
             for slot in Fitting.slots:
                 if flag.startswith(slot):
+                    if flag.startswith('FighterTube'):
+                        # Fighter tubes report squadrons, which consist of variable quantities
+                        asset.quantity = int(asset.attributes.get(2215, 1))
                     fittings[slot].append(asset)
                     fit = True
         return cls(**fittings)
@@ -337,9 +426,28 @@ class Fitting(object):
             name += ' ({})'.format(asset.quantity)
         return name
 
-    def __cmp__(self, other):
+    @property
+    def packaged_volume(self):
+        volume = 0
+        for slot in self.slots:
+            for item in getattr(self, slot):
+                volume += item.packaged_volume * item.quantity
+        return volume
+
+    def _compare(self, other):
+        """Generates a Counter of items in self minus items in other
+
+        Args:
+            other (Fitting): Fitting to compare
+
+        Raises:
+            NotImplementedError: If other is not a Fitting
+
+        Returns:
+            integer: 0 if they're the same, -1 if self is less than than other, positive if self is greater than other
+        """        
         if not isinstance(other, Fitting):
-            raise NotImplemented
+            raise NotImplementedError
         equality = 0
         for slot in Fitting.slots:
             item_counts = {i.type_id: i.quantity-1 for i in getattr(self, slot)}
@@ -349,12 +457,45 @@ class Fitting(object):
             other_items = Counter([i.type_id for i in getattr(other, slot)])
             other_items.update(other_item_counts)
             items.subtract(other_items)
-            for item, count in items.iteritems():
+            for item, count in six.iteritems(items):
                 if count < 0:
                     return -1
                 if count > 0:
                     equality += count
         return equality
+
+    def __eq__(self, other):
+        if self._compare(other) == 0:
+            return True
+        return False
+
+    def __lt__(self, other):
+        if self._compare(other) < 0:
+            return True
+        return False
+
+    def __gt__(self, other):
+        if self._compare(other) > 0:
+            return True
+        return False
+
+    def __le__(self, other):
+        if self._compare(other) <= 0:
+            return True
+        return False
+
+    def __ge__(self, other):
+        if self._compare(other) >= 0:
+            return True
+        return False
+
+    def __bool__(self):
+        for slot in self.slots:
+            if getattr(self, slot):
+                return True
+        return False
+
+    __nonzero__ = __bool__
 
     def __str__(self):
         slot_strings = []

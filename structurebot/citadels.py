@@ -1,10 +1,12 @@
+from __future__ import absolute_import
 import datetime
 import pytz
 import logging
 
-from config import CONFIG
-from util import esi, esi_client, name_to_id, ids_to_names
-from assets import Fitting, Asset, Type
+from .config import CONFIG
+from .util import esi_auth, esi_datasource, esi_client, name_to_id, ids_to_names, HTTPError
+from .assets import Fitting, Asset, Type
+from .universe import System
 
 
 logger = logging.getLogger(__name__)
@@ -14,14 +16,20 @@ class Structure(object):
     def __init__(self, structure_id, corporation_id=None, type_id=None, type_name=None,
                  system_id=None, services=None, fuel_expires=None,
                  accessible=None, name=None, state=None, state_timer_end=None,
-                 detonation=None, fuel=[], fitting=Fitting()):
+                 detonation=None, unanchors_at=None, profile_id=None,
+                 fuel=[], fitting=Fitting()):
         super(Structure, self).__init__()
         self.structure_id = structure_id
         self.corporation_id = corporation_id
         self.type_id = type_id
         self.type = Type.from_id(type_id)
-        self.type_name = type_name
+        self.type_name = type_name or self.type.name
         self.system_id = system_id
+        if self.system_id:
+            self.system = System.from_id(self.system_id)
+            self.system_name = self.system.name
+            self.constellation_name = self.system.constellation.name
+            self.region_name = self.system.constellation.region.name
         self.fuel = fuel
         self.fuel_expires = getattr(fuel_expires, 'v', None)
         self.accessible = accessible
@@ -29,11 +37,13 @@ class Structure(object):
         self.state = state
         self.state_timer_end = getattr(state_timer_end, 'v', None)
         self.detonation = getattr(detonation, 'v', None)
+        self.unanchors_at = getattr(unanchors_at, 'v', None)
+        self.profile_id = profile_id
         self.fitting = fitting
         self._fuel_rate = 0
         # Grab structure name
         endpoint = 'get_universe_structures_structure_id'
-        structure_request = esi.op[endpoint](structure_id=structure_id)
+        structure_request = esi_auth.op[endpoint](structure_id=structure_id, datasource=esi_datasource)
         structure_response = esi_client.request(structure_request)
         if structure_response.status == 200:
             structure_info = structure_response.data
@@ -52,6 +62,10 @@ class Structure(object):
                     self.online_services.append(service.get('name'))
                 if service['state'] == 'offline':
                     self.offline_services.append(service.get('name'))
+
+    @property
+    def packaged_volume(self):
+        return self.type.packaged_volume + self.fitting.packaged_volume
 
     @property
     def fuel_rate(self):
@@ -113,6 +127,8 @@ class Structure(object):
     def needs_fuel(self):
         now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
         if self.fuel_expires and (self.fuel_expires - now < CONFIG['TOO_SOON']):
+            if self.unanchoring and self.unanchors_at < self.fuel_expires:
+                return False
             return True
         return False
 
@@ -144,39 +160,52 @@ class Structure(object):
             return False
         return True
 
+    @property
+    def unanchoring(self):
+        if self.unanchors_at:
+            return True
+        return False
+
     @classmethod
     def from_corporation(cls, corporation_name, assets=None):
         structure_list = []
         corporation_id = name_to_id(corporation_name, 'corporation')
-        assets = assets or Asset.from_entity_id(corporation_id, 'corporations')
+
+        try:
+            assets = assets or Asset.from_entity_id(corporation_id, 'corporations')
+        except Exception as e:
+            print('Error reading assets: ' + str(e))
+
         endpoint = 'get_corporations_corporation_id_structures'
-        structures_request = esi.op[endpoint](corporation_id=corporation_id)
+        structures_request = esi_auth.op[endpoint](corporation_id=corporation_id, datasource=esi_datasource)
         structures_response = esi_client.request(structures_request)
         structures = structures_response.data
         endpoint = 'get_corporation_corporation_id_mining_extractions'
-        detonations_request = esi.op[endpoint](corporation_id=corporation_id)
+        detonations_request = esi_auth.op[endpoint](corporation_id=corporation_id, datasource=esi_datasource)
         detonations_response = esi_client.request(detonations_request)
+        if detonations_response.status != 200:
+            raise HTTPError(detonations_response.raw)
         detonations = detonations_response.data
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
         structure_keys = ['structure_id', 'corporation_id', 'system_id', 'type_id',
-                          'services', 'fuel_expires', 'state', 'state_timer_end']
+                          'services', 'fuel_expires', 'state', 'state_timer_end',
+                          'unanchors_at', 'profile_id']
         for s in structures:
             sid = s['structure_id']
             kwargs = {k: v for k, v in s.items() if k in structure_keys}
             kwargs['type_name'] = ids_to_names([s['type_id']])[s['type_id']]
             kwargs['detonation'] = detonations.get(sid)
-            structure_contents = [a for a in assets if a.location_id == sid]
+
+            structure_contents = None
+            if assets:
+                structure_contents = [a for a in assets if a.location_id == sid]
             if structure_contents:
                 kwargs['fitting'] = Fitting.from_assets(structure_contents)
                 kwargs['fuel'] = [a for a in structure_contents if a.location_flag == 'StructureFuel']
+
             structure_list.append(cls(**kwargs))
         return structure_list
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
-
-    def __unicode__(self):
-        return u'{} ({}) - {}'.format(self.name, self.structure_id,
-                                     self.type_name)
-
+        return '{} ({}) - {}'.format(self.name, self.structure_id, self.type_name)

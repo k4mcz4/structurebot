@@ -1,65 +1,86 @@
-Develop: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=develop)](https://travis-ci.org/eve-n0rman/structurebot)
-Master: [![Build Status](https://travis-ci.org/eve-n0rman/structurebot.svg?branch=master)](https://travis-ci.org/eve-n0rman/structurebot)
+# EVE Online Structure Checker
 
+Structure bot will check your EVE Online POS and Citadels for fuel, mining silos, offline services, reinforcement, 
+etc. and push a notification to Slack.
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-Click the button above to deploy to a new Heroku app.  You'll need to configured the 'scheduler' add-on after setup to run 'python structurebot.py' however frequently you'd like it to run.  I suggest daily.
-
-# structurebot
-## EVE Online Structure Checker
-
-structurebot will check your EVE Online POS and Citadels for fuel, mining silos, offline services, reinforcement, etc and push a notification to Slack.
+It uses the ESI proxy from [Neucore](https://github.com/tkhamez/neucore).
 
 ## Configuration
 
-The following config items need to be defined in the environment
+**Prerequisites**
 
-**EVE SSO Config**
-* SSO_APP_ID
-* SSO_APP_KEY
-
-The app ID and key you get from an application you define [here](https://developers.eveonline.com/applications) with the following scopes: 
-
+* Configure Neucore with an EVE Login with the following scopes and roles:
+    ```
     esi-calendar.read_calendar_events.v1
     esi-universe.read_structures.v1
     esi-corporations.read_structures.v1
     esi-assets.read_corporation_assets.v1
     esi-corporations.read_starbases.v1
     esi-industry.read_corporation_mining.v1
+   
+    Station_Manager
+    Director
+    Accountant
+    ```
+* Add a Neucore app with the `app-esi` role and access to the EVE login from step 1.
 
-* SSO_REFRESH_TOKEN
+### Environment Variables
 
-Currently, you need to manually track down a refresh token.  You can do this by walking through the [SSO login process](http://eveonline-third-party-documentation.readthedocs.io/en/latest/sso/authentication.html) with whatever tools you're comfortable with.  I find [Postman](https://www.getpostman.com/) works well for this.
+The following config items need to be defined in the environment:
+
+**Neucore Configuration**
+
+* NEUCORE_HOST  
+  The Neucore domain, e.g. `account.bravecollective.com`.
+* NEUCORE_APP_TOKEN  
+  The base64 encoded "Id:Secret" of the app.
+* NEUCORE_DATASOURCE  
+  The datasource parameter for Neucore ESI requests, e.g. `96061222:structures` (character ID:Login name), see also 
+https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV2.
 
 **Slack Configuration**
 
-* OUTBOUND_WEBHOOK
-
-Your Slack administrator will need to create a [webhook](https://api.slack.com/incoming-webhooks) for you to use to send messages to slack
-
-* SLACK_CHANNEL
-
-The channel or person you'd like Slack messages to go to
+* OUTBOUND_WEBHOOK  
+  Your Slack administrator will need to create an [Incoming Webhook for an application](https://api.slack.com/apps)
+  with the bot token scope `chat:write` for you to use to send messages to Slack.
 
 **EVE Configuration**
 
-* TOO_SOON
+* TOO_SOON  
+  How many days in advance you'd like to receive fuel or silo warnings
+* CORPORATION_NAME  
+  The name of the corp which owns the structures
+* STRONT_HOURS  
+  The minimum number of hours worth of stront you'd like your POS to have
+* DETONATION_WARNING  
+  How many days in advance to notify about scheduled detonations
+* JUMPGATE_FUEL_WARN  
+  The minimum amount of liquid ozone in Ansiblex before a notification
 
-How many days in advance you'd like to receive fuel or silo warnings
+## Run
 
-* CORPORATION_NAME
+Runs with Python 3.8 and 3.9
 
-The name of the corp which owns the structures
+### Dev Env
 
-* STRONT_HOURS
+```sh
+# Install Python versions if necessary
+$ sudo add-apt-repository ppa:deadsnakes/ppa
+$ sudo apt-get update
+$ sudo apt-get install python3.8 python3.8-venv python3.9 python3.9-venv
 
-The minimum number of hours worth of stront you'd like your POS to have
+# Init, for 3.8
+$ python3.8 -m venv .venv8
+$ source .venv8/bin/activate
+$ pip install pipenv
+$ pipenv install --dev
+$ deactivate
 
-* DETONATION_WARNING
-
-How many days in advance to notify about scheduled detonations
-
-* JUMPGATE_FUEL_WARNING
-
-The minimum amount of liquid ozone in Ansiblex before a notification
+# Run
+$ source .venv8/bin/activate
+$ source ./.env
+$ pytest
+$ python structurebot.py [-d]
+$ python structure-audit.py [-d] [--csv]
+$ deactivate
+```
