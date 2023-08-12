@@ -21,9 +21,10 @@ parser.add_argument('--suppress-core-state', dest='core_state', action='store_fa
 parser.add_argument('-d', '--debug', action='store_true')
 
 args = parser.parse_args()
+debug = CONFIG['DEBUG'] or args.debug
 
 level = logging.WARNING
-if CONFIG['DEBUG'] or args.debug:
+if debug:
     level = logging.INFO
 logging.basicConfig(level=level)
 pyswagger_logger = logging.getLogger('pyswagger')
@@ -77,7 +78,7 @@ try:
             messages.append(u'\n'.join([u'{}'.format(structure.name)] + message))
     messages += check_pos(corp_name, assets)
 except Exception as e:
-    if CONFIG['DEBUG']:
+    if debug:
         raise
     else:
         messages = [str(e)]
