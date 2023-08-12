@@ -13,8 +13,8 @@ CONFIG = {
     'CORPORATION_NAME': os.getenv('CORPORATION_NAME'),
     'SLACK_CHANNEL': os.getenv('SLACK_CHANNEL', None),
     'IGNORE_POS': os.getenv('IGNORE_POS', False),
-    'STRONT_HOURS': os.getenv('STRONT_HOURS', 12),
+    'STRONT_HOURS': int(os.getenv('STRONT_HOURS', 12)),
     'DEBUG': os.getenv('DEBUG', False),
-    'DETONATION_WARNING': datetime.timedelta(days=os.getenv('DETONATION_WARNING', 1)),
+    'DETONATION_WARNING': datetime.timedelta(days=int(os.getenv('DETONATION_WARNING', 1))),
     'JUMPGATE_FUEL_WARN': int(os.getenv('JUMPGATE_FUEL_WARN', 500000))
 }
