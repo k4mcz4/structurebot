@@ -41,10 +41,8 @@ https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV2.
 **Slack Configuration**
 
 * OUTBOUND_WEBHOOK  
-  Your Slack administrator will need to create a [webhook](https://api.slack.com/incoming-webhooks) for you to use 
-to send messages to slack.
-* SLACK_CHANNEL  
-  The channel or person you'd like Slack messages to go to.
+  Your Slack administrator will need to create an [Incoming Webhook for an application](https://api.slack.com/apps)
+  with the bot token scope `chat:write` for you to use to send messages to Slack.
 
 **EVE Configuration**
 

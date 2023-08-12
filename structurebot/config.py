@@ -11,7 +11,6 @@ CONFIG = {
     'OUTBOUND_WEBHOOK': os.getenv('OUTBOUND_WEBHOOK'),
     'TOO_SOON': datetime.timedelta(days=int(os.getenv('TOO_SOON', 3))),
     'CORPORATION_NAME': os.getenv('CORPORATION_NAME'),
-    'SLACK_CHANNEL': os.getenv('SLACK_CHANNEL', None),
     'IGNORE_POS': os.getenv('IGNORE_POS', False),
     'STRONT_HOURS': int(os.getenv('STRONT_HOURS', 12)),
     'DEBUG': os.getenv('DEBUG', False),

@@ -209,8 +209,6 @@ def notify_slack(messages):
     params = {
         'text': '\n\n'.join(messages)
     }
-    if CONFIG['SLACK_CHANNEL']:
-        params['channel'] = CONFIG['SLACK_CHANNEL']
     results = requests.post(CONFIG['OUTBOUND_WEBHOOK'], json=params)
     results.raise_for_status()
     # print(params)
