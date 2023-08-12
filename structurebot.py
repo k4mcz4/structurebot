@@ -51,7 +51,7 @@ try:
     for structure in structures:
         message = []
         if not structure.accessible:
-            msg = 'Found an inaccesible citadel ({}) in {}'.format(structure.structure_id, structure.system_id)
+            msg = 'Found an inaccessible citadel ({}) in {}'.format(structure.structure_id, structure.system_id)
             messages.append(msg)
             continue
         if args.unscheduled_detonations and structure.needs_detonation:
