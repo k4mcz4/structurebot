@@ -46,16 +46,27 @@ https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV2.
 
 **EVE Configuration**
 
+* CORPORATION_NAME  
+  The name of the corp which owns the structures. Must match the character used in NEUCORE_DATASOURCE.
 * TOO_SOON  
   How many days in advance you'd like to receive fuel or silo warnings
-* CORPORATION_NAME  
-  The name of the corp which owns the structures
 * STRONT_HOURS  
   The minimum number of hours worth of stront you'd like your POS to have
 * DETONATION_WARNING  
   How many days in advance to notify about scheduled detonations
 * JUMPGATE_FUEL_WARN  
   The minimum amount of liquid ozone in Ansiblex before a notification
+* IGNORE_POS  
+  Set to True to ignore POSes. 
+
+**Other Configuration**
+
+* ESI_CACHE  
+  Can be used for EsiPY, e.g. diskcache:/path/to/cache
+* DEBUG
+  Print debug information.
+* USER_AGENT
+  Change the user agent used for ESI requests.
 
 ## Run
 
