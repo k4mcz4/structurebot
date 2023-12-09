@@ -82,7 +82,7 @@ logger = logging.getLogger(__name__)
 
 #esi_pub, esi_auth, esi_datasource, esi_client = setup_esi(CONFIG['NEUCORE_HOST'], CONFIG['NEUCORE_APP_TOKEN'], CONFIG['NEUCORE_DATASOURCE'], CONFIG['USER_AGENT'])
 
-ncr = NCR(app_id="",app_secret="",neucore_prefix=CONFIG['NEUCORE_HOST'],datasource=CONFIG['NEUCORE_DATASOURCE'],useragent=CONFIG['USER_AGENT'])
+ncr = NCR(app_id=CONFIG['NEUCORE_APP_ID'],app_secret=CONFIG['NEUCORE_APP_SECRET'],neucore_prefix=CONFIG['NEUCORE_HOST'],datasource=CONFIG['NEUCORE_DATASOURCE'],useragent=CONFIG['USER_AGENT'])
 
 
 ############

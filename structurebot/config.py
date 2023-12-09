@@ -4,6 +4,8 @@ import datetime
 
 CONFIG = {
     'NEUCORE_HOST': os.getenv('NEUCORE_HOST', ''),
+    'NEUCORE_APP_ID': os.getenv('NEUCORE_APP_ID', ''),
+    'NEUCORE_APP_SECRET': os.getenv('NEUCORE_APP_SECRET', ''),
     'NEUCORE_APP_TOKEN': os.getenv('NEUCORE_APP_TOKEN', ''),
     'NEUCORE_DATASOURCE': os.getenv('NEUCORE_DATASOURCE', ''),
     'USER_AGENT': os.getenv('USER_AGENT', 'https://github.com/eve-n0rman/structurebot'),
