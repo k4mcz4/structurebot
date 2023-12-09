@@ -1,11 +1,12 @@
+# TODO exchange requests
+
 from __future__ import absolute_import
-import json
+#import json
 import logging
 from collections import Counter
 from methodtools import lru_cache
 
-from .util import esi_pub, esi_auth, esi_datasource, esi_client, name_to_id, names_to_ids, HTTPError
-import six
+from .util import ncr, name_to_id, names_to_ids, HTTPError # esi_client, esi_pub, esi_auth, esi_datasource
 
 
 logger = logging.getLogger(__name__)
@@ -87,13 +88,11 @@ class Category(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        op = 'get_universe_categories_category_id'
-        type_request = esi_pub.op[op](category_id=id)
-        type_response = esi_client.request(type_request)
+        type_response, type_response_data = ncr.get_universe_categories_category_id(category_id=id) # esi_client.request(type_request)
         if type_response.status == 200:
-            return cls(**type_response.data)
+            return cls(**type_response_data)
         else:
-            raise HTTPError(type_response.data['error'])
+            raise HTTPError(request=type_response.request,response=type_response)
 
     @classmethod
     def from_ids(cls, ids):
@@ -149,12 +148,11 @@ class Group(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_request = esi_pub.op['get_universe_groups_group_id'](group_id=id)
-        type_response = esi_client.request(type_request)
+        type_response, type_response_data = ncr.get_universe_groups_group_id(group_id=id)
         if type_response.status == 200:
-            return cls(**type_response.data)
+            return cls(**type_response_data)
         else:
-            raise HTTPError(type_response.data['error'])
+            raise HTTPError(request=type_response.request,response=type_response)
 
     @classmethod
     def from_ids(cls, ids):
@@ -216,12 +214,11 @@ class BaseType(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_request = esi_pub.op['get_universe_types_type_id'](type_id=id)
-        type_response = esi_client.request(type_request)
+        type_response,type_response_data = ncr.get_universe_types_type_id(type_id=id)
         if type_response.status == 200:
-            return cls(**type_response.data)
+            return cls(**type_response_data)
         else:
-            raise HTTPError(type_response.data['error'])
+            raise HTTPError(request=type_response.request,response=type_response)
 
     @classmethod
     def from_ids(cls, ids):
@@ -324,36 +321,22 @@ class Asset(BaseType):
         Returns:
             list: Assets owned by id
         """
+        #####
         assets = []
         # assets_request = None
-        params = {'page': 1, 'datasource': esi_datasource}
         if id_type == 'characters':
-            params['character_id'] = id
-            op = 'get_characters_character_id_assets'
+            assets_response,assets_response_data = ncr.get_characters_character_id_assets(id)
         elif id_type == 'corporations':
-            params['corporation_id'] = id
-            op = 'get_corporations_corporation_id_assets'
+            assets_response,assets_response_data = ncr.get_corporations_corporation_id_assets(id)
         else:
             return assets
-        pages_left = params['page']
-        while(pages_left):
-            assets_request = esi_auth.op[op](**params)
-            try:
-                assets_response = esi_client.request(assets_request, raw_body_only=True)
-                assets_api = json.loads(assets_response.raw)
-            except ValueError:
-                # no assets
-                break
-            if assets_response.status != 200:
-                raise HTTPError(assets_response.raw)
-            for asset in assets_api:
-                asset_type = Type.from_id(asset['type_id'])
-                type_dict = asset_type.__dict__
-                asset.update(type_dict)
-                assets.append(cls(**asset))
-            pages = assets_response.header['X-Pages'][0]
-            pages_left = pages - params['page']
-            params['page'] += 1
+        if assets_response.status != 200:
+            raise HTTPError(request=assets_response.request,response=assets_response)
+        for asset in assets_response_data:
+            asset_type = Type.from_id(asset['type_id'])
+            type_dict = asset_type.__dict__
+            asset.update(type_dict)
+            assets.append(cls(**asset))
         return assets
 
     @classmethod
@@ -457,11 +440,11 @@ class Fitting(object):
             other_items = Counter([i.type_id for i in getattr(other, slot)])
             other_items.update(other_item_counts)
             items.subtract(other_items)
-            for item, count in six.iteritems(items):
-                if count < 0:
+            for item in items.keys():
+                if items[item] < 0:
                     return -1
-                if count > 0:
-                    equality += count
+                if items[item] > 0:
+                    equality += items[item]
         return equality
 
     def __eq__(self, other):

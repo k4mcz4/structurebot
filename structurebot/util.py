@@ -5,52 +5,23 @@ import requests
 from requests.exceptions import HTTPError
 # import time
 import logging
-from urllib.parse import urlparse
+#from urllib.parse import urlparse
 # from operator import attrgetter
-from esipy import App, EsiApp, EsiClient, EsiSecurity
-from esipy.cache import DictCache
+#from esipy import App, EsiApp, EsiClient, EsiSecurity
+#from esipy.cache import DictCache
 # from pyswagger.primitives import MimeCodec
 # from pyswagger.primitives.codec import PlainCodec
 
 from .config import *
-import six
+
+
+from .neucore_requester import NCR
 
 logger = logging.getLogger(__name__)
 
 
-def config_esi_cache(cache_url):
-    """Configure ESI cache backend
-
-    Args:
-        cache_url (string): diskcache or redis url
-
-    Returns:
-        cache: esipy.cache
-
-    >>> config_esi_cache('diskcache:/tmp/esipy-diskcache') # doctest: +ELLIPSIS
-    <esipy.cache.FileCache object at 0x...>
-    >>> config_esi_cache('redis://user:password@127.0.0.1:6379/') # doctest: +ELLIPSIS
-    <esipy.cache.RedisCache object at 0x...>
-    """
-    cache = DictCache()
-    if cache_url:
-        cache_url = urlparse(cache_url)
-        if cache_url.scheme == 'diskcache':
-            from esipy.cache import FileCache
-            filename = cache_url.path
-            cache = FileCache(path=filename)
-        elif cache_url.scheme == 'redis':
-            from esipy.cache import RedisCache
-            import redis
-            redis_server = cache_url.hostname
-            redis_port = cache_url.port
-            redis_client = redis.Redis(host=redis_server, port=redis_port)
-            cache = RedisCache(redis_client)
-    return cache
-
-
-def setup_esi(neucore_host, neucore_app_token, neucore_datasource, user_agent, cache=DictCache()):
-    """Set up the ESI client
+#def setup_esi(neucore_host, neucore_app_token, neucore_datasource, user_agent, cache=DictCache()):
+"""Set up the ESI client
 
     Args:
         neucore_host (string): Neucore host
@@ -67,6 +38,7 @@ def setup_esi(neucore_host, neucore_app_token, neucore_datasource, user_agent, c
     (<pyswagger.core.App object ...>, <pyswagger.core.App object ...>, '...', <esipy.client.EsiClient object ...>)
     """
 
+"""
     esi_meta = EsiApp(cache=cache)
     esi_public = esi_meta.get_latest_swagger
 
@@ -105,11 +77,18 @@ def setup_esi(neucore_host, neucore_app_token, neucore_datasource, user_agent, c
     )
 
     return esi_public, esi_authenticated, datasource, client
+"""
 
 
-cache = config_esi_cache(CONFIG['ESI_CACHE'])
-esi_pub, esi_auth, esi_datasource, esi_client = setup_esi(CONFIG['NEUCORE_HOST'], CONFIG['NEUCORE_APP_TOKEN'],
-                                                          CONFIG['NEUCORE_DATASOURCE'], CONFIG['USER_AGENT'], cache)
+#esi_pub, esi_auth, esi_datasource, esi_client = setup_esi(CONFIG['NEUCORE_HOST'], CONFIG['NEUCORE_APP_TOKEN'], CONFIG['NEUCORE_DATASOURCE'], CONFIG['USER_AGENT'])
+
+ncr = NCR(app_id="",app_secret="",neucore_prefix=CONFIG['NEUCORE_HOST'],datasource=CONFIG['NEUCORE_DATASOURCE'],useragent=CONFIG['USER_AGENT'])
+
+
+############
+
+cat_name_id = {} # stores name:id pairs by category to save on requests
+id_namecat = {} # stores (name,category) by ID to save on requests
 
 
 def name_to_id(name, name_type):
@@ -128,10 +107,6 @@ def name_to_id(name, name_type):
     1073945516
     >>> name_to_id('Nonexistent', 'solar_system')
     """
-    try:
-        name_id = names_to_ids([name])
-    except HTTPError:
-        return None
 
     if name_type == 'corporation':
         category = 'corporations'
@@ -143,41 +118,59 @@ def name_to_id(name, name_type):
         category = 'characters'
     else:
         return None
-
     try:
-        return name_id[category][name]
+        return cat_name_id[category][name]
     except KeyError:
+        # data not found in cache
+        pass
+    # try fetch ID
+    try:
+        names_to_ids([name])
+    except HTTPError:
         return None
+    try:
+        return cat_name_id[category][name]
+    except KeyError:
+        # data not found after fetching
+        return None
+    
 
+def names_to_ids(lookup_names):
 
-def names_to_ids(names):
-    """Looks up ids from a list of names and a name type
-
-    Args:
-        names (list of strings): list of names to resolve to ids
-
-    Returns:
-        dict: dict of name to id mappings
-
-    >>> names_to_ids(['n0rman', 'Aunsou'])
-    {'characters': {'n0rman': 1073945516}, 'systems': {'Aunsou': 30003801}}
-    >>> names_to_ids(['this is not a real name n0rman'])
-    {}
     """
+    Resolve a set of names to IDs in the following categories:
+        agents, alliances, characters, constellations, corporations,
+        factions, inventory_types, regions, stations, and systems.
+    Only exact matches will be returned. All names searched for are cached for 12 hours
+    """
+    names = []
     name_id = {}
-    chunk_size = 999
-    for chunk in [names[i:i + chunk_size] for i in range(0, len(names), chunk_size)]:
-        post_universe_ids = esi_pub.op['post_universe_ids'](names=chunk)
-        response = esi_client.request(post_universe_ids)
-        if response.status == 200:
-            for category, category_names in six.iteritems(response.data):
-                name_id[category] = {i.name: i.id for i in category_names}
-        else:
-            raise HTTPError(response.data['error'])
+
+    for n in lookup_names:
+        found = False
+        for c in cat_name_id.keys():
+            if n in cat_name_id[c].keys():
+                found=True
+                name_id[name] = cat_name_id[c][n]
+                break
+        if not found:
+            names.append(n)
+        
+    if len(names)>0:
+        chunk_size = 400 # Max Items is 500
+        for chunk in [names[i:i+ chunk_size] for i in range(0,len(names),chunk_size)]:
+            resp, chunk_data = ncr.post_universe_ids(ids=chunk)
+            if resp.status_code == 200:
+                for category in chunk_data.keys():
+                    if not category in cat_name_id.keys():
+                        cat_name_id[category] = {}
+                    for name in chunk_data[category].keys():
+                        cat_name_id[category][name]=chunk_data[category][name]
+                        id_namecat[chunk_data[category][name]]=(name,category)
+                        name_id[name]=chunk_data[category][name] 
     return name_id
 
-
-def ids_to_names(ids):
+def ids_to_names(lookup_ids):
     """Looks up names from a list of ids
 
     Args:
@@ -193,16 +186,32 @@ def ids_to_names(ids):
     ...
     requests.exceptions.HTTPError: Ensure all IDs are valid before resolving.
     """
+    ids = []
     id_name = {}
-    chunk_size = 999
-    for chunk in [ids[i:i + chunk_size] for i in range(0, len(ids), chunk_size)]:
-        post_universe_names = esi_pub.op['post_universe_names'](ids=chunk)
-        response = esi_client.request(post_universe_names)
-        if response.status == 200:
-            id_name.update({i.id: i.name for i in response.data})
-        elif response.status == 404:
-            raise HTTPError(response.data['error'])
+    for i in lookup_ids :
+        try:
+            id_name[i]=id_namecat[i][0]
+        except KeyError:
+            ids.append(i)
+    if(len(ids)>0):
+        chunk_size = 400 # max is 500
+        for chunk in [ids[i:i + chunk_size] for i in range(0, len(ids), chunk_size)]:
+            resp, chunk_data = ncr.post_universe_names(names=chunk)
+            if resp.status_code == 200:
+                for d in chunk_data:
+                    d_id=d["id"]
+                    d_cat=d["category"]
+                    d_name=d["name"]
+                    id_namecat[d_id]=(d_name,d_cat)
+                    if not d_cat in cat_name_id.keys():
+                        cat_name_id[d_cat]={}
+                    cat_name_id[d_cat][d_name]=d_id
+                    id_name[d_id]=d_name
+    
+            
     return dict(sorted(id_name.items()))
+
+############
 
 
 def notify_slack(messages):
@@ -212,3 +221,6 @@ def notify_slack(messages):
     results = requests.post(CONFIG['OUTBOUND_WEBHOOK'], json=params)
     results.raise_for_status()
     # print(params)
+
+
+

@@ -1,10 +1,11 @@
+
 from __future__ import absolute_import
 import datetime
 import pytz
 import logging
 
 from .config import CONFIG
-from .util import esi_auth, esi_datasource, esi_client, name_to_id, ids_to_names, HTTPError
+from .util import ncr, name_to_id, ids_to_names, HTTPError # esi_auth, esi_datasource, esi_client
 from .assets import Fitting, Asset, Type
 from .universe import System
 
@@ -41,15 +42,12 @@ class Structure(object):
         self.profile_id = profile_id
         self.fitting = fitting
         self._fuel_rate = 0
-        # Grab structure name
-        endpoint = 'get_universe_structures_structure_id'
-        structure_request = esi_auth.op[endpoint](structure_id=structure_id, datasource=esi_datasource)
-        structure_response = esi_client.request(structure_request)
+        structure_response,structure_info = ncr.get_universe_structures_structure_id(structure_id=structure_id)
+
         if structure_response.status == 200:
-            structure_info = structure_response.data
-            self.name = structure_info.get('name')
-            self.system_id = structure_info.get('system_id')
-            self.type_id = structure_info.get('type_id')
+            self.name = structure_info['name']
+            self.system_id = structure_info['system_id']
+            self.type_id = structure_info['type_id']
             self.accessible = True
         elif structure_response.status == 403:
             self.name = "Inaccessible Structure"
@@ -59,9 +57,9 @@ class Structure(object):
         if services:
             for service in services:
                 if service['state'] == 'online':
-                    self.online_services.append(service.get('name'))
+                    self.online_services.append(service['name'])
                 if service['state'] == 'offline':
-                    self.offline_services.append(service.get('name'))
+                    self.offline_services.append(service['name'])
 
     @property
     def packaged_volume(self):
@@ -176,16 +174,23 @@ class Structure(object):
         except Exception as e:
             print('Error reading assets: ' + str(e))
 
-        endpoint = 'get_corporations_corporation_id_structures'
-        structures_request = esi_auth.op[endpoint](corporation_id=corporation_id, datasource=esi_datasource)
-        structures_response = esi_client.request(structures_request)
-        structures = structures_response.data
+        """ Old code:
         endpoint = 'get_corporation_corporation_id_mining_extractions'
         detonations_request = esi_auth.op[endpoint](corporation_id=corporation_id, datasource=esi_datasource)
         detonations_response = esi_client.request(detonations_request)
         if detonations_response.status != 200:
             raise HTTPError(detonations_response.raw)
         detonations = detonations_response.data
+        """
+        structures_response, structures = ncr.get_corporations_corporation_id_structures(corporation_id=corporation_id)
+        detonations_response, detonations = ncr.get_corporation_corporation_id_mining_extractions(corporation_id=corporation_id)
+
+        if detonations_response.status != 200:
+            raise HTTPError(detonations_response.raw)
+        
+
+
+        # New Code End
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
         structure_keys = ['structure_id', 'corporation_id', 'system_id', 'type_id',
@@ -194,6 +199,7 @@ class Structure(object):
         for s in structures:
             sid = s['structure_id']
             kwargs = {k: v for k, v in s.items() if k in structure_keys}
+            # Old Code: kwargs['type_name'] = ids_to_names([s['type_id']])[s['type_id']]
             kwargs['type_name'] = ids_to_names([s['type_id']])[s['type_id']]
             kwargs['detonation'] = detonations.get(sid)
 

@@ -1,7 +1,8 @@
+# TODO exchange requests
 
 from __future__ import absolute_import
 from .config import CONFIG
-from .util import esi_pub, esi_auth, esi_datasource, esi_client, name_to_id, HTTPError
+from .util import ncr,  name_to_id, HTTPError #esi_pub, esi_auth, esi_datasource, esi_client,
 # from .assets import Asset, Type, is_system_id
 from .assets import Asset, is_system_id
 from .pos_resources import pos_fuel
@@ -9,15 +10,15 @@ import sys
 import math
 import datetime
 # from decimal import Decimal
-import six
+#import six
 
 
 def nearest(source, destinations):
     (sx, sy, sz) = (source['x'], source['y'], source['z'])
     nearest = sys.maxsize
     nearest_idx = None
-    for (idx, destination) in six.iteritems(destinations):
-        (dx, dy, dz) = (destination['x'], destination['y'], destination['z'])
+    for idx in destinations.keys():
+        (dx, dy, dz) = (destinations[idx]['x'], destinations[idx]['y'], destinations[idx]['z'])
         distance = math.sqrt(math.pow(sx-dx, 2) +
                              math.pow(sy-dy, 2) +
                              math.pow(sz-dz, 2))
@@ -74,12 +75,10 @@ class Pos(Asset):
             'onlined_since': onlined_since,
             'mods': mods
         }
-        op = 'get_corporations_corporation_id_starbases_starbase_id'
-        pos_request = esi_auth.op[op](corporation_id=corp_id, datasource=esi_datasource,
-                                 starbase_id=starbase_id, system_id=system_id)
-        pos_response = esi_client.request(pos_request)
+
+
+        pos_response, pos = ncr.get_corporations_corporation_id_starbases_starbase_id(corporation_id=corp_id,starbase_id=starbase_id,system_id=system_id)
         if pos_response.status == 200:
-            pos = pos_response.data
             pos_data.update(pos)
             pos_data.update(kwargs)
             return cls(system_id=system_id, **pos_data)
@@ -105,13 +104,13 @@ class Pos(Asset):
             mods = pos_mod_dict.setdefault(nearest(mod.xyz, pos_locations), [])
             mods.append(mod)
         corp_id = name_to_id(corp_name, 'corporation')
-        poses_request = esi_auth.op['get_corporations_corporation_id_starbases'](corporation_id=corp_id,
-                                                                                 datasource=esi_datasource)
-        poses_response = esi_client.request(poses_request)
+        
+        poses_response, poses_response_data = ncr.get_corporations_corporation_id_starbases(corporation_id=corp_id)
         if not poses_response.status == 200:
-            raise HTTPError(poses_response.data['error'])
-        poses = {s.starbase_id: s for s in poses_response.data}
-        for pos_id, pos in six.iteritems(poses):
+            raise HTTPError(request=poses_response.request,response=poses_response)
+        poses = {s.starbase_id: s for s in poses_response_data}
+        for pos_id in poses.keys():
+            pos = poses[pos_id]
             pos.update(pos_assets[pos.starbase_id].__dict__)
             pos['xyz'] = pos_locations[pos.starbase_id]
             pos_object = Pos.from_id(corp_id=corp_id, mods=pos_mod_dict.get(pos_id, []), **pos)
@@ -133,10 +132,9 @@ class Pos(Asset):
             return self._system_name
         except AttributeError:
             self._system_name = None
-            location_name_request = esi_pub.op['get_universe_systems_system_id'](system_id=self.system_id)
-            location_name_response = esi_client.request(location_name_request)
+            location_name_response, location_name_response_data = ncr.get_universe_systems_system_id(system_id=self.system_id)
             if location_name_response.status == 200:
-                self._system_name = location_name_response.data.get('name')
+                self._system_name = location_name_response_data['name']
             return self._system_name
     
     @property
@@ -144,10 +142,9 @@ class Pos(Asset):
         try:
             return self._moon_name
         except AttributeError:
-            moon_name_request = esi_pub.op['get_universe_moons_moon_id'](moon_id=self.moon_id)
-            moon_name_response = esi_client.request(moon_name_request)
+            moon_name_response,moon_name_response_data = ncr.get_universe_moons_moon_id(moon_id=self.moon_id)
             if moon_name_response.status == 200:
-                self._moon_name = moon_name_response.data.get('name')
+                self._moon_name = moon_name_response_data['name']
             return self._moon_name
         
 
@@ -163,10 +160,9 @@ def item_locations(ids):
     location_dict = {}
     chunks = 1000
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
-        op = 'post_corporations_corporation_id_assets_locations'
-        locations_request = esi_auth.op[op](item_ids=items, datasource=esi_datasource,
-                                       corporation_id=CONFIG['CORP_ID'])
-        locations = esi_client.request(locations_request).data
+        
+        location_response,locations = ncr.post_corporations_corporation_id_assets_locations(corporation_id=CONFIG['CORP_ID'],asset_ids=items)
+
         for location in locations:
             i = int(location.get('item_id'))
             location_dict[i] = location.position
@@ -184,8 +180,7 @@ def sov_systems(sov_holder_id):
     """
     sov_systems = []
     if sov_holder_id:
-        map_sov_request = esi_pub.op['get_sovereignty_map']()
-        map_sov = esi_client.request(map_sov_request).data
+        map_sov_response, map_sov = ncr.get_sovereignty_map()
         for system in map_sov:
             try:
                 if system.get('alliance_id', 0) == sov_holder_id:
@@ -208,8 +203,12 @@ def check_pos(corp_name, corp_assets=None):
     pos_list = Pos.from_corp_name(corp_name, corp_assets)
     if not pos_list:
         return messages
-    alliance_id_request = esi_pub.op['get_corporations_corporation_id'](corporation_id=corp_id)
-    alliance_id = esi_client.request(alliance_id_request).data.get('alliance_id', None)
+    alliance_id_response,alliance_id_response_data = ncr.get_corporations_corporation_id(corporation_id=corp_id)
+    if 'alliance_id' in alliance_id_response_data.keys():
+        alliance_id = alliance_id_response_data['alliance_id']
+    else:
+        alliance_id = None
+    
     sovs = sov_systems(alliance_id)
     for pos in pos_list:
         # TODO: All this could be done in the Pos object for easier testing
