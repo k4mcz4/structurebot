@@ -2,14 +2,43 @@ import requests
 
 import logging
 
+nc_cache_get = {} 
+esi_cache_get = {} 
+
+def try_nc_cache_get(neucore_prefix:str, params:dict):
+    key=tuple(params.items())
+    if key in nc_cache_get.keys():
+        return nc_cache_get[key]
+    return None
+
+def store_nc_cache_get(neucore_prefix:str, params:dict,resp):
+    key=tuple(params.items())
+    nc_cache_get[key]=resp
+
+
+def try_esi_cache_get(esiurl:str,params:dict):
+    key=(esiurl,tuple(params.items()))
+    if key in esi_cache_get.keys():
+        return esi_cache_get[key]
+    return None
+
+def store_esi_cache_get(esiurl:str,params:dict,resp):
+    key=(esiurl,tuple(params.items()))
+    esi_cache_get[key]=resp
+
+
+
+
 class NCR:
-    def __init__(self,app_id:str,app_secret:str,datasource:str,neucore_prefix:str,useragent:str=None,esi_prefix:str="https://esi.evetech.net/latest") -> None:
+    def __init__(self,app_id:str,app_secret:str,datasource:str,neucore_prefix:str,useragent:str=None,esi_prefix:str="https://esi.evetech.net/latest",cache_nc=True,cache_esi=True) -> None:
         self.app_id = str(app_id)
         self.app_secret = str(app_secret)
         self.neucore_prefix=neucore_prefix
         self.esi_prefix=esi_prefix
         self.datasource = str(datasource)
         self.useragent = useragent
+        self.cache_nc=cache_nc
+        self.cache_esi=cache_esi
 
 
         self.nc_session = requests.Session()
@@ -42,8 +71,13 @@ class NCR:
                  "datasource":self.datasource})
         if page:
             params['page']=page
-        resp = self.nc_session.get(self.neucore_prefix, params=params)
-
+        
+        resp = try_nc_cache_get(self.neucore_prefix, params=params)
+        if not resp:
+            resp = self.nc_session.get(self.neucore_prefix, params=params)
+            if resp.status_code == 200 and self.cache_nc:
+                # cache resp
+                store_nc_cache_get(self.neucore_prefix, params=params,resp=resp)
         data = resp.json()
 
         if page:
@@ -86,7 +120,13 @@ class NCR:
         params=query.copy()
         if page:
             params['page'] = page
-        resp = self.esi_session.get(self.esi_prefix+endpoint,params=params)
+
+        
+        resp = try_esi_cache_get(self.esi_prefix+endpoint,params=params)
+        if not resp:
+            resp = self.esi_session.get(self.esi_prefix+endpoint,params=params)
+            if resp.status_code == 200 and self.cache_esi:
+                store_esi_cache_get(self.esi_prefix+endpoint,params=params,resp=resp)
 
         data = resp.json()
 
