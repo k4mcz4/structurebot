@@ -1,6 +1,9 @@
 import requests
-
+import base64
+import json
 import logging
+
+logger = logging.getLogger(__name__)
 
 nc_cache_get = {} 
 esi_cache_get = {} 
@@ -30,23 +33,30 @@ def store_esi_cache_get(esiurl:str,params:dict,resp):
 
 
 class NCR:
-    def __init__(self,app_id:str,app_secret:str,datasource:str,neucore_prefix:str,useragent:str=None,esi_prefix:str="https://esi.evetech.net/latest",cache_nc=True,cache_esi=True) -> None:
+    def __init__(self,app_id:str,app_secret:str,datasource_id:str,datasource_name:str,neucore_prefix:str,useragent:str=None,esi_prefix:str="https://esi.evetech.net",esi_version:str="/latest",cache_nc=True,cache_esi=True) -> None:
         self.app_id = str(app_id)
         self.app_secret = str(app_secret)
-        self.neucore_prefix=neucore_prefix
-        self.esi_prefix=esi_prefix
-        self.datasource = str(datasource)
-        self.useragent = useragent
+        self.neucore_prefix=str(neucore_prefix)
+        self.esi_prefix=str(esi_prefix)
+        self.useragent = str(useragent)
         self.cache_nc=cache_nc
         self.cache_esi=cache_esi
-
+        self.esi_version = esi_version
 
         self.nc_session = requests.Session()
         self.esi_session  = requests.Session()
-        self.nc_session.auth = (self.app_id,self.app_secret)
+        #self.nc_session.auth = (self.app_id,self.app_secret)
+        b = base64.b64encode(bytes("{}:{}".format(app_id,app_secret).encode()))
+        auth = "Bearer {}".format(b.decode())
+        #print(type(auth),auth)
+        self.nc_session.headers.update({'Authorization':auth})
+        self.nc_session.headers.update({'Neucore-EveCharacter':str(datasource_id)})
+        if datasource_name: self.nc_session.headers.update({'Neucore-EveLogin':str(datasource_name)})
         if useragent:
-            self.nc_session.headers.update('User-Agent',useragent)
-            self.esi_session.headers.update('User-Agent',useragent)
+            self.nc_session.headers.update({'User-Agent':useragent})
+            self.esi_session.headers.update({'User-Agent':useragent})
+
+        
 
 
         
@@ -67,18 +77,23 @@ class NCR:
         #TODO add caching here
         #TODO add page-handling
         params = query.copy()
-        params.update({"esi-path-query" : endpoint,
-                 "datasource":self.datasource})
+        params.update({'esi-path-query':self.esi_version+endpoint})
+        url = self.neucore_prefix
         if page:
             params['page']=page
         
-        resp = try_nc_cache_get(self.neucore_prefix, params=params)
+        resp = try_nc_cache_get(url, params=params)
         if not resp:
-            resp = self.nc_session.get(self.neucore_prefix, params=params)
+            resp = self.nc_session.get(url, params=params)
             if resp.status_code == 200 and self.cache_nc:
                 # cache resp
-                store_nc_cache_get(self.neucore_prefix, params=params,resp=resp)
-        data = resp.json()
+                store_nc_cache_get(url, params=params,resp=resp)
+        
+        data = None
+
+        if resp.content and not resp.status_code == 404: data= resp.json()
+        else: logger.warning("Neucore Request returned no content: Status: {}, Request: {}".format(resp.status_code,resp.request.url))
+
 
         if page:
             # only requested this page
@@ -124,7 +139,7 @@ class NCR:
         
         resp = try_esi_cache_get(self.esi_prefix+endpoint,params=params)
         if not resp:
-            resp = self.esi_session.get(self.esi_prefix+endpoint,params=params)
+            resp = self.esi_session.get(self.esi_prefix+self.esi_version+endpoint,params=params)
             if resp.status_code == 200 and self.cache_esi:
                 store_esi_cache_get(self.esi_prefix+endpoint,params=params,resp=resp)
 
@@ -167,35 +182,39 @@ class NCR:
         #TODO add caching here
         #TODO add page-handling
         params = query.copy()
-        params = {"esi-path-query" : endpoint,
-                 "datasource":self.datasource}
+        params = {"esi-path-query" : self.esi_version+endpoint}
         if page:
             params['page']=page
         resp = self.nc_session.post(self.neucore_prefix,data=data,params=params)
-        data = resp.json()
+        
 
         if page:
-            # only requested this page
-            return resp, data
+            # only requested this specific page
+            return resp, resp.json()
         
+        # there are multiple pages of data. Get them all.
         if 'X-Pages' in resp.headers.keys():
             page_max = int(resp.headers['X-Pages'])
             page = 1
+            resp_data = resp.json()
             while page <= page_max:
                 page = page+1
                 page_resp, page_data = self.nc_post(endpoint=endpoint,data=data,page=page,query=query)
 
-                if type(data) == dict and type(page_data) == dict:
+                if type(resp_data) == dict and type(page_data) == dict:
                     # update dictionaries
-                    data.update(page_data)
-                elif type(data) == list and type(page_data) == list:
-                    # update dictionaries
-                    data.append(page_data)
+                    resp_data.update(page_data)
+                elif type(resp_data) == list and type(page_data) == list:
+                    # update lists
+                    resp_data.append(page_data)
                 else:
                     # we should only have lists and dicts
                     #TODO Log this!
                     pass
-        return resp , data
+            return resp,resp_data
+        
+        # we have no pages.
+        return resp , resp.json()
     
     def esi_post(self,endpoint:str,data,page=None,query:dict={}):
         """makes a POST request directly to the ESI
@@ -214,13 +233,20 @@ class NCR:
 
         if page:
             params['page']=page
-
-        resp = self.esi_session.post(self.esi_prefix+endpoint,data=data,params=params)
-        data = resp.json()
+        if len(params) == 0:
+            params=None
+        logger.debug('Doing ESI Post with json=%s ',json.dumps(data))
+        
+        resp = self.esi_session.post(self.esi_prefix+self.esi_version+endpoint,data=json.dumps(data),params=params)
+        logger.debug('Response Status Code: %s ',resp.status_code)
+        logger.debug('Response Content: %s ',resp.content)
+        resp_data = resp.json()
+        
+        
 
         if page:
             # only requested this page
-            return resp, data
+            return resp, resp_data
         
         if 'X-Pages' in resp.headers.keys():
             page_max = int(resp.headers['X-Pages'])
@@ -229,17 +255,17 @@ class NCR:
                 page = page+1
                 page_resp, page_data = self.esi_post(endpoint=endpoint,data=data,page=page,query=query)
 
-                if type(data) == dict and type(page_data) == dict:
+                if type(resp_data) == dict and type(page_data) == dict:
                     # update dictionaries
-                    data.update(page_data)
+                    resp_data.update(page_data)
                 elif type(data) == list and type(page_data) == list:
                     # update dictionaries
-                    data.append(page_data)
+                    resp_data.append(page_data)
                 else:
                     # we should only have lists and dicts
                     #TODO Log this!
                     pass
-        return resp , data
+        return resp , resp_data
 
     def get_universe_structures_structure_id(self,structure_id):
         endpoint = "/universe/structures/{structure_id}/".format(structure_id=structure_id)
@@ -296,7 +322,8 @@ class NCR:
     
     def post_universe_ids(self,ids:list):
         endpoint  = "/universe/ids/"
-        response, data = self.esi_post(endpoint=endpoint,data=ids)
+        #note: contrary to my understanding of ESI, data should not be 'names':[items] but rather just [items]
+        response, data = self.esi_post(endpoint=endpoint,data=ids) 
         return response, data
     
     def post_universe_names(self,names:list):
@@ -343,13 +370,18 @@ class NCR:
 
 if __name__ == "__main__":
 
-    app_id = 21
-    app_secret = "af02d4e61ed5421012c6a6a18b0e02b7db4a4354d786d2d095cf167fbb4b53e0"
-    charID = 90645894 # Jack Deloran
+    app_id = "21"
+    app_secret = "148906e7b33c6f5698b50d1f7e1cde9db6da6d20422cb635119c72b9c2957b6d"
+    # charID = 90645894 # Jack Deloran
+    yuref = 91671644 # Yuref
     logging.basicConfig(level=logging.DEBUG)
     
-    connection = NCR(app_id,app_secret,charID,neucore_prefix="https://neucore.tian-space.net/api/app/v2/esi/latest")
-    r,d = connection.get_sovereignty_map()
+    connection = NCR(app_id,app_secret,datasource_id=yuref,datasource_name='temp-structurebot-1',neucore_prefix="https://neucore.tian-space.net/api/app/v2/esi")
+    solar_flare_exp = 98152563
+    r,d = connection.get_corporations_corporation_id_assets(corporation_id=solar_flare_exp)
+    print(r.request.headers)
+    print(r.request.url)
+    #98152563
     print(d)
     print(r.status_code)
     
@@ -357,3 +389,12 @@ if __name__ == "__main__":
     #
     # print(resp.status_code)
     #print(resp.content)
+
+"""curl -X 'GET' \
+  'https://neucore.tian-space.net:/api/app/v2/esi?esi-path-query=%2Flatest%2Fcorporations%2F98152563%2Fassets%2F' \
+   https://neucore.tian-space.net/app/v2/esi?esi-path-query=%2Flatest%2Fcorporations%2F98152563%2Fassets%2F
+  -H 'accept: application/json' \
+  -H 'Neucore-EveCharacter: 91671644' \
+  -H 'Neucore-EveLogin: temp-structurebot-1' \
+  -H 'Authorization: Bearer MjE6MTQ4OTA2ZTdiMzNjNmY1Njk4YjUwZDFmN2UxY2RlOWRiNmRhNmQyMDQyMmNiNjM1MTE5YzcyYjljMjk1N2I2ZA=='
+"""

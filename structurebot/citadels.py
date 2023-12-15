@@ -5,7 +5,7 @@ import pytz
 import logging
 
 from .config import CONFIG
-from .util import ncr, name_to_id, ids_to_names, HTTPError # esi_auth, esi_datasource, esi_client
+from .util import ncr, name_to_id, ids_to_names, HTTPError
 from .assets import Fitting, Asset, Type
 from .universe import System
 

@@ -3,7 +3,7 @@ import unittest
 # import doctest
 import datetime as dt
 import pytz
-from pyswagger.primitives import Datetime
+#from pyswagger.primitives import Datetime
 from structurebot import citadels
 from structurebot import assets
 from structurebot.config import CONFIG
@@ -33,9 +33,12 @@ class TestStructureDogma(unittest.TestCase):
         drill_type = assets.Type.from_name('Standup Moon Drill I')
         research_type = assets.Type.from_name('Standup Research Lab I')
         quantum_core = assets.Type.from_name('Raitaru Upwell Quantum Core')
-        fuel_expires = Datetime()
-        now = dt.datetime.utcnow().replace(tzinfo=pytz.utc)
-        fuel_expires.apply_with(None, now + dt.timedelta(days=3), None)
+        # Old Begin
+        #fuel_expires = Datetime()
+        #now = dt.datetime.utcnow().replace(tzinfo=pytz.utc)
+        #fuel_expires.apply_with(None, now + dt.timedelta(days=3), None)
+        # Old End
+        fuel_expires = dt.datetime.utcnow().replace(tzinfo=pytz.utc) + dt.timedelta(days=3) # New
         raitaru_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
                                                       research_type],
                                          QuantumCoreRoom=[quantum_core])
@@ -47,8 +50,11 @@ class TestStructureDogma(unittest.TestCase):
                                          fuel_expires=fuel_expires)
         cls.unfit_raitaru = citadels.Structure(2, type_id=raitaru_type.type_id,
                                                type_name=raitaru_type.name)
-        unanchors_at = Datetime()
-        unanchors_at.apply_with(None, now + dt.timedelta(days=2), None)
+        # Old Begin
+        #unanchors_at = Datetime()
+        #unanchors_at.apply_with(None, now + dt.timedelta(days=2), None)
+        # Old End
+        unanchors_at = dt.datetime.utcnow().replace(tzinfo=pytz.utc) + dt.timedelta(days=2) # New
         cls.unanchoring_raitaru = citadels.Structure(2, type_id=raitaru_type.type_id,
                                                      type_name=raitaru_type.name,
                                                      fitting=uncored_fitting,
@@ -61,10 +67,10 @@ class TestStructureDogma(unittest.TestCase):
                                                  fitting=raitaru_no_core_fitting)
         cls.ansiblex = citadels.Structure(3, type_id=ansiblex_type.type_id,
                                           type_name=ansiblex_type.name)
-        detonates_at = Datetime()
-        detonates_at.apply_with(None, now + dt.timedelta(hours=12), None)
-        long_detonates_at = Datetime()
-        long_detonates_at.apply_with(None, now + dt.timedelta(days=21), None)
+        detonates_at = dt.datetime.now(tz=pytz.utc)
+        detonates_at =detonates_at  + dt.timedelta(hours=12)
+        long_detonates_at = dt.datetime.now(tz=pytz.utc)
+        long_detonates_at = long_detonates_at+ dt.timedelta(days=21)
         athanor_fitting = assets.Fitting(ServiceSlot=[drill_type])
         drill_service = {'name': 'Moon Drilling', 'state': 'online'}
         cls.detonating_athanor = citadels.Structure(3, type_id=athanor_type.type_id,

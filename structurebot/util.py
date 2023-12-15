@@ -84,10 +84,33 @@ logger = logging.getLogger(__name__)
 
 # TODO Enable cache in production environment or add config variables
 
+
+
+if CONFIG['NEUCORE_APP_ID'] and CONFIG['NEUCORE_APP_SECRET'] and not CONFIG['NEUCORE_APP_SECRET']:
+    # create the Neucore App Token: base64('ID:SECRET')
+    CONFIG['NEUCORE_APP_TOKEN']=base64.b64encode(bytes("{}:{}".format(CONFIG['NEUCORE_APP_ID'],CONFIG['NEUCORE_APP_SECRET']).encode()))
+
+
+if (not CONFIG['NEUCORE_APP_ID'] or not CONFIG['NEUCORE_APP_SECRET']) and CONFIG['NEUCORE_APP_SECRET']:
+    # create the Neucore App Token: base64('ID:SECRET')
+    splits =str(base64.b64decode(CONFIG['NEUCORE_APP_TOKEN']),encoding='utf-8').split(':',1)
+    if len(splits) ==2:
+        CONFIG['NEUCORE_APP_ID'] =splits[0]
+        CONFIG['NEUCORE_APP_SECRET'] =splits[1]
+
+datasource = CONFIG['NEUCORE_DATASOURCE'].split(':',1)
+datasource_id = datasource[0]
+if len(datasource)>1:
+    datasource_name=datasource[1]
+else:
+    datasource_name=None
+
+
 ncr = NCR(app_id=CONFIG['NEUCORE_APP_ID'],
           app_secret=CONFIG['NEUCORE_APP_SECRET'],
           neucore_prefix=CONFIG['NEUCORE_HOST'],
-          datasource=CONFIG['NEUCORE_DATASOURCE'],
+          datasource_id=datasource_id,
+          datasource_name=datasource_name,
           useragent=CONFIG['USER_AGENT'],
           cache_esi=False,
           cache_nc=False)
@@ -143,24 +166,32 @@ def name_to_id(name, name_type):
         return None
     
 
-def names_to_ids(lookup_names):
-
+def names_to_ids(lookup_names:list):
     """
     Resolve a set of names to IDs in the following categories:
         agents, alliances, characters, constellations, corporations,
         factions, inventory_types, regions, stations, and systems.
     Only exact matches will be returned. All names searched for are cached for 12 hours
+    
+    Args:
+        lookup_names (list): a list of the names to look up
+
+    Returns:
+        dict: {'category':{'name':id}}
     """
+
     names = []
-    name_id = {}
+    rval_cat_name_id = {} # {'category':{'name':id}}
 
     for n in lookup_names:
         found = False
         for c in cat_name_id.keys():
             if n in cat_name_id[c].keys():
                 found=True
-                name_id[name] = cat_name_id[c][n]
-                break
+                if c in rval_cat_name_id.keys():
+                    rval_cat_name_id[c][n] = cat_name_id[c][n]
+                else:
+                    rval_cat_name_id[c]={n:cat_name_id[c][n]}
         if not found:
             names.append(n)
         
@@ -169,14 +200,20 @@ def names_to_ids(lookup_names):
         for chunk in [names[i:i+ chunk_size] for i in range(0,len(names),chunk_size)]:
             resp, chunk_data = ncr.post_universe_ids(ids=chunk)
             if resp.status_code == 200:
-                for category in chunk_data.keys():
-                    if not category in cat_name_id.keys():
-                        cat_name_id[category] = {}
-                    for name in chunk_data[category].keys():
-                        cat_name_id[category][name]=chunk_data[category][name]
-                        id_namecat[chunk_data[category][name]]=(name,category)
-                        name_id[name]=chunk_data[category][name] 
-    return name_id
+                for c in chunk_data.keys():
+                    if not c in cat_name_id.keys():
+                        cat_name_id[c] = {}
+                    for entry in chunk_data[c]:
+                        n=entry['name']
+                        id=entry['id']
+                        cat_name_id[c][n]=id
+                        id_namecat[id]=(n,c)
+                        if c in rval_cat_name_id.keys():
+                            rval_cat_name_id[c][n] = cat_name_id[c][n]
+                        else:
+                            rval_cat_name_id[c]={n:cat_name_id[c][n]}
+                        rval_cat_name_id[entry['name']]=entry['id']
+    return rval_cat_name_id
 
 def ids_to_names(lookup_ids):
     """Looks up names from a list of ids

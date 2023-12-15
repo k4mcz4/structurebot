@@ -89,7 +89,7 @@ class Category(object):
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
         type_response, type_response_data = ncr.get_universe_categories_category_id(category_id=id) # esi_client.request(type_request)
-        if type_response.status == 200:
+        if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
             raise HTTPError(request=type_response.request,response=type_response)
@@ -149,7 +149,7 @@ class Group(object):
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
         type_response, type_response_data = ncr.get_universe_groups_group_id(group_id=id)
-        if type_response.status == 200:
+        if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
             raise HTTPError(request=type_response.request,response=type_response)
@@ -215,7 +215,7 @@ class BaseType(object):
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
         type_response,type_response_data = ncr.get_universe_types_type_id(type_id=id)
-        if type_response.status == 200:
+        if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
             raise HTTPError(request=type_response.request,response=type_response)
@@ -330,11 +330,17 @@ class Asset(BaseType):
             assets_response,assets_response_data = ncr.get_corporations_corporation_id_assets(id)
         else:
             return assets
-        if assets_response.status != 200:
+        if assets_response.status_code != 200:
             raise HTTPError(request=assets_response.request,response=assets_response)
+        print(len(assets_response_data),"ars", assets_response_data)
         for asset in assets_response_data:
+            print("Asset: ",asset)
+            print("Asset[type_id]:", asset['type_id'])
             asset_type = Type.from_id(asset['type_id'])
+            print("ast",asset_type)
             type_dict = asset_type.__dict__
+           # print("astdic",type_dict)
+            print("type(asset): ",type(asset))
             asset.update(type_dict)
             assets.append(cls(**asset))
         return assets
