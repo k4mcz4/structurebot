@@ -109,9 +109,7 @@ class Pos(Asset):
         if not poses_response.status_code == 200:
             raise HTTPError(request=poses_response.request,response=poses_response)
         poses = {}
-        print(poses_response_data)
         for s in poses_response_data:
-            print(s)
             if not type(s)==dict:
                 pass
             poses[s.starbase_id]=s

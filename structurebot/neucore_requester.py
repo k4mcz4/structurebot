@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-logger.setLevel(level=logging.DEBUG)
+#logger.setLevel(level=logging.DEBUG)
 
 nc_cache_get = {} 
 esi_cache_get = {} 

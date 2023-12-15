@@ -323,7 +323,6 @@ class Asset(BaseType):
         """
         #####
         assets = []
-        # assets_request = None
         if id_type == 'characters':
             assets_response,assets_response_data = ncr.get_characters_character_id_assets(id)
         elif id_type == 'corporations':
@@ -334,13 +333,8 @@ class Asset(BaseType):
             raise HTTPError(request=assets_response.request,response=assets_response)
         for asset in assets_response_data:
 
-            # Sometimes this is a list of a dict and not a dict. not sure why This fixes it though
-            if type(asset) == list:
-                asset=asset[0]
-                logger.warning("Had to convert list to dict. Need to find the source of this")
             asset_type = Type.from_id(asset['type_id'])
             type_dict = asset_type.__dict__
-           # print("astdic",type_dict)
             asset.update(type_dict)
             assets.append(cls(**asset))
         return assets

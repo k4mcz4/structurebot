@@ -107,10 +107,6 @@ class Structure(object):
         logger.warning(self.fitting.ServiceSlot)
         for service in self.fitting.ServiceSlot:
             logger.warning(service.dogma_attributes)
-            # debugstuff
-            for a in service.dogma_attributes:
-                print(a)
-            #end
             hourly_fuel = [a['value'] for a in service.dogma_attributes
                            if a['attribute_id'] == 2109][0]
             try:
@@ -213,7 +209,6 @@ class Structure(object):
 
 
         # New Code End
-        print(detonations_response.content)
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
         structure_keys = ['structure_id', 'corporation_id', 'system_id', 'type_id',
