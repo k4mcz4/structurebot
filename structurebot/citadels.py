@@ -32,24 +32,40 @@ class Structure(object):
             self.constellation_name = self.system.constellation.name
             self.region_name = self.system.constellation.region.name
         self.fuel = fuel
-        self.fuel_expires = getattr(fuel_expires, 'v', None)
+        self.fuel_expires = None
+        if fuel_expires:
+            # convert to datetime if not already
+            if type(fuel_expires)==str:
+                self.fuel_expires= datetime.datetime.fromisoformat(fuel_expires)
         self.accessible = accessible
         self.name = name
         self.state = state
-        self.state_timer_end = getattr(state_timer_end, 'v', None)
-        self.detonation = getattr(detonation, 'v', None)
-        self.unanchors_at = getattr(unanchors_at, 'v', None)
+        self.state_timer_end = None
+        if state_timer_end:
+            # convert to datetime if not already
+            if type(state_timer_end)==str:
+                self.state_timer_end = datetime.datetime.fromisoformat(state_timer_end)
+        self.detonation = None
+        if detonation:
+            # convert to datetime if not already
+            if type(detonation)==str:
+                self.detonation=datetime.datetime.fromisoformat(detonation)
+        self.unanchors_at = None
+        if unanchors_at:
+            # convert to datetime if not already
+            if type(unanchors_at)==str:
+                self.unanchors_at=datetime.datetime.fromisoformat(unanchors_at)
         self.profile_id = profile_id
         self.fitting = fitting
         self._fuel_rate = 0
         structure_response,structure_info = ncr.get_universe_structures_structure_id(structure_id=structure_id)
 
-        if structure_response.status == 200:
+        if structure_response.status_code== 200:
             self.name = structure_info['name']
             self.system_id = structure_info['system_id']
             self.type_id = structure_info['type_id']
             self.accessible = True
-        elif structure_response.status == 403:
+        elif structure_response.status_code== 403:
             self.name = "Inaccessible Structure"
             self.accessible = False
         self.online_services = []
@@ -88,9 +104,15 @@ class Structure(object):
                 1321: 0.75
             },
         }
+        logger.warning(self.fitting.ServiceSlot)
         for service in self.fitting.ServiceSlot:
-            hourly_fuel = [a.value for a in service.dogma_attributes
-                           if a.attribute_id == 2109][0]
+            logger.warning(service.dogma_attributes)
+            # debugstuff
+            for a in service.dogma_attributes:
+                print(a)
+            #end
+            hourly_fuel = [a['value'] for a in service.dogma_attributes
+                           if a['attribute_id'] == 2109][0]
             try:
                 if service.group_id in fuel_bonus[self.type.group_id]:
                     modifier = fuel_bonus[self.type.group_id][service.group_id]
@@ -110,7 +132,7 @@ class Structure(object):
 
     @property
     def detonates_soon(self):
-        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        now = datetime.datetime.now(datetime.UTC)
         if self.detonation and (self.detonation - now < CONFIG['DETONATION_WARNING']):
             return True
         return False
@@ -123,7 +145,7 @@ class Structure(object):
 
     @property
     def needs_fuel(self):
-        now = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        now = datetime.datetime.now(datetime.UTC)
         if self.fuel_expires and (self.fuel_expires - now < CONFIG['TOO_SOON']):
             if self.unanchoring and self.unanchors_at < self.fuel_expires:
                 return False
@@ -185,12 +207,13 @@ class Structure(object):
         structures_response, structures = ncr.get_corporations_corporation_id_structures(corporation_id=corporation_id)
         detonations_response, detonations = ncr.get_corporation_corporation_id_mining_extractions(corporation_id=corporation_id)
 
-        if detonations_response.status != 200:
+        if detonations_response.status_code!= 200:
             raise HTTPError(detonations_response.raw)
         
 
 
         # New Code End
+        print(detonations_response.content)
         detonations = {d['structure_id']: d['chunk_arrival_time']
                        for d in detonations}
         structure_keys = ['structure_id', 'corporation_id', 'system_id', 'type_id',

@@ -78,7 +78,7 @@ class Pos(Asset):
 
 
         pos_response, pos = ncr.get_corporations_corporation_id_starbases_starbase_id(corporation_id=corp_id,starbase_id=starbase_id,system_id=system_id)
-        if pos_response.status == 200:
+        if pos_response.status_code == 200:
             pos_data.update(pos)
             pos_data.update(kwargs)
             return cls(system_id=system_id, **pos_data)
@@ -106,9 +106,15 @@ class Pos(Asset):
         corp_id = name_to_id(corp_name, 'corporation')
         
         poses_response, poses_response_data = ncr.get_corporations_corporation_id_starbases(corporation_id=corp_id)
-        if not poses_response.status == 200:
+        if not poses_response.status_code == 200:
             raise HTTPError(request=poses_response.request,response=poses_response)
-        poses = {s.starbase_id: s for s in poses_response_data}
+        poses = {}
+        print(poses_response_data)
+        for s in poses_response_data:
+            print(s)
+            if not type(s)==dict:
+                pass
+            poses[s.starbase_id]=s
         for pos_id in poses.keys():
             pos = poses[pos_id]
             pos.update(pos_assets[pos.starbase_id].__dict__)
@@ -133,7 +139,7 @@ class Pos(Asset):
         except AttributeError:
             self._system_name = None
             location_name_response, location_name_response_data = ncr.get_universe_systems_system_id(system_id=self.system_id)
-            if location_name_response.status == 200:
+            if location_name_response.status_code == 200:
                 self._system_name = location_name_response_data['name']
             return self._system_name
     
@@ -143,7 +149,7 @@ class Pos(Asset):
             return self._moon_name
         except AttributeError:
             moon_name_response,moon_name_response_data = ncr.get_universe_moons_moon_id(moon_id=self.moon_id)
-            if moon_name_response.status == 200:
+            if moon_name_response.status_code == 200:
                 self._moon_name = moon_name_response_data['name']
             return self._moon_name
         

@@ -38,7 +38,7 @@ class TestStructureDogma(unittest.TestCase):
         #now = dt.datetime.utcnow().replace(tzinfo=pytz.utc)
         #fuel_expires.apply_with(None, now + dt.timedelta(days=3), None)
         # Old End
-        fuel_expires = dt.datetime.utcnow().replace(tzinfo=pytz.utc) + dt.timedelta(days=3) # New
+        fuel_expires = dt.datetime.now(dt.UTC).replace(tzinfo=pytz.utc) + dt.timedelta(days=3) # New
         raitaru_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
                                                       research_type],
                                          QuantumCoreRoom=[quantum_core])
@@ -47,19 +47,19 @@ class TestStructureDogma(unittest.TestCase):
         cls.raitaru = citadels.Structure(1, type_id=raitaru_type.type_id,
                                          type_name=raitaru_type.name,
                                          fitting=raitaru_fitting,
-                                         fuel_expires=fuel_expires)
+                                         fuel_expires=fuel_expires.isoformat())
         cls.unfit_raitaru = citadels.Structure(2, type_id=raitaru_type.type_id,
                                                type_name=raitaru_type.name)
         # Old Begin
         #unanchors_at = Datetime()
         #unanchors_at.apply_with(None, now + dt.timedelta(days=2), None)
         # Old End
-        unanchors_at = dt.datetime.utcnow().replace(tzinfo=pytz.utc) + dt.timedelta(days=2) # New
+        unanchors_at = dt.datetime.now(dt.UTC) + dt.timedelta(days=2) # New
         cls.unanchoring_raitaru = citadels.Structure(2, type_id=raitaru_type.type_id,
                                                      type_name=raitaru_type.name,
                                                      fitting=uncored_fitting,
                                                      fuel_expires=fuel_expires,
-                                                     unanchors_at=unanchors_at)
+                                                     unanchors_at=unanchors_at.isoformat())
         raitaru_no_core_fitting = assets.Fitting(ServiceSlot=[manufacturing_type,
                                                               research_type])
         cls.no_core_raitaru = citadels.Structure(2, type_id=raitaru_type.type_id,
@@ -67,22 +67,20 @@ class TestStructureDogma(unittest.TestCase):
                                                  fitting=raitaru_no_core_fitting)
         cls.ansiblex = citadels.Structure(3, type_id=ansiblex_type.type_id,
                                           type_name=ansiblex_type.name)
-        detonates_at = dt.datetime.now(tz=pytz.utc)
-        detonates_at =detonates_at  + dt.timedelta(hours=12)
-        long_detonates_at = dt.datetime.now(tz=pytz.utc)
-        long_detonates_at = long_detonates_at+ dt.timedelta(days=21)
+        detonates_at = dt.datetime.now(tz=pytz.utc)+dt.timedelta(hours=12)
+        long_detonates_at = dt.datetime.now(tz=pytz.utc)+dt.timedelta(days=21)
         athanor_fitting = assets.Fitting(ServiceSlot=[drill_type])
         drill_service = {'name': 'Moon Drilling', 'state': 'online'}
         cls.detonating_athanor = citadels.Structure(3, type_id=athanor_type.type_id,
                                                      type_name=athanor_type.name,
                                                      fitting=athanor_fitting,
                                                      services=[drill_service],
-                                                     detonation=detonates_at)
+                                                     detonation=detonates_at.isoformat())
         cls.long_detonating_athanor = citadels.Structure(4, type_id=athanor_type.type_id,
                                                          type_name=athanor_type.name,
                                                          fitting=athanor_fitting,
                                                          services=[drill_service],
-                                                         detonation=long_detonates_at)
+                                                         detonation=long_detonates_at.isoformat())
         cls.unscheduled_athanor = citadels.Structure(5, type_id=athanor_type.type_id,
                                                      type_name=athanor_type.name,
                                                      fitting=athanor_fitting,
@@ -104,6 +102,8 @@ class TestStructureDogma(unittest.TestCase):
         self.assertFalse(self.unanchoring_raitaru.needs_fuel)
 
     def test_unanchoring(self):
+        print(self.unanchoring_raitaru.unanchors_at)
+        print(self.raitaru.unanchors_at)
         self.assertTrue(self.unanchoring_raitaru.unanchoring)
         self.assertFalse(self.raitaru.unanchoring)
 

@@ -332,15 +332,15 @@ class Asset(BaseType):
             return assets
         if assets_response.status_code != 200:
             raise HTTPError(request=assets_response.request,response=assets_response)
-        print(len(assets_response_data),"ars", assets_response_data)
         for asset in assets_response_data:
-            print("Asset: ",asset)
-            print("Asset[type_id]:", asset['type_id'])
+
+            # Sometimes this is a list of a dict and not a dict. not sure why This fixes it though
+            if type(asset) == list:
+                asset=asset[0]
+                logger.warning("Had to convert list to dict. Need to find the source of this")
             asset_type = Type.from_id(asset['type_id'])
-            print("ast",asset_type)
             type_dict = asset_type.__dict__
            # print("astdic",type_dict)
-            print("type(asset): ",type(asset))
             asset.update(type_dict)
             assets.append(cls(**asset))
         return assets

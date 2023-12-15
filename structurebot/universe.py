@@ -39,7 +39,7 @@ class Region(object):
         if not isinstance(id, int):
             raise ValueError('ID must be an integer')
         type_response, type_response_data = ncr.get_universe_regions_region_id(region_id=id) #esi_pub.op[id_op](**id_arg)
-        if type_response.status == 200:
+        if type_response.status_code== 200:
             return cls(**type_response_data)
         else:
             raise HTTPError(request=type_response.request,response=type_response)
@@ -93,7 +93,7 @@ class Constellation(object):
         if not isinstance(id, int):
             raise ValueError('ID must be an integer')
         type_response, type_response_data = ncr.get_universe_constellations_constellation_id(constellation_id=id)
-        if type_response.status == 200:
+        if type_response.status_code== 200:
             return cls(**type_response_data)
         else:
             raise HTTPError(request=type_response.request, response=type_response)
@@ -149,7 +149,7 @@ class System(object):
         if not isinstance(id, int):
             raise ValueError('ID must be an integer')
         type_response, type_response_data = ncr.get_universe_systems_system_id(system_id=id)
-        if type_response.status == 200:
+        if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
             raise HTTPError(request=type_response.request,response=type_response)
