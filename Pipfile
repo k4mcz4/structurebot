@@ -4,20 +4,14 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-flake8 = "*"
-pytest = "*"
-coveralls = "*"
-pytest-cov = "*"
-tox = "*"
-modernize = "*"
+requests = "*"
+pytz = "*"
+methodtools = "*"
 
 [packages]
-redis = "*"
-diskcache = "*"
-esipy = "==1.0.0"
-pyyaml = ">=4.2b1"
-urllib3 = "==1.24.2"
+requests = "*"
+pytz = "*"
 methodtools = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.11"
