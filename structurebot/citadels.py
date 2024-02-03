@@ -62,7 +62,7 @@ class Structure(object):
 
         if structure_response.status_code== 200:
             self.name = structure_info['name']
-            self.system_id = structure_info['system_id']
+            self.system_id = structure_info['solar_system_id']
             self.type_id = structure_info['type_id']
             self.accessible = True
         elif structure_response.status_code== 403:

@@ -2,6 +2,7 @@ import requests
 import base64
 import json
 import logging
+from urllib.parse import urlencode
 
 logger = logging.getLogger(__name__)
 
@@ -78,12 +79,16 @@ class NCR:
 
         #TODO add caching here
         #TODO add page-handling
-        params = query.copy()
-        params.update({'esi-path-query':self.esi_version+endpoint})
+        query_params = query.copy()
         url = self.neucore_prefix
         if page:
-            params['page']=page
+            query_params['page']=page
         
+        if query_params:
+            params = {'esi-path-query':self.esi_version+endpoint+"?"+urlencode(query_params)}
+        else:
+            params = {'esi-path-query':self.esi_version+endpoint}
+            
         resp = None#try_nc_cache_get(url, params=params)
         if not resp:
             resp = self.nc_session.get(url, params=params)
@@ -110,7 +115,7 @@ class NCR:
                     resp_data.update(page_data)
                 elif type(resp_data) == list and type(page_data) == list:
                     # update dictionaries
-                    resp_data.append(page_data)
+                    resp_data += page_data
                 else:
                     # we should only have lists and dicts
                     #TODO Log this!
@@ -161,7 +166,7 @@ class NCR:
                     data.update(page_data)
                 elif type(data) == list and type(page_data) == list:
                     # update dictionaries
-                    data.append(page_data)
+                    resp_data += page_data
                 else:
                     # we should only have lists and dicts
                     #TODO Log this!
@@ -181,11 +186,16 @@ class NCR:
         """
         #TODO add caching here
         #TODO add page-handling
-        params = query.copy()
-        params = {"esi-path-query" : self.esi_version+endpoint}
+        query_params = query.copy()
         if page:
-            params['page']=page
-        resp = self.nc_session.post(self.neucore_prefix,data=data,params=params)
+            query_params['page']=page
+            
+        if query_params:
+            params = {'esi-path-query':self.esi_version+endpoint+"?"+urlencode(query_params)}
+        else:
+            params = {'esi-path-query':self.esi_version+endpoint}
+            
+        resp = self.nc_session.post(self.neucore_prefix,data=json.dumps(data),params=params)
         
         resp_data = resp.json()
         
@@ -207,7 +217,7 @@ class NCR:
                     resp_data.update(page_data)
                 elif type(resp_data) == list and type(page_data) == list:
                     # update lists
-                    resp_data.append(page_data)
+                    resp_data += page_data
                 else:
                     # we should only have lists and dicts
                     #TODO Log this!
@@ -259,7 +269,7 @@ class NCR:
                     resp_data.update(page_data)
                 elif type(data) == list and type(page_data) == list:
                     # update dictionaries
-                    resp_data.append(page_data)
+                    resp_data += page_data
                 else:
                     # we should only have lists and dicts
                     #TODO Log this!
@@ -407,32 +417,19 @@ class NCR:
 
 if __name__ == "__main__":
 
-    app_id = "21"
-    app_secret = "148906e7b33c6f5698b50d1f7e1cde9db6da6d20422cb635119c72b9c2957b6d"
-    # charID = 90645894 # Jack Deloran
-    yuref = 91671644 # Yuref
+    app_id = ""
+    app_secret = ""
+    testing_character_id = 00000000
+    testing_datasource = ""
+    testing_neucore_prefix = ""
     logging.basicConfig(level=logging.DEBUG)
     
-    connection = NCR(app_id,app_secret,datasource_id=yuref,datasource_name='temp-structurebot-1',neucore_prefix="https://neucore.tian-space.net/api/app/v2/esi")
-    solar_flare_exp = 98152563
-    r,d = connection.get_corporations_corporation_id_assets(corporation_id=solar_flare_exp)
+    connection = NCR(app_id,app_secret,datasource_id=testing_character_id,datasource_name=testing_datasource,neucore_prefix=testing_neucore_prefix)
+    testing_corp_id = 00000000
+    r,d = connection.get_corporations_corporation_id_assets(corporation_id=testing_corp_id)
     print(r.request.headers)
     print(r.request.url)
-    #98152563
     print(d)
     print(r.status_code)
     import datetime
     datetime.datetime.fromisoformat("2023-12-24T12:00:00Z")
-    #resp = requests.get("https://neucore.tian-space.net"+"/app/v1/show")
-    #
-    # print(resp.status_code)
-    #print(resp.content)
-
-"""curl -X 'GET' \
-  'https://neucore.tian-space.net:/api/app/v2/esi?esi-path-query=%2Flatest%2Fcorporations%2F98152563%2Fassets%2F' \
-   https://neucore.tian-space.net/app/v2/esi?esi-path-query=%2Flatest%2Fcorporations%2F98152563%2Fassets%2F
-  -H 'accept: application/json' \
-  -H 'Neucore-EveCharacter: 91671644' \
-  -H 'Neucore-EveLogin: temp-structurebot-1' \
-  -H 'Authorization: Bearer MjE6MTQ4OTA2ZTdiMzNjNmY1Njk4YjUwZDFmN2UxY2RlOWRiNmRhNmQyMDQyMmNiNjM1MTE5YzcyYjljMjk1N2I2ZA=='
-"""

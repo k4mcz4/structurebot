@@ -86,12 +86,12 @@ logger = logging.getLogger(__name__)
 
 
 
-if CONFIG['NEUCORE_APP_ID'] and CONFIG['NEUCORE_APP_SECRET'] and not CONFIG['NEUCORE_APP_SECRET']:
+if CONFIG['NEUCORE_APP_ID'] and CONFIG['NEUCORE_APP_SECRET'] and not CONFIG['NEUCORE_APP_TOKEN']:
     # create the Neucore App Token: base64('ID:SECRET')
     CONFIG['NEUCORE_APP_TOKEN']=base64.b64encode(bytes("{}:{}".format(CONFIG['NEUCORE_APP_ID'],CONFIG['NEUCORE_APP_SECRET']).encode()))
 
 
-if (not CONFIG['NEUCORE_APP_ID'] or not CONFIG['NEUCORE_APP_SECRET']) and CONFIG['NEUCORE_APP_SECRET']:
+elif CONFIG['NEUCORE_APP_TOKEN']:
     # create the Neucore App Token: base64('ID:SECRET')
     splits =str(base64.b64decode(CONFIG['NEUCORE_APP_TOKEN']),encoding='utf-8').split(':',1)
     if len(splits) ==2:

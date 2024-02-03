@@ -57,7 +57,7 @@ class Pos(Asset):
         self.attack_security_status_threshold = attack_security_status_threshold
         self.attack_if_other_security_status_dropping = attack_if_other_security_status_dropping
         self.attack_if_at_war = attack_if_at_war
-        self.fuels = [Asset.from_id(t.type_id, quantity=t.quantity)
+        self.fuels = [Asset.from_id(t.get('type_id'), quantity=t.get('quantity'))
                       for t in fuels]
         self.mods = mods
 
@@ -112,11 +112,11 @@ class Pos(Asset):
         for s in poses_response_data:
             if not type(s)==dict:
                 pass
-            poses[s.starbase_id]=s
+            poses[s.get('starbase_id')]=s
         for pos_id in poses.keys():
             pos = poses[pos_id]
-            pos.update(pos_assets[pos.starbase_id].__dict__)
-            pos['xyz'] = pos_locations[pos.starbase_id]
+            pos.update(pos_assets[pos.get('starbase_id')].__dict__)
+            pos['xyz'] = pos_locations[pos.get('starbase_id')]
             pos_object = Pos.from_id(corp_id=corp_id, mods=pos_mod_dict.get(pos_id, []), **pos)
             pos_list.append(pos_object)
         return pos_list
@@ -163,13 +163,14 @@ def item_locations(ids):
     """
     location_dict = {}
     chunks = 1000
+    ids = list(set(ids))
     for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
         
         location_response,locations = ncr.post_corporations_corporation_id_assets_locations(corporation_id=CONFIG['CORP_ID'],asset_ids=items)
 
         for location in locations:
             i = int(location.get('item_id'))
-            location_dict[i] = location.position
+            location_dict[i] = location.get('position')
     return location_dict
 
 
