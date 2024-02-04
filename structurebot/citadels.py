@@ -104,9 +104,7 @@ class Structure(object):
                 1321: 0.75
             },
         }
-        logger.warning(self.fitting.ServiceSlot)
         for service in self.fitting.ServiceSlot:
-            logger.warning(service.dogma_attributes)
             hourly_fuel = [a['value'] for a in service.dogma_attributes
                            if a['attribute_id'] == 2109][0]
             try:
