@@ -1,7 +1,7 @@
 # EVE Online Structure Checker
 
-Structure bot will check your EVE Online POS and Citadels for fuel, mining silos, offline services, reinforcement, 
-etc. and push a notification to Slack.
+Structure bot will check your EVE Online POS and Citadels for fuel, mining silos, offline services, 
+reinforcement, etc. and push a notification to Slack.
 
 It uses the ESI proxy from [Neucore](https://github.com/tkhamez/neucore).
 
@@ -32,17 +32,20 @@ The following config items need to be defined in the environment:
 
 * NEUCORE_HOST  
   The Neucore domain, e.g. `account.bravecollective.com`.
-* NEUCORE_APP_TOKEN  
-  The base64 encoded "Id:Secret" of the app.
+* NEUCORE_APP_ID  
+  The ID of the app.
+* NEUCORE_APP_SECRET  
+  The secret of the app.
 * NEUCORE_DATASOURCE  
-  The datasource parameter for Neucore ESI requests, e.g. `96061222:structures` (character ID:Login name), see also 
-https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV2.
+  The datasource parameter for Neucore ESI requests, e.g. `96061222:structures` (character ID:Login name), 
+  see also https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV2.
 
 **Slack Configuration**
 
 * OUTBOUND_WEBHOOK  
-  Your Slack administrator will need to create an [Incoming Webhook for an application](https://api.slack.com/apps)
-  with the bot token scope `chat:write` for you to use to send messages to Slack.
+  Your Slack administrator will need to create an
+  [Incoming Webhook for an application](https://api.slack.com/apps) with the bot token scope 
+  `chat:write` for you to use to send messages to Slack.
 
 **EVE Configuration**
 
@@ -61,8 +64,6 @@ https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV2.
 
 **Other Configuration**
 
-* ESI_CACHE  
-  Can be used for EsiPY, e.g. diskcache:/path/to/cache
 * DEBUG
   Print debug information.
 * USER_AGENT
@@ -70,7 +71,7 @@ https://account.bravecollective.com/api.html#/Application%20-%20ESI/esiV2.
 
 ## Run
 
-Runs with Python 3.8 and 3.9
+Runs with Python 3.12
 
 ### Dev Env
 
@@ -78,17 +79,17 @@ Runs with Python 3.8 and 3.9
 # Install Python versions if necessary
 $ sudo add-apt-repository ppa:deadsnakes/ppa
 $ sudo apt-get update
-$ sudo apt-get install python3.8 python3.8-venv python3.9 python3.9-venv
+$ sudo apt-get install python3.12 python3.12-venv
 
-# Init, for 3.8
-$ python3.8 -m venv .venv8
-$ source .venv8/bin/activate
+# Init
+$ python3.12 -m venv .venv12
+$ source .venv12/bin/activate
 $ pip install pipenv
-$ pipenv install --dev
+$ pipenv install
 $ deactivate
 
 # Run
-$ source .venv8/bin/activate
+$ source .venv12/bin/activate
 $ source ./.env
 $ pytest
 $ python structurebot.py [-d]

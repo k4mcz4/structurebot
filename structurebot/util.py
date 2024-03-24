@@ -1,110 +1,22 @@
 from __future__ import absolute_import
 from __future__ import print_function
-import json
+
+import logging
+
 import requests
 from requests.exceptions import HTTPError
-# import time
-import logging
-#from urllib.parse import urlparse
-# from operator import attrgetter
-#from esipy import App, EsiApp, EsiClient, EsiSecurity
-#from esipy.cache import DictCache
-# from pyswagger.primitives import MimeCodec
-# from pyswagger.primitives.codec import PlainCodec
 
 from .config import *
-
-
 from .neucore_requester import NCR
 
 logger = logging.getLogger(__name__)
 
-
-#def setup_esi(neucore_host, neucore_app_token, neucore_datasource, user_agent, cache=DictCache()):
-"""Set up the ESI client
-
-    Args:
-        neucore_host (string): Neucore host
-        neucore_app_token (string): Neucore app auth token
-        neucore_datasource (string): Data source parameter for Neucore ESI requests
-        user_agent (string): The HTTP user agent
-        cache (False, optional): esipy.cache instance
-
-    Returns:
-        tuple: esi app definition, esi client
-
-    >>> setup_esi(CONFIG['NEUCORE_HOST'], CONFIG['NEUCORE_APP_TOKEN'], CONFIG['NEUCORE_DATASOURCE'],
-    ...           CONFIG['USER_AGENT'], cache) # doctest: +ELLIPSIS
-    (<pyswagger.core.App object ...>, <pyswagger.core.App object ...>, '...', <esipy.client.EsiClient object ...>)
-    """
-
-"""
-    esi_meta = EsiApp(cache=cache)
-    esi_public = esi_meta.get_latest_swagger
-
-    # Get, adjust and write OpenAPI definition file for the Neucore ESI proxy
-    core_swagger_file = os.path.dirname(os.path.abspath(__file__)) + '/latest_swagger_core.json'
-    swagger = requests.get('https://esi.evetech.net/latest/swagger.json')
-    swagger_data = swagger.json()
-    swagger_data['basePath'] = '/api/app/v2/esi/latest'
-    swagger_data['host'] = neucore_host
-    del swagger_data['parameters']['datasource']['enum']
-    with open(core_swagger_file, 'w') as f:
-        json.dump(swagger_data, f)
-    esi_authenticated = App.create(core_swagger_file)
-    datasource = neucore_datasource
-
-    esi_security = EsiSecurity(
-        redirect_uri='http://localhost',
-        client_id="",
-        secret_key="",
-        headers={'User-Agent': user_agent}
-    )
-
-    # Add Neucore token that expires far in the future
-    esi_security.update_token({
-        'access_token': neucore_app_token,
-        'expires_in': 9000,  # 150 minutes
-        'refresh_token': ''
-    })
-
-    client = EsiClient(
-        retry_requests=True,
-        headers={'User-Agent': user_agent},
-        raw_body_only=False,
-        security=esi_security,
-        cache=cache
-    )
-
-    return esi_public, esi_authenticated, datasource, client
-"""
-
-
-#esi_pub, esi_auth, esi_datasource, esi_client = setup_esi(CONFIG['NEUCORE_HOST'], CONFIG['NEUCORE_APP_TOKEN'], CONFIG['NEUCORE_DATASOURCE'], CONFIG['USER_AGENT'])
-
-# TODO Enable cache in production environment or add config variables
-
-
-
-if CONFIG['NEUCORE_APP_ID'] and CONFIG['NEUCORE_APP_SECRET'] and not CONFIG['NEUCORE_APP_TOKEN']:
-    # create the Neucore App Token: base64('ID:SECRET')
-    CONFIG['NEUCORE_APP_TOKEN']=base64.b64encode(bytes("{}:{}".format(CONFIG['NEUCORE_APP_ID'],CONFIG['NEUCORE_APP_SECRET']).encode()))
-
-
-elif CONFIG['NEUCORE_APP_TOKEN']:
-    # create the Neucore App Token: base64('ID:SECRET')
-    splits =str(base64.b64decode(CONFIG['NEUCORE_APP_TOKEN']),encoding='utf-8').split(':',1)
-    if len(splits) ==2:
-        CONFIG['NEUCORE_APP_ID'] =splits[0]
-        CONFIG['NEUCORE_APP_SECRET'] =splits[1]
-
-datasource = CONFIG['NEUCORE_DATASOURCE'].split(':',1)
+datasource = CONFIG['NEUCORE_DATASOURCE'].split(':', 1)
 datasource_id = datasource[0]
-if len(datasource)>1:
-    datasource_name=datasource[1]
+if len(datasource) > 1:
+    datasource_name = datasource[1]
 else:
-    datasource_name=None
-
+    datasource_name = None
 
 ncr = NCR(app_id=CONFIG['NEUCORE_APP_ID'],
           app_secret=CONFIG['NEUCORE_APP_SECRET'],
@@ -115,11 +27,10 @@ ncr = NCR(app_id=CONFIG['NEUCORE_APP_ID'],
           cache_esi=False,
           cache_nc=False)
 
-
 ############
 
-cat_name_id = {} # stores name:id pairs by category to save on requests
-id_namecat = {} # stores (name,category) by ID to save on requests
+cat_name_id = {}  # stores name:id pairs by category to save on requests
+id_name_cat = {}  # stores (name,category) by ID to save on requests
 
 
 def name_to_id(name, name_type):
@@ -164,9 +75,9 @@ def name_to_id(name, name_type):
     except KeyError:
         # data not found after fetching
         return None
-    
 
-def names_to_ids(lookup_names:list):
+
+def names_to_ids(lookup_names: list):
     """
     Resolve a set of names to IDs in the following categories:
         agents, alliances, characters, constellations, corporations,
@@ -181,45 +92,46 @@ def names_to_ids(lookup_names:list):
     """
 
     names = []
-    rval_cat_name_id = {} # {'category':{'name':id}}
+    r_val_cat_name_id = {}  # {'category':{'name':id}}
 
     for n in lookup_names:
         found = False
         for c in cat_name_id.keys():
             if n in cat_name_id[c].keys():
-                found=True
-                if c in rval_cat_name_id.keys():
-                    rval_cat_name_id[c][n] = cat_name_id[c][n]
+                found = True
+                if c in r_val_cat_name_id.keys():
+                    r_val_cat_name_id[c][n] = cat_name_id[c][n]
                 else:
-                    rval_cat_name_id[c]={n:cat_name_id[c][n]}
+                    r_val_cat_name_id[c] = {n: cat_name_id[c][n]}
         if not found:
             names.append(n)
-        
-    if len(names)>0:
-        chunk_size = 400 # Max Items is 500
-        for chunk in [names[i:i+ chunk_size] for i in range(0,len(names),chunk_size)]:
+
+    if len(names) > 0:
+        chunk_size = 400  # Max Items is 500
+        for chunk in [names[i:i + chunk_size] for i in range(0, len(names), chunk_size)]:
             resp, chunk_data = ncr.post_universe_ids(ids=chunk)
             if resp.status_code == 200:
                 for c in chunk_data.keys():
-                    if not c in cat_name_id.keys():
+                    if c not in cat_name_id.keys():
                         cat_name_id[c] = {}
                     for entry in chunk_data[c]:
-                        n=entry['name']
-                        id=entry['id']
-                        cat_name_id[c][n]=id
-                        id_namecat[id]=(n,c)
-                        if c in rval_cat_name_id.keys():
-                            rval_cat_name_id[c][n] = cat_name_id[c][n]
+                        n = entry['name']
+                        entry_id = entry['id']
+                        cat_name_id[c][n] = entry_id
+                        id_name_cat[entry_id] = (n, c)
+                        if c in r_val_cat_name_id.keys():
+                            r_val_cat_name_id[c][n] = cat_name_id[c][n]
                         else:
-                            rval_cat_name_id[c]={n:cat_name_id[c][n]}
-                        rval_cat_name_id[entry['name']]=entry['id']
-    return rval_cat_name_id
+                            r_val_cat_name_id[c] = {n: cat_name_id[c][n]}
+                        r_val_cat_name_id[entry['name']] = entry['id']
+    return r_val_cat_name_id
+
 
 def ids_to_names(lookup_ids):
     """Looks up names from a list of ids
 
     Args:
-        ids (list of integers): list of ids to resolve to names
+        lookup_ids (list of integers): list of ids to resolve to names
 
     Returns:
         dict: dict of id to name mappings
@@ -233,28 +145,28 @@ def ids_to_names(lookup_ids):
     """
     ids = []
     id_name = {}
-    for i in lookup_ids :
+    for i in lookup_ids:
         try:
-            id_name[i]=id_namecat[i][0]
+            id_name[i] = id_name_cat[i][0]
         except KeyError:
             ids.append(i)
-    if(len(ids)>0):
-        chunk_size = 400 # max is 500
+    if len(ids) > 0:
+        chunk_size = 400  # max is 500
         for chunk in [ids[i:i + chunk_size] for i in range(0, len(ids), chunk_size)]:
             resp, chunk_data = ncr.post_universe_names(names=chunk)
             if resp.status_code == 200:
                 for d in chunk_data:
-                    d_id=d["id"]
-                    d_cat=d["category"]
-                    d_name=d["name"]
-                    id_namecat[d_id]=(d_name,d_cat)
-                    if not d_cat in cat_name_id.keys():
-                        cat_name_id[d_cat]={}
-                    cat_name_id[d_cat][d_name]=d_id
-                    id_name[d_id]=d_name
-    
-            
+                    d_id = d["id"]
+                    d_cat = d["category"]
+                    d_name = d["name"]
+                    id_name_cat[d_id] = (d_name, d_cat)
+                    if d_cat not in cat_name_id.keys():
+                        cat_name_id[d_cat] = {}
+                    cat_name_id[d_cat][d_name] = d_id
+                    id_name[d_id] = d_name
+
     return dict(sorted(id_name.items()))
+
 
 ############
 
@@ -266,6 +178,3 @@ def notify_slack(messages):
     results = requests.post(CONFIG['OUTBOUND_WEBHOOK'], json=params)
     results.raise_for_status()
     # print(params)
-
-
-

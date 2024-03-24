@@ -1,14 +1,12 @@
-
 from __future__ import absolute_import
+
 import datetime
-import pytz
 import logging
 
-from .config import CONFIG
-from .util import ncr, name_to_id, ids_to_names, HTTPError
 from .assets import Fitting, Asset, Type
+from .config import CONFIG
 from .universe import System
-
+from .util import ncr, name_to_id, ids_to_names, HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -35,37 +33,37 @@ class Structure(object):
         self.fuel_expires = None
         if fuel_expires:
             # convert to datetime if not already
-            if type(fuel_expires)==str:
-                self.fuel_expires= datetime.datetime.fromisoformat(fuel_expires)
+            if type(fuel_expires) == str:
+                self.fuel_expires = datetime.datetime.fromisoformat(fuel_expires)
         self.accessible = accessible
         self.name = name
         self.state = state
         self.state_timer_end = None
         if state_timer_end:
             # convert to datetime if not already
-            if type(state_timer_end)==str:
+            if type(state_timer_end) == str:
                 self.state_timer_end = datetime.datetime.fromisoformat(state_timer_end)
         self.detonation = None
         if detonation:
             # convert to datetime if not already
-            if type(detonation)==str:
-                self.detonation=datetime.datetime.fromisoformat(detonation)
+            if type(detonation) == str:
+                self.detonation = datetime.datetime.fromisoformat(detonation)
         self.unanchors_at = None
         if unanchors_at:
             # convert to datetime if not already
-            if type(unanchors_at)==str:
-                self.unanchors_at=datetime.datetime.fromisoformat(unanchors_at)
+            if type(unanchors_at) == str:
+                self.unanchors_at = datetime.datetime.fromisoformat(unanchors_at)
         self.profile_id = profile_id
         self.fitting = fitting
         self._fuel_rate = 0
-        structure_response,structure_info = ncr.get_universe_structures_structure_id(structure_id=structure_id)
+        structure_response, structure_info = ncr.get_universe_structures_structure_id(structure_id=structure_id)
 
-        if structure_response.status_code== 200:
+        if structure_response.status_code == 200:
             self.name = structure_info['name']
             self.system_id = structure_info['solar_system_id']
             self.type_id = structure_info['type_id']
             self.accessible = True
-        elif structure_response.status_code== 403:
+        elif structure_response.status_code == 403:
             self.name = "Inaccessible Structure"
             self.accessible = False
         self.online_services = []
@@ -114,7 +112,7 @@ class Structure(object):
                     modifier = 1.0
             except KeyError:
                 modifier = 1.0
-            self._fuel_rate += hourly_fuel*modifier
+            self._fuel_rate += hourly_fuel * modifier
         return self._fuel_rate
 
     @property
@@ -199,12 +197,11 @@ class Structure(object):
         detonations = detonations_response.data
         """
         structures_response, structures = ncr.get_corporations_corporation_id_structures(corporation_id=corporation_id)
-        detonations_response, detonations = ncr.get_corporation_corporation_id_mining_extractions(corporation_id=corporation_id)
+        detonations_response, detonations = ncr.get_corporation_corporation_id_mining_extractions(
+            corporation_id=corporation_id)
 
-        if detonations_response.status_code!= 200:
+        if detonations_response.status_code != 200:
             raise HTTPError(detonations_response.raw)
-        
-
 
         # New Code End
         detonations = {d['structure_id']: d['chunk_arrival_time']

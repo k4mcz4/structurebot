@@ -1,13 +1,13 @@
 # TODO exchange requests
 
 from __future__ import absolute_import
-#import json
+
 import logging
 from collections import Counter
+
 from methodtools import lru_cache
 
-from .util import ncr, name_to_id, names_to_ids, HTTPError # esi_client, esi_pub, esi_auth, esi_datasource
-
+from .util import ncr, name_to_id, names_to_ids, HTTPError  # esi_client, esi_pub, esi_auth, esi_datasource
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +62,7 @@ class Category(object):
         published (boolean): published item
         groups (list): ESI provided list of member group IDs
     """
+
     def __init__(self, category_id, name, published, groups):
         """Create new Category"""
         super(Category, self).__init__()
@@ -88,11 +89,12 @@ class Category(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_response, type_response_data = ncr.get_universe_categories_category_id(category_id=id) # esi_client.request(type_request)
+        type_response, type_response_data = ncr.get_universe_categories_category_id(
+            category_id=id)  # esi_client.request(type_request)
         if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
-            raise HTTPError(request=type_response.request,response=type_response)
+            raise HTTPError(request=type_response.request, response=type_response)
 
     @classmethod
     def from_ids(cls, ids):
@@ -105,8 +107,8 @@ class Category(object):
             list: list of Category's
         """
         types = []
-        for id in ids:
-            types.append(cls.from_id(id))
+        for eve_id in ids:
+            types.append(cls.from_id(eve_id))
         return types
 
 
@@ -120,6 +122,7 @@ class Group(object):
         published (boolean): published item
         category (integer): ESI provided parent category
     """
+
     def __init__(self, group_id, name, published, category_id, types,
                  category=None):
         """Create new Group"""
@@ -152,7 +155,7 @@ class Group(object):
         if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
-            raise HTTPError(request=type_response.request,response=type_response)
+            raise HTTPError(request=type_response.request, response=type_response)
 
     @classmethod
     def from_ids(cls, ids):
@@ -165,13 +168,14 @@ class Group(object):
             list: list of Group's
         """
         types = []
-        for id in ids:
-            types.append(cls.from_id(id))
+        for eve_id in ids:
+            types.append(cls.from_id(eve_id))
         return types
 
 
 class BaseType(object):
     """Base EVE SDE Type"""
+
     def __init__(self, type_id, name, description, published, group_id,
                  group=None, market_group_id=None, radius=None, volume=None,
                  packaged_volume=None, icon_id=None, capacity=None,
@@ -214,11 +218,11 @@ class BaseType(object):
         """
         if not isinstance(id, int):
             raise ValueError('Type ID must be an integer')
-        type_response,type_response_data = ncr.get_universe_types_type_id(type_id=id)
+        type_response, type_response_data = ncr.get_universe_types_type_id(type_id=id)
         if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
-            raise HTTPError(request=type_response.request,response=type_response)
+            raise HTTPError(request=type_response.request, response=type_response)
 
     @classmethod
     def from_ids(cls, ids):
@@ -231,8 +235,8 @@ class BaseType(object):
             list: EVE SDE Types
         """
         types = []
-        for id in ids:
-            types.append(cls.from_id(id))
+        for eve_id in ids:
+            types.append(cls.from_id(eve_id))
         return types
 
     @classmethod
@@ -245,8 +249,8 @@ class BaseType(object):
         Returns:
             Type: Type matching name
         """
-        id = name_to_id(name, 'inventory_type')
-        return cls.from_id(id)
+        eve_id = name_to_id(name, 'inventory_type')
+        return cls.from_id(eve_id)
 
     @classmethod
     def from_names(cls, names):
@@ -270,6 +274,7 @@ class BaseType(object):
 
 class Type(BaseType):
     """EVE SDE Type with bulk constructors"""
+
     @lru_cache(maxsize=5000)
     @classmethod
     def from_id(cls, id):
@@ -324,15 +329,14 @@ class Asset(BaseType):
         #####
         assets = []
         if id_type == 'characters':
-            assets_response,assets_response_data = ncr.get_characters_character_id_assets(id)
+            assets_response, assets_response_data = ncr.get_characters_character_id_assets(id)
         elif id_type == 'corporations':
-            assets_response,assets_response_data = ncr.get_corporations_corporation_id_assets(id)
+            assets_response, assets_response_data = ncr.get_corporations_corporation_id_assets(id)
         else:
             return assets
         if assets_response.status_code != 200:
-            raise HTTPError(request=assets_response.request,response=assets_response)
+            raise HTTPError(request=assets_response.request, response=assets_response)
         for asset in assets_response_data:
-
             asset_type = Type.from_id(asset['type_id'])
             type_dict = asset_type.__dict__
             asset.update(type_dict)
@@ -350,7 +354,7 @@ class Asset(BaseType):
             list: List of Assets
         """
         id_results = names_to_ids([name])
-        id = None
+        eve_id = None
         id_type = None
         if 'characters' in id_results:
             id_type = 'characters'
@@ -358,8 +362,8 @@ class Asset(BaseType):
             id_type = 'corporations'
         else:
             return None
-        id = id_results[id_type][name]
-        return cls.from_entity_id(id, id_type)
+        eve_id = id_results[id_type][name]
+        return cls.from_entity_id(eve_id, id_type)
 
 
 class Fitting(object):
@@ -427,16 +431,16 @@ class Fitting(object):
             NotImplementedError: If other is not a Fitting
 
         Returns:
-            integer: 0 if they're the same, -1 if self is less than than other, positive if self is greater than other
-        """        
+            integer: 0 if they're the same, -1 if self is less than other, positive if self is greater than other
+        """
         if not isinstance(other, Fitting):
             raise NotImplementedError
         equality = 0
         for slot in Fitting.slots:
-            item_counts = {i.type_id: i.quantity-1 for i in getattr(self, slot)}
+            item_counts = {i.type_id: i.quantity - 1 for i in getattr(self, slot)}
             items = Counter([i.type_id for i in getattr(self, slot)])
             items.update(item_counts)
-            other_item_counts = {i.type_id: i.quantity-1 for i in getattr(other, slot)}
+            other_item_counts = {i.type_id: i.quantity - 1 for i in getattr(other, slot)}
             other_items = Counter([i.type_id for i in getattr(other, slot)])
             other_items.update(other_item_counts)
             items.subtract(other_items)
@@ -488,4 +492,3 @@ class Fitting(object):
                 slot_str = ', '.join(sorted(slot_strs))
                 slot_strings.append('{}: {}'.format(slot, slot_str))
         return '\n'.join(sorted(slot_strings))
-

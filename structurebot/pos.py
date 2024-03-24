@@ -1,16 +1,15 @@
 # TODO exchange requests
 
 from __future__ import absolute_import
-from .config import CONFIG
-from .util import ncr,  name_to_id, HTTPError #esi_pub, esi_auth, esi_datasource, esi_client,
-# from .assets import Asset, Type, is_system_id
-from .assets import Asset, is_system_id
-from .pos_resources import pos_fuel
-import sys
-import math
+
 import datetime
-# from decimal import Decimal
-#import six
+import math
+import sys
+
+from .assets import Asset, is_system_id
+from .config import CONFIG
+from .pos_resources import pos_fuel
+from .util import ncr, name_to_id, HTTPError
 
 
 def nearest(source, destinations):
@@ -19,9 +18,9 @@ def nearest(source, destinations):
     nearest_idx = None
     for idx in destinations.keys():
         (dx, dy, dz) = (destinations[idx]['x'], destinations[idx]['y'], destinations[idx]['z'])
-        distance = math.sqrt(math.pow(sx-dx, 2) +
-                             math.pow(sy-dy, 2) +
-                             math.pow(sz-dz, 2))
+        distance = math.sqrt(math.pow(sx - dx, 2) +
+                             math.pow(sy - dy, 2) +
+                             math.pow(sz - dz, 2))
         if distance < nearest:
             nearest = distance
             nearest_idx = idx
@@ -30,12 +29,13 @@ def nearest(source, destinations):
 
 class Pos(Asset):
     """docstring for Pos"""
+
     def __init__(self, system_id, moon_id, state, unanchor_at,
                  reinforced_until, onlined_since, fuel_bay_view, fuel_bay_take,
                  anchor, unanchor, online, offline, allow_corporation_members,
                  allow_alliance_members, use_alliance_standings,
                  attack_if_other_security_status_dropping, attack_if_at_war,
-                 fuels=[], mods=[], attack_security_status_threshold=None, 
+                 fuels=[], mods=[], attack_security_status_threshold=None,
                  attack_standing_threshold=None, *args, **kwargs):
         super(Pos, self).__init__(*args, **kwargs)
         self.system_id = system_id
@@ -76,8 +76,9 @@ class Pos(Asset):
             'mods': mods
         }
 
-
-        pos_response, pos = ncr.get_corporations_corporation_id_starbases_starbase_id(corporation_id=corp_id,starbase_id=starbase_id,system_id=system_id)
+        pos_response, pos = ncr.get_corporations_corporation_id_starbases_starbase_id(corporation_id=corp_id,
+                                                                                      starbase_id=starbase_id,
+                                                                                      system_id=system_id)
         if pos_response.status_code == 200:
             pos_data.update(pos)
             pos_data.update(kwargs)
@@ -104,15 +105,15 @@ class Pos(Asset):
             mods = pos_mod_dict.setdefault(nearest(mod.xyz, pos_locations), [])
             mods.append(mod)
         corp_id = name_to_id(corp_name, 'corporation')
-        
+
         poses_response, poses_response_data = ncr.get_corporations_corporation_id_starbases(corporation_id=corp_id)
         if not poses_response.status_code == 200:
-            raise HTTPError(request=poses_response.request,response=poses_response)
+            raise HTTPError(request=poses_response.request, response=poses_response)
         poses = {}
         for s in poses_response_data:
-            if not type(s)==dict:
+            if not type(s) == dict:
                 pass
-            poses[s.get('starbase_id')]=s
+            poses[s.get('starbase_id')] = s
         for pos_id in poses.keys():
             pos = poses[pos_id]
             pos.update(pos_assets[pos.get('starbase_id')].__dict__)
@@ -136,21 +137,22 @@ class Pos(Asset):
             return self._system_name
         except AttributeError:
             self._system_name = None
-            location_name_response, location_name_response_data = ncr.get_universe_systems_system_id(system_id=self.system_id)
+            location_name_response, location_name_response_data = ncr.get_universe_systems_system_id(
+                system_id=self.system_id)
             if location_name_response.status_code == 200:
                 self._system_name = location_name_response_data['name']
             return self._system_name
-    
+
     @property
     def moon_name(self):
         try:
             return self._moon_name
         except AttributeError:
-            moon_name_response,moon_name_response_data = ncr.get_universe_moons_moon_id(moon_id=self.moon_id)
+            moon_name_response, moon_name_response_data = ncr.get_universe_moons_moon_id(moon_id=self.moon_id)
             if moon_name_response.status_code == 200:
                 self._moon_name = moon_name_response_data['name']
             return self._moon_name
-        
+
 
 def item_locations(ids):
     """Returns dict of location coordinates for a list of item ids
@@ -164,9 +166,10 @@ def item_locations(ids):
     location_dict = {}
     chunks = 1000
     ids = list(set(ids))
-    for items in [ids[i:i+chunks] for i in range(0, len(ids), chunks)]:
-        
-        location_response,locations = ncr.post_corporations_corporation_id_assets_locations(corporation_id=CONFIG['CORP_ID'],asset_ids=items)
+    for items in [ids[i:i + chunks] for i in range(0, len(ids), chunks)]:
+
+        location_response, locations = ncr.post_corporations_corporation_id_assets_locations(
+            corporation_id=CONFIG['CORP_ID'], asset_ids=items)
 
         for location in locations:
             i = int(location.get('item_id'))
@@ -208,25 +211,25 @@ def check_pos(corp_name, corp_assets=None):
     pos_list = Pos.from_corp_name(corp_name, corp_assets)
     if not pos_list:
         return messages
-    alliance_id_response,alliance_id_response_data = ncr.get_corporations_corporation_id(corporation_id=corp_id)
+    alliance_id_response, alliance_id_response_data = ncr.get_corporations_corporation_id(corporation_id=corp_id)
     if 'alliance_id' in alliance_id_response_data.keys():
         alliance_id = alliance_id_response_data['alliance_id']
     else:
         alliance_id = None
-    
+
     sovs = sov_systems(alliance_id)
     for pos in pos_list:
         # TODO: All this could be done in the Pos object for easier testing
         # But POS are going away ;)
         sov = pos.system_id in sovs
-        has_stront = False
+        # has_stront = False
         has_fuel = False
         has_defensive_mods = False
         for fuel in pos.fuels:
             multiplier = .75 if sov else 1.0
             rate = pos_fuel[pos.type_id][fuel.type_id] * multiplier
             if fuel.type_id == 16275:
-                has_stront = True
+                # has_stront = True
                 if pos.state == 'offline':
                     continue
                 reinforce_hours = int(fuel.quantity / rate)
@@ -237,7 +240,7 @@ def check_pos(corp_name, corp_assets=None):
                 has_fuel = True
                 if pos.state == 'offline':
                     continue
-                how_soon = datetime.timedelta(fuel.quantity / (rate*24))
+                how_soon = datetime.timedelta(fuel.quantity / (rate * 24))
                 if how_soon < CONFIG['TOO_SOON']:
                     days = 'day' if how_soon == 1 else 'days'
                     message = '{} has {} {} of fuel'.format(pos.moon_name, how_soon, days)

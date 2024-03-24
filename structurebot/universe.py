@@ -1,14 +1,13 @@
 # TODO exchange requests
 
 from __future__ import absolute_import
+from .util import ncr, name_to_id, HTTPError
 
-from .util import ncr, name_to_id, HTTPError # esi_pub, esi_client
 
-
-class Region(object):    
-    #id_op = 'get_universe_regions_region_id'
-    #id_arg = 'region_id'
-    #name_arg = 'region'
+class Region(object):
+    # id_op = 'get_universe_regions_region_id'
+    # id_arg = 'region_id'
+    # name_arg = 'region'
 
     def __init__(self, region_id, name, **kwargs):
         """EVE Region
@@ -34,15 +33,16 @@ class Region(object):
         Returns:
             cls: child class populated from ESI
         """
-        #id_op = cls.id_op
-        #id_arg = {cls.id_arg: id}
+        # id_op = cls.id_op
+        # id_arg = {cls.id_arg: id}
         if not isinstance(id, int):
             raise ValueError('ID must be an integer')
-        type_response, type_response_data = ncr.get_universe_regions_region_id(region_id=id) #esi_pub.op[id_op](**id_arg)
-        if type_response.status_code== 200:
+        type_response, type_response_data = ncr.get_universe_regions_region_id(
+            region_id=id)  # esi_pub.op[id_op](**id_arg)
+        if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
-            raise HTTPError(request=type_response.request,response=type_response)
+            raise HTTPError(request=type_response.request, response=type_response)
 
     @classmethod
     def from_name(cls, name):
@@ -59,9 +59,9 @@ class Region(object):
 
 
 class Constellation(object):
-    #id_op = 'get_universe_constellations_constellation_id'
-    #id_arg = 'constellation_id'
-    #name_arg = 'constellation'
+    # id_op = 'get_universe_constellations_constellation_id'
+    # id_arg = 'constellation_id'
+    # name_arg = 'constellation'
 
     def __init__(self, constellation_id, region_id, name, **kwargs):
         """EVE Constellation
@@ -93,7 +93,7 @@ class Constellation(object):
         if not isinstance(id, int):
             raise ValueError('ID must be an integer')
         type_response, type_response_data = ncr.get_universe_constellations_constellation_id(constellation_id=id)
-        if type_response.status_code== 200:
+        if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
             raise HTTPError(request=type_response.request, response=type_response)
@@ -113,9 +113,9 @@ class Constellation(object):
 
 
 class System(object):
-    #id_op = 'get_universe_systems_system_id'
-    #id_arg = 'system_id'
-    #name_arg = 'solar_system'
+    # id_op = 'get_universe_systems_system_id'
+    # id_arg = 'system_id'
+    # name_arg = 'solar_system'
 
     def __init__(self, system_id, constellation_id, name, **kwargs):
         """EVE System
@@ -129,8 +129,6 @@ class System(object):
         self.constellation_id = constellation_id
         self.constellation = Constellation.from_id(self.constellation_id)
         self.name = name
-
-
 
     @classmethod
     def from_id(cls, id):
@@ -152,7 +150,7 @@ class System(object):
         if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
-            raise HTTPError(request=type_response.request,response=type_response)
+            raise HTTPError(request=type_response.request, response=type_response)
 
     @classmethod
     def from_name(cls, name):
