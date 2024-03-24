@@ -104,11 +104,13 @@ class TestStructureDogma(unittest.TestCase):
         self.assertFalse(self.long_detonating_athanor.detonates_soon)
 
     def test_inaccessible(self):
-        goonstar = citadels.Structure(1022734985679, type_id=35834)
+        # Note: Goon Keepstar is 1022734985679, but we have access atm.,
+        # idk what 1022734985678 is, but it works for this test
+        goonstar = citadels.Structure(1022734985678, type_id=35834)
         self.assertEqual(goonstar.name, 'Inaccessible Structure')
         self.assertFalse(goonstar.accessible)
 
     def test_accessible(self):
-        bravestar = citadels.Structure(1039149782071, type_id=35834)
-        self.assertEqual(str(bravestar), 'F-NMX6 - Mothership Bellicose (1039149782071) - Keepstar')
+        bravestar = citadels.Structure(1043661023026, type_id=35834)
+        self.assertEqual(str(bravestar), 'K7D-II - Mothership Bellicose (1043661023026) - Keepstar')
         self.assertTrue(bravestar.accessible)
