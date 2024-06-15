@@ -31,7 +31,7 @@ The following config items need to be defined in the environment:
 **Neucore Configuration**
 
 * NEUCORE_HOST  
-  The Neucore domain, e.g. `account.bravecollective.com`.
+  ESI proxy URL from Neucore, e.g. `https://account.bravecollective.com/api/app/v2/esi`.
 * NEUCORE_APP_ID  
   The ID of the app.
 * NEUCORE_APP_SECRET  
