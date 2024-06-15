@@ -1,5 +1,3 @@
-# TODO exchange requests
-
 from __future__ import absolute_import
 
 import logging
@@ -203,11 +201,11 @@ class BaseType(object):
         self.effects = {e['effect_id']: e['is_default'] for e in dogma_effects}
 
     @classmethod
-    def from_id(cls, id):
-        """Return Type from id
+    def from_id(cls, ident):
+        """Return Type from ident
 
         Args:
-            id (int): EVE SDE Type id
+            ident (int): EVE SDE Type id
 
         Returns:
             Type: Type matching id
@@ -216,9 +214,9 @@ class BaseType(object):
             HTTPError: Unexpected ESI error
             ValueError: Not an int
         """
-        if not isinstance(id, int):
+        if not isinstance(ident, int):
             raise ValueError('Type ID must be an integer')
-        type_response, type_response_data = ncr.get_universe_types_type_id(type_id=id)
+        type_response, type_response_data = ncr.get_universe_types_type_id(type_id=ident)
         if type_response.status_code == 200:
             return cls(**type_response_data)
         else:
@@ -277,8 +275,8 @@ class Type(BaseType):
 
     @lru_cache(maxsize=5000)
     @classmethod
-    def from_id(cls, id):
-        return super(Type, cls).from_id(id)
+    def from_id(cls, ident):
+        return super(Type, cls).from_id(ident)
 
     @lru_cache(maxsize=1000)
     @classmethod
@@ -302,8 +300,8 @@ class Asset(BaseType):
         self.xyz = xyz
 
     @classmethod
-    def from_id(cls, id, **kwargs):
-        asset = super(Asset, cls).from_id(id)
+    def from_id(cls, ident, **kwargs):
+        asset = super(Asset, cls).from_id(ident)
         for key, value in kwargs.items():
             setattr(asset, key, value)
         return asset

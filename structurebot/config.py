@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 import os
 import datetime
-import base64
 
 CONFIG = {
     'NEUCORE_HOST': os.getenv('NEUCORE_HOST'),

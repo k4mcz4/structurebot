@@ -295,7 +295,8 @@ class NCR:
 
         return response, data
 
-    def get_corporations_corporation_id_starbases_starbase_id(self, corporation_id, starbase_id, system_id):
+    def get_corporations_corporation_id_starbases_starbase_id(self, corporation_id, starbase_id,
+                                                              system_id):
         endpoint = "/corporations/{corporation_id}/starbases/{starbase_id}/".format(corporation_id=corporation_id,
                                                                                     starbase_id=starbase_id)
         response, data = self.nc_get(endpoint=endpoint, query={'system_id': system_id})
@@ -414,7 +415,7 @@ class NCR:
 if __name__ == "__main__":
     app_id = ""
     app_secret = ""
-    testing_character_id = 00000000
+    testing_character_id = "00000000"
     testing_datasource = ""
     testing_neucore_prefix = ""
     logging.basicConfig(level=logging.DEBUG)
