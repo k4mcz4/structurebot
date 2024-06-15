@@ -163,7 +163,7 @@ class NCR:
                     data.update(page_data)
                 elif type(data) == list and type(page_data) == list:
                     # update dictionaries
-                    resp_data += page_data  # TODO resp_data does not exist here
+                    data += page_data
                 else:
                     # we should only have lists and dicts
                     # TODO Log this!
