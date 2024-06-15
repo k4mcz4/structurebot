@@ -71,9 +71,9 @@ The following config items need to be defined in the environment:
 
 ## Run
 
-Runs with Python 3.12
+Runs with Python 3.12.
 
-### Dev Env
+Tested on Ubuntu 22.04:
 
 ```sh
 # Install Python versions if necessary
