@@ -87,7 +87,7 @@ $ sudo apt-get install python3.12 python3.12-venv
 $ python3.12 -m venv .venv12
 $ source .venv12/bin/activate
 $ pip install pipenv
-$ pipenv install
+$ pipenv install -d
 $ deactivate
 
 # Run
