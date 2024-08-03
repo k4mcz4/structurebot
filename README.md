@@ -49,6 +49,8 @@ The following config items need to be defined in the environment:
 
 **EVE Configuration**
 
+* ESI_HOST  
+  https://esi.evetech.net
 * CORPORATION_NAME  
   The name of the corp which owns the structures. Must match the character used in NEUCORE_DATASOURCE.
 * TOO_SOON  

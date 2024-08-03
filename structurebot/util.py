@@ -24,6 +24,7 @@ ncr = NCR(app_id=CONFIG['NEUCORE_APP_ID'],
           datasource_id=datasource_id,
           datasource_name=datasource_name,
           useragent=CONFIG['USER_AGENT'],
+          esi_prefix=CONFIG['ESI_HOST'],
           cache_esi=False,
           cache_nc=False)
 
