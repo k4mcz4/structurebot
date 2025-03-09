@@ -26,7 +26,7 @@ debug = CONFIG['DEBUG'] or args.debug
 level = logging.WARNING
 if debug:
     level = logging.INFO
-logging.basicConfig(level=level)
+logging.basicConfig(level=level, format="[%(asctime)s] %(levelname)s - %(name)s - %(message)s")
 pyswagger_logger = logging.getLogger('pyswagger')
 pyswagger_logger.setLevel(logging.ERROR)
 
