@@ -22,7 +22,7 @@ if __name__ == '__main__':
     level = logging.WARNING
     if CONFIG['DEBUG'] or args.debug:
         level = logging.INFO
-    logging.basicConfig(level=level)
+    logging.basicConfig(level=level, format="[%(asctime)s] %(levelname)s - %(name)s - %(message)s")
     pyswagger_logger = logging.getLogger('pyswagger')
     pyswagger_logger.setLevel(logging.ERROR)
     structures = Structure.from_corporation(CONFIG['CORPORATION_NAME'])

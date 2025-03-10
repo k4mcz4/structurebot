@@ -51,6 +51,8 @@ def name_to_id(name, name_type):
     >>> name_to_id('Nonexistent', 'solar_system')
     """
 
+    logger.info("Lookup for name {}, type {}".format(name, name_type))
+
     if name_type == 'corporation':
         category = 'corporations'
     elif name_type == 'inventory_type':
@@ -60,21 +62,33 @@ def name_to_id(name, name_type):
     elif name_type == 'character':
         category = 'characters'
     else:
+        logger.info("No proper type provided, returning None")
+
         return None
     try:
+        logger.info("Looking up for <{}>:<{}> in cache".format(category, name))
+
         return cat_name_id[category][name]
     except KeyError:
         # data not found in cache
+        logger.info("Data <{}>:<{}> not found in cache".format(category, name))
+
         pass
     # try fetch ID
     try:
+        logger.info("Resolving name: {}")
+
         names_to_ids([name])
     except HTTPError:
         return None
     try:
+        logger.info("Second look up for <{}>:<{}> in cache".format(category, name))
+
         return cat_name_id[category][name]
     except KeyError:
         # data not found after fetching
+        logger.info("Data <{}>:<{}> not found in cache on second pass. Returning None".format(category, name))
+
         return None
 
 

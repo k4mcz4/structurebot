@@ -186,7 +186,7 @@ class Structure(object):
         try:
             assets = assets or Asset.from_entity_id(corporation_id, 'corporations')
         except Exception as e:
-            print('Error reading assets: ' + str(e))
+            logger.critical("Error reading assets: {}".format(e))
 
         """ Old code:
         endpoint = 'get_corporation_corporation_id_mining_extractions'

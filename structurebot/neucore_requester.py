@@ -79,6 +79,9 @@ class NCR:
         # TODO add caching here
         # TODO add page-handling
         query_params = query.copy()
+
+        logger.debug("Query parameters: {}".format(query_params))
+
         url = self.neucore_prefix
         if page:
             query_params['page'] = page
@@ -90,12 +93,22 @@ class NCR:
 
         resp = None  # try_nc_cache_get(url, params=params)
         if not resp:
+
+            logger.info("Making GET request from 'nc_get' to: {}, with params: {}".format(url, params))
+
             resp = self.nc_session.get(url, params=params)
             if resp.status_code == 200 and self.cache_nc:
+                logger.info("Response code {} and cache flag {}, caching response".format(resp.status_code,
+                                                                                          self.cache_nc))
                 # cache resp
                 store_nc_cache_get(url, params=params, resp=resp)
 
         resp_data = resp.json()
+
+        # Logging response (max 1000 characters)
+        logger.debug("Response data: {}".format(
+            json.dumps(resp.json(), indent=2)[:1000]
+        ))
 
         if page:
             # only requested this page
@@ -116,7 +129,8 @@ class NCR:
                     resp_data += page_data
                 else:
                     # we should only have lists and dicts
-                    # TODO Log this!
+                    logger.error("Response data is of type: {}, should be dict or list!".format(type(resp_data)))
+
                     pass
 
         return resp, resp_data
@@ -139,6 +153,8 @@ class NCR:
         if page:
             params['page'] = page
 
+        logger.info("Making GET request from 'esi_get' to: {}, with params: {}".format(endpoint, params))
+
         resp = None  # try_esi_cache_get(self.esi_prefix+endpoint,params=params)
         if not resp:
             resp = self.esi_session.get(self.esi_prefix + self.esi_version + endpoint, params=params)
@@ -147,8 +163,14 @@ class NCR:
 
         data = resp.json()
 
+        # Logging response (max 1000 characters)
+        logger.debug("Response data: {}".format(
+            json.dumps(resp.json(), indent=2)[:1000]
+        ))
+
         if page:
             # only requested this page
+            logger.info("Returning response for page number {}".format(page))
             return resp, data
 
         if 'X-Pages' in resp.headers.keys():
@@ -166,7 +188,8 @@ class NCR:
                     data += page_data
                 else:
                     # we should only have lists and dicts
-                    # TODO Log this!
+                    logger.error("Response data is of type: {}, should be dict or list!".format(type(data)))
+
                     pass
         return resp, data
 
@@ -192,12 +215,20 @@ class NCR:
         else:
             params = {'esi-path-query': self.esi_version + endpoint}
 
+        logger.info("Making POST request from 'nc_post' to: {}, with params: {}".format(endpoint, params))
+
         resp = self.nc_session.post(self.neucore_prefix, data=json.dumps(data), params=params)
 
         resp_data = resp.json()
 
+        # Logging response (max 1000 characters)
+        logger.debug("Response data: {}".format(
+            json.dumps(resp.json(), indent=2)[:1000]
+        ))
+
         if page:
             # only requested this specific page
+            logger.info("Returning response for page number {}".format(page))
             return resp, resp_data
 
         # there are multiple pages of data. Get them all.
@@ -217,7 +248,8 @@ class NCR:
                     resp_data += page_data
                 else:
                     # we should only have lists and dicts
-                    # TODO Log this!
+                    logger.error("Response data is of type: {}, should be dict or list!".format(type(data)))
+
                     pass
             return resp, resp_data
 
@@ -244,10 +276,17 @@ class NCR:
         if len(params) == 0:
             params = None
 
+        logger.info("Making POST request from 'esi_post' to: {}, with params: {}".format(endpoint, params))
+
         resp = self.esi_session.post(self.esi_prefix + self.esi_version + endpoint, data=json.dumps(data),
                                      params=params)
 
         resp_data = resp.json()
+
+        # Logging response (max 1000 characters)
+        logger.debug("Response data: {}".format(
+            json.dumps(resp.json(), indent=2)[:1000]
+        ))
 
         if page:
             # only requested this page
@@ -269,7 +308,8 @@ class NCR:
                     resp_data += page_data
                 else:
                     # we should only have lists and dicts
-                    # TODO Log this!
+                    logger.error("Response data is of type: {}, should be dict or list!".format(type(data)))
+
                     pass
         return resp, resp_data
 
@@ -291,7 +331,7 @@ class NCR:
         endpoint = "/corporation/{corporation_id}/mining/extractions/".format(corporation_id=corporation_id)
         response, data = self.nc_get(endpoint=endpoint)
         if not type(data) == list:
-            logger.warning("{} returned {} instead of a dict".format(endpoint, type(data)))
+            logger.warning("{} returned {} instead of a list".format(endpoint, type(data)))
 
         return response, data
 
@@ -308,7 +348,7 @@ class NCR:
         endpoint = "/corporations/{corporation_id}/starbases/".format(corporation_id=corporation_id)
         response, data = self.nc_get(endpoint=endpoint)
         if not type(data) == list:
-            logger.warning("{} returned {} instead of a dict".format(endpoint, type(data)))
+            logger.warning("{} returned {} instead of a list".format(endpoint, type(data)))
 
         return response, data
 
@@ -330,14 +370,14 @@ class NCR:
         endpoint = "/corporations/{corporation_id}/assets/locations/".format(corporation_id=corporation_id)
         response, data = self.nc_post(endpoint=endpoint, data=asset_ids)
         if not type(data) == list:
-            logger.warning("{} returned {} instead of a dict".format(endpoint, type(data)))
+            logger.warning("{} returned {} instead of a list".format(endpoint, type(data)))
         return response, data
 
     def get_sovereignty_map(self):
         endpoint = "/sovereignty/map/"
         response, data = self.esi_get(endpoint=endpoint)
         if not type(data) == list:
-            logger.warning("{} returned {} instead of a dict".format(endpoint, type(data)))
+            logger.warning("{} returned {} instead of a list".format(endpoint, type(data)))
         return response, data
 
     def get_corporations_corporation_id(self, corporation_id):
@@ -359,7 +399,7 @@ class NCR:
         endpoint = "/universe/names/"
         response, data = self.esi_post(endpoint=endpoint, data=names)
         if not type(data) == list:
-            logger.warning("{} returned {} instead of a dict".format(endpoint, type(data)))
+            logger.warning("{} returned {} instead of a list".format(endpoint, type(data)))
         return response, data
 
     def get_universe_constellations_constellation_id(self, constellation_id):
@@ -401,14 +441,14 @@ class NCR:
         endpoint = "/characters/{character_id}/assets/".format(character_id=character_id)
         response, data = self.nc_get(endpoint=endpoint)
         if not type(data) == list:
-            logger.warning("{} returned {} instead of a dict".format(endpoint, type(data)))
+            logger.warning("{} returned {} instead of a list".format(endpoint, type(data)))
         return response, data
 
     def get_corporations_corporation_id_assets(self, corporation_id):
         endpoint = "/corporations/{corporation_id}/assets/".format(corporation_id=corporation_id)
         response, data = self.nc_get(endpoint=endpoint)
         if not type(data) == list:
-            logger.warning("{} returned {} instead of a dict".format(endpoint, type(data)))
+            logger.warning("{} returned {} instead of a list".format(endpoint, type(data)))
         return response, data
 
 
