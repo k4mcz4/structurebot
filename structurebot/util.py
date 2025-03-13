@@ -1,15 +1,14 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import logging
 
 import requests
 from requests.exceptions import HTTPError
 
 from .config import *
 from .neucore_requester import NCR
+from structurebot.logger import logger
 
-logger = logging.getLogger(__name__)
 
 datasource = CONFIG['NEUCORE_DATASOURCE'].split(':', 1)
 datasource_id = datasource[0]
