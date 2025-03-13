@@ -103,7 +103,7 @@ class NCR:
             resp = self.nc_session.get(url, params=params)
 
             if resp.status_code != 200:
-                logger.critical("Request not processed successfully", extra={"status_code": resp.status_code})
+                logger.critical("Request not processed", extra={"status_code": resp.status_code})
 
             logger.info("Response",
                         extra={"method": resp.request.method,
@@ -171,10 +171,12 @@ class NCR:
         resp = None  # try_esi_cache_get(self.esi_prefix+endpoint,params=params)
         if not resp:
             resp = self.esi_session.get(self.esi_prefix + self.esi_version + endpoint, params=params)
+            
+            if resp.status_code != 200:
+                logger.critical("Request not processed", extra={"status_code": resp.status_code})
+                
             if resp.status_code == 200 and self.cache_esi:
                 store_esi_cache_get(self.esi_prefix + endpoint, params=params, resp=resp)
-
-        data = resp.json()
 
         logger.info("Response",
                     extra={"method": resp.request.method,
@@ -182,6 +184,8 @@ class NCR:
                            "status_code": resp.status_code,
                            "duration": resp.elapsed.total_seconds()})
         logger.debug("Response data", extra={"data": resp.json()})
+
+        data = resp.json()
 
         if page:
             # only requested this page
@@ -235,7 +239,8 @@ class NCR:
 
         resp = self.nc_session.post(self.neucore_prefix, data=json.dumps(data), params=params)
 
-        resp_data = resp.json()
+        if resp.status_code != 200:
+            logger.critical("Request not processed", extra={"status_code": resp.status_code})
 
         logger.info("Response",
                     extra={"method": resp.request.method,
@@ -243,6 +248,8 @@ class NCR:
                            "status_code": resp.status_code,
                            "duration": resp.elapsed.total_seconds()})
         logger.debug("Response data", extra={"data": resp.json()})
+        
+        resp_data = resp.json()
 
         if page:
             # only requested this specific page
@@ -299,6 +306,9 @@ class NCR:
 
         resp = self.esi_session.post(self.esi_prefix + self.esi_version + endpoint, data=json.dumps(data),
                                      params=params)
+
+        if resp.status_code != 200:
+            logger.critical("Request not processed", extra={"status_code": resp.status_code})
 
         logger.info("Response",
                     extra={"method": resp.request.method,
